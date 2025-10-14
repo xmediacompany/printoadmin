@@ -10,7 +10,8 @@ import {
   Receipt,
   BarChart3,
   Settings,
-  Globe
+  Globe,
+  MonitorCog
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -30,6 +31,7 @@ const navigationItems = [
   { title: "Orders & Production", url: "/orders", icon: ShoppingCart },
   { title: "Catalog & Templates", url: "/catalog", icon: Package },
   { title: "Website CMS Console", url: "/cms", icon: Globe },
+  { title: "Workstations", url: "/workstations", icon: MonitorCog },
   { title: "Pricing Engine", url: "/pricing", icon: DollarSign },
   { title: "Prepress & QA", url: "/prepress", icon: FileCheck },
   { title: "Fulfillment & Shipping", url: "/fulfillment", icon: Truck },

@@ -17,7 +17,7 @@ const products = [
     category: "Cards",
     variants: "12 variants",
     materials: "Standard, Premium, Luxury",
-    basePrice: "$45",
+    basePrice: "KD 45",
     status: "Active"
   },
   { 
@@ -26,7 +26,7 @@ const products = [
     category: "Marketing Materials",
     variants: "8 variants",
     materials: "Standard, Glossy",
-    basePrice: "$120",
+    basePrice: "KD 120",
     status: "Active"
   },
   { 
@@ -35,7 +35,7 @@ const products = [
     category: "Large Format",
     variants: "15 variants",
     materials: "Standard, Photo Paper, Canvas",
-    basePrice: "$280",
+    basePrice: "KD 280",
     status: "Active"
   },
   { 
@@ -44,7 +44,7 @@ const products = [
     category: "Marketing Materials",
     variants: "10 variants",
     materials: "Standard, Premium",
-    basePrice: "$180",
+    basePrice: "KD 180",
     status: "Active"
   },
   { 
@@ -53,7 +53,7 @@ const products = [
     category: "Large Format",
     variants: "6 variants",
     materials: "Vinyl, Mesh, Fabric",
-    basePrice: "$450",
+    basePrice: "KD 450",
     status: "Draft"
   },
 ];

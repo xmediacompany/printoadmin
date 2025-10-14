@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 
 const recentOrders = [
-  { id: "ORD-10234", customer: "Acme Corp", status: "In Production", priority: "High", value: "$2,340" },
-  { id: "ORD-10233", customer: "TechStart Inc", status: "Prepress", priority: "Normal", value: "$890" },
-  { id: "ORD-10232", customer: "Design Studio", status: "Ready to Ship", priority: "Urgent", value: "$1,560" },
-  { id: "ORD-10231", customer: "Marketing Pro", status: "Quality Check", priority: "Normal", value: "$420" },
-  { id: "ORD-10230", customer: "Print Plus", status: "Completed", priority: "Low", value: "$3,200" },
+  { id: "ORD-10234", customer: "Acme Corp", status: "In Production", priority: "High", value: "KD 2,340" },
+  { id: "ORD-10233", customer: "TechStart Inc", status: "Prepress", priority: "Normal", value: "KD 890" },
+  { id: "ORD-10232", customer: "Design Studio", status: "Ready to Ship", priority: "Urgent", value: "KD 1,560" },
+  { id: "ORD-10231", customer: "Marketing Pro", status: "Quality Check", priority: "Normal", value: "KD 420" },
+  { id: "ORD-10230", customer: "Print Plus", status: "Completed", priority: "Low", value: "KD 3,200" },
 ];
 
 const Dashboard = () => {
@@ -29,7 +29,7 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Today's Revenue"
-          value="$8,425"
+          value="KD 8,425"
           change="+12.5% from yesterday"
           changeType="positive"
           icon={DollarSign}

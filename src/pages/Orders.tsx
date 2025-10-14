@@ -26,7 +26,7 @@ const orders = [
     priority: "High", 
     created: "2 hours ago",
     deadline: "Tomorrow 3PM",
-    value: "$2,340" 
+    value: "KD 2,340" 
   },
   { 
     id: "ORD-10233", 
@@ -36,7 +36,7 @@ const orders = [
     priority: "Normal", 
     created: "5 hours ago",
     deadline: "Dec 18, 2PM",
-    value: "$890" 
+    value: "KD 890" 
   },
   { 
     id: "ORD-10232", 
@@ -46,7 +46,7 @@ const orders = [
     priority: "Urgent", 
     created: "1 day ago",
     deadline: "Today 5PM",
-    value: "$1,560" 
+    value: "KD 1,560" 
   },
   { 
     id: "ORD-10231", 
@@ -56,7 +56,7 @@ const orders = [
     priority: "Normal", 
     created: "1 day ago",
     deadline: "Dec 19, 10AM",
-    value: "$420" 
+    value: "KD 420" 
   },
   { 
     id: "ORD-10230", 
@@ -66,7 +66,7 @@ const orders = [
     priority: "Low", 
     created: "2 days ago",
     deadline: "Completed",
-    value: "$3,200" 
+    value: "KD 3,200" 
   },
 ];
 
