@@ -54,7 +54,7 @@ const navigationItems = [{
   url: "/finance",
   icon: Receipt
 }, {
-  title: "Analytics",
+  title: "Smart Reports",
   url: "/analytics",
   icon: BarChart3
 }, {

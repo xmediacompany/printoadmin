@@ -14,6 +14,7 @@ import Customers from "./pages/Customers";
 import Finance from "./pages/Finance";
 import Marketing from "./pages/Marketing";
 import Settings from "./pages/Settings";
+import SmartReports from "./pages/SmartReports";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -39,7 +40,7 @@ const App = () => (
           <Route path="/customer-service" element={<AppLayout><ComingSoon title="Support Team" description="Omni-inbox and support ticket management" /></AppLayout>} />
           <Route path="/marketing" element={<AppLayout><Marketing /></AppLayout>} />
           <Route path="/finance" element={<AppLayout><Finance /></AppLayout>} />
-          <Route path="/analytics" element={<AppLayout><ComingSoon title="Analytics" description="Sales, utilization, and performance metrics" /></AppLayout>} />
+          <Route path="/analytics" element={<AppLayout><SmartReports /></AppLayout>} />
           <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
