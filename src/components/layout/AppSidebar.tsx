@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, DollarSign, ShoppingCart, FileCheck, Truck, Boxes, Headphones, Receipt, BarChart3, Settings, Globe, MonitorCog, Users, Megaphone } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Truck, Boxes, Headphones, Receipt, BarChart3, Settings, Globe, MonitorCog, Users, Megaphone } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 const navigationItems = [{
@@ -21,14 +21,6 @@ const navigationItems = [{
   title: "Workstations",
   url: "/workstations",
   icon: MonitorCog
-}, {
-  title: "Pricing Engine",
-  url: "/pricing",
-  icon: DollarSign
-}, {
-  title: "Prepress & QA",
-  url: "/prepress",
-  icon: FileCheck
 }, {
   title: "Fulfillment & Shipping",
   url: "/fulfillment",

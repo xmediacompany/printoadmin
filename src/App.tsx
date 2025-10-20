@@ -32,8 +32,6 @@ const App = () => (
           <Route path="/catalog" element={<AppLayout><Catalog /></AppLayout>} />
           <Route path="/cms" element={<AppLayout><CMS /></AppLayout>} />
           <Route path="/workstations" element={<AppLayout><Workstations /></AppLayout>} />
-          <Route path="/pricing" element={<AppLayout><ComingSoon title="Pricing Engine" description="Manage tiered pricing, bulk rules, and contract tables" /></AppLayout>} />
-          <Route path="/prepress" element={<AppLayout><ComingSoon title="Prepress & QA" description="Manual preflight overrides and quality control" /></AppLayout>} />
           <Route path="/fulfillment" element={<AppLayout><Fulfillment /></AppLayout>} />
           <Route path="/inventory" element={<AppLayout><ComingSoon title="Inventory & Procurement" description="Stock levels, purchase orders, and vendor management" /></AppLayout>} />
           <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
