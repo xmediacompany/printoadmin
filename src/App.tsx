@@ -16,6 +16,7 @@ import Marketing from "./pages/Marketing";
 import Settings from "./pages/Settings";
 import SmartReports from "./pages/SmartReports";
 import AIOrderBot from "./pages/AIOrderBot";
+import SupportTeam from "./pages/SupportTeam";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -36,7 +37,7 @@ const App = () => (
           <Route path="/fulfillment" element={<AppLayout><Fulfillment /></AppLayout>} />
           <Route path="/inventory" element={<AppLayout><ComingSoon title="Inventory & Procurement" description="Stock levels, purchase orders, and vendor management" /></AppLayout>} />
           <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
-          <Route path="/customer-service" element={<AppLayout><ComingSoon title="Support Team" description="Omni-inbox and support ticket management" /></AppLayout>} />
+          <Route path="/customer-service" element={<AppLayout><SupportTeam /></AppLayout>} />
           <Route path="/ai-order-bot" element={<AppLayout><AIOrderBot /></AppLayout>} />
           <Route path="/marketing" element={<AppLayout><Marketing /></AppLayout>} />
           <Route path="/finance" element={<AppLayout><Finance /></AppLayout>} />
