@@ -13,6 +13,7 @@ import Fulfillment from "./pages/Fulfillment";
 import Customers from "./pages/Customers";
 import Finance from "./pages/Finance";
 import Marketing from "./pages/Marketing";
+import Settings from "./pages/Settings";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -39,7 +40,7 @@ const App = () => (
           <Route path="/marketing" element={<AppLayout><Marketing /></AppLayout>} />
           <Route path="/finance" element={<AppLayout><Finance /></AppLayout>} />
           <Route path="/analytics" element={<AppLayout><ComingSoon title="Analytics" description="Sales, utilization, and performance metrics" /></AppLayout>} />
-          <Route path="/settings" element={<AppLayout><ComingSoon title="Settings" description="Roles, permissions, and system configuration" /></AppLayout>} />
+          <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
