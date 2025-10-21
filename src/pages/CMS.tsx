@@ -382,30 +382,34 @@ const CMS = () => {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Sorting Rules</CardTitle>
+                  <CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5" />
+                      Newsletter
+                    </div>
+                  </CardTitle>
                   <Button size="sm" variant="outline">
-                    Configure
+                    Settings
                   </Button>
                 </div>
-                <CardDescription>Product display ordering</CardDescription>
+                <CardDescription>Email subscription management</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 rounded hover:bg-muted/50">
-                    <span className="text-sm">Best Selling</span>
-                    <Badge variant="secondary">Active</Badge>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold">1,234</div>
+                      <div className="text-sm text-muted-foreground">Total Subscribers</div>
+                    </div>
+                    <div className="p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold">+48</div>
+                      <div className="text-sm text-muted-foreground">This Week</div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded hover:bg-muted/50">
-                    <span className="text-sm">Price: Low to High</span>
-                    <Badge variant="outline">Available</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded hover:bg-muted/50">
-                    <span className="text-sm">Recently Added</span>
-                    <Badge variant="outline">Available</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded hover:bg-muted/50">
-                    <span className="text-sm">Featured First</span>
-                    <Badge variant="secondary">Active</Badge>
+                  <div className="pt-2">
+                    <Button variant="outline" className="w-full">
+                      Export Subscriber List
+                    </Button>
                   </div>
                 </div>
               </CardContent>
