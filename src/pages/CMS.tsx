@@ -79,8 +79,8 @@ const CMS = () => {
                   <FileText className="h-8 w-8 text-primary" />
                   <Badge variant="secondary">Draft</Badge>
                 </div>
-                <CardTitle className="mt-4">Products Collection</CardTitle>
-                <CardDescription>Business cards collection page</CardDescription>
+                <CardTitle className="mt-4">Manage Products</CardTitle>
+                <CardDescription>Edit and modify titles, images, and categories</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="text-sm text-muted-foreground">
