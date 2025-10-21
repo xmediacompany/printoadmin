@@ -10,7 +10,7 @@ export default function Settings() {
   const users = [
     {
       name: "Ahmed Al-Mansouri",
-      email: "ahmed@saaslaundry.com",
+      email: "ahmed@printo.press",
       role: "Admin",
       branch: "All Branches",
       status: "Active",
@@ -18,7 +18,7 @@ export default function Settings() {
     },
     {
       name: "Fatima Al-Zahra",
-      email: "fatima@saaslaundry.com",
+      email: "fatima@printo.press",
       role: "Manager",
       branch: "Salmiya",
       status: "Active",
@@ -26,7 +26,7 @@ export default function Settings() {
     },
     {
       name: "Omar Hassan",
-      email: "omar@saaslaundry.com",
+      email: "omar@printo.press",
       role: "Operator",
       branch: "City",
       status: "Active",
@@ -34,7 +34,7 @@ export default function Settings() {
     },
     {
       name: "Noura Al-Sabah",
-      email: "noura@saaslaundry.com",
+      email: "noura@printo.press",
       role: "Operator",
       branch: "Hawally",
       status: "Inactive",
@@ -42,7 +42,7 @@ export default function Settings() {
     },
     {
       name: "Hasan Al-Rashid",
-      email: "hasan@saaslaundry.com",
+      email: "hasan@printo.press",
       role: "Manager",
       branch: "Salmiya",
       status: "Active",
