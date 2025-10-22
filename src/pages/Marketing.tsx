@@ -1,10 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Target, Ticket, MessageSquare, Mail, Store } from "lucide-react";
+import { Search, Filter, Plus, Target, Ticket, MessageSquare, Mail, Store, Edit, Megaphone, Tag } from "lucide-react";
 
 export default function Marketing() {
   const campaigns = [
@@ -177,96 +177,214 @@ export default function Marketing() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="merchandising" className="space-y-4">
-          {/* Merchandising Actions */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search products, banners..."
-                className="pl-9"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-              <Button size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Content
-              </Button>
-            </div>
-          </div>
-
-          {/* Merchandising Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <TabsContent value="merchandising" className="space-y-6">
+          {/* Collections and Newsletter Row */}
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Homepage Banners</h3>
-                <p className="text-sm text-muted-foreground mb-4">Manage rotating banners and hero images</p>
+              <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge>4 Active</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
+                  <div>
+                    <CardTitle>Collections</CardTitle>
+                    <CardDescription>Product groupings and categories</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Collection
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">Business Essentials</h4>
+                      <p className="text-sm text-muted-foreground">24 products</p>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">Marketing Materials</h4>
+                      <p className="text-sm text-muted-foreground">18 products</p>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">Promotional Products</h4>
+                      <p className="text-sm text-muted-foreground">32 products</p>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Featured Products</h3>
-                <p className="text-sm text-muted-foreground mb-4">Highlight products on homepage</p>
+              <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge>12 Products</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Mail className="h-5 w-5" />
+                      Newsletter
+                    </CardTitle>
+                    <CardDescription>Email subscription management</CardDescription>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    Settings
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Product Collections</h3>
-                <p className="text-sm text-muted-foreground mb-4">Curate themed product collections</p>
-                <div className="flex items-center justify-between">
-                  <Badge>8 Collections</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Promotional Sections</h3>
-                <p className="text-sm text-muted-foreground mb-4">Special offer sections and CTAs</p>
-                <div className="flex items-center justify-between">
-                  <Badge>6 Active</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Category Displays</h3>
-                <p className="text-sm text-muted-foreground mb-4">Control category page layouts</p>
-                <div className="flex items-center justify-between">
-                  <Badge>15 Categories</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Social Proof</h3>
-                <p className="text-sm text-muted-foreground mb-4">Testimonials and reviews display</p>
-                <div className="flex items-center justify-between">
-                  <Badge>28 Reviews</Badge>
-                  <Button size="sm" variant="outline">Manage</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-6 bg-muted rounded-lg">
+                      <div className="text-3xl font-bold">1,234</div>
+                      <div className="text-sm text-muted-foreground mt-1">Total Subscribers</div>
+                    </div>
+                    <div className="p-6 bg-muted rounded-lg">
+                      <div className="text-3xl font-bold">+48</div>
+                      <div className="text-sm text-muted-foreground mt-1">This Week</div>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full">
+                    Export Subscriber List
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Promotions and Coupons Row */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Megaphone className="h-5 w-5" />
+                      Promotions
+                    </CardTitle>
+                    <CardDescription>Active campaigns and offers</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Promo
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold">Summer Sale 2024</h4>
+                        <Badge>Active</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">20% off • Ends in 5 days</p>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold">First Order Discount</h4>
+                        <Badge variant="secondary">Scheduled</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">15% off • Starts in 2 days</p>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Tag className="h-5 w-5" />
+                      Coupons
+                    </CardTitle>
+                    <CardDescription>Discount codes and vouchers</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Coupon
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold font-mono text-lg">PRINT20</h4>
+                      <p className="text-sm text-muted-foreground">Used 45 times</p>
+                    </div>
+                    <Badge>Active</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold font-mono text-lg">WELCOME15</h4>
+                      <p className="text-sm text-muted-foreground">Used 128 times</p>
+                    </div>
+                    <Badge>Active</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Upsells & Cross-sells */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upsells & Cross-sells</CardTitle>
+              <CardDescription>Product recommendations and bundles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">Business Card Bundle</h4>
+                    <p className="text-sm text-muted-foreground">
+                      When buying Business Cards → Suggest Letterhead + Envelopes
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">12 conversions</span>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">Marketing Combo</h4>
+                    <p className="text-sm text-muted-foreground">
+                      When buying Flyers → Suggest Posters + Banners
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">8 conversions</span>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
