@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Target, Ticket, MessageSquare, Mail, Store, Edit, Megaphone, Tag } from "lucide-react";
+import { Search, Filter, Plus, Target, MessageSquare, Store, Edit, Megaphone, Tag, Mail } from "lucide-react";
 
 export default function Marketing() {
   const campaigns = [
@@ -71,21 +71,13 @@ export default function Marketing() {
             <Target className="h-4 w-4" />
             Campaigns
           </TabsTrigger>
-          <TabsTrigger value="vouchers" className="gap-2">
-            <Ticket className="h-4 w-4" />
-            Vouchers
-          </TabsTrigger>
           <TabsTrigger value="push-sms" className="gap-2">
             <MessageSquare className="h-4 w-4" />
-            Push/SMS
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="gap-2">
-            <Mail className="h-4 w-4" />
-            Templates
+            WhatsApp
           </TabsTrigger>
           <TabsTrigger value="merchandising" className="gap-2">
             <Store className="h-4 w-4" />
-            Merchandising
+            Promotions
           </TabsTrigger>
         </TabsList>
 
@@ -153,26 +145,10 @@ export default function Marketing() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="vouchers">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Voucher codes and promotional offers will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="push-sms">
           <Card>
             <CardContent className="p-6">
-              <p className="text-muted-foreground">Push notifications and SMS campaigns will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="templates">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Marketing templates and email designs will appear here.</p>
+              <p className="text-muted-foreground">WhatsApp campaigns and notifications will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
