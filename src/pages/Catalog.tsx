@@ -72,48 +72,6 @@ const Catalog = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">124</div>
-            <p className="text-xs text-muted-foreground mt-1">+8 this month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Variants</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">847</div>
-            <p className="text-xs text-muted-foreground mt-1">Across all products</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Templates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-muted-foreground mt-1">Ready to use</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Materials</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">28</div>
-            <p className="text-xs text-muted-foreground mt-1">In stock</p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardHeader className="border-b">
           <div className="flex flex-col sm:flex-row gap-4">
