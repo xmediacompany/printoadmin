@@ -10,10 +10,6 @@ const navigationItems = [{
   url: "/orders",
   icon: ShoppingCart
 }, {
-  title: "Website CMS Console",
-  url: "/cms",
-  icon: Globe
-}, {
   title: "Workstations",
   url: "/workstations",
   icon: MonitorCog
@@ -45,6 +41,10 @@ const navigationItems = [{
   title: "Marketing",
   url: "/marketing",
   icon: Megaphone
+}, {
+  title: "Website CMS Console",
+  url: "/cms",
+  icon: Globe
 }, {
   title: "Finance",
   url: "/finance",
