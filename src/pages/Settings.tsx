@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Users, Shield } from "lucide-react";
+import { Search, Filter, Plus, Users, Shield, Wifi, Monitor } from "lucide-react";
 
 export default function Settings() {
   const users = [
@@ -87,6 +87,14 @@ export default function Settings() {
             <Shield className="h-4 w-4" />
             Permissions
           </TabsTrigger>
+          <TabsTrigger value="ip-address" className="gap-2">
+            <Wifi className="h-4 w-4" />
+            IP Address
+          </TabsTrigger>
+          <TabsTrigger value="device-type" className="gap-2">
+            <Monitor className="h-4 w-4" />
+            Device Type
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users-roles" className="space-y-4">
@@ -157,6 +165,22 @@ export default function Settings() {
           <Card>
             <CardContent className="p-6">
               <p className="text-muted-foreground">Permission management and access control settings will appear here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ip-address">
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">IP address tracking and management settings will appear here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="device-type">
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">Device type tracking and management settings will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
