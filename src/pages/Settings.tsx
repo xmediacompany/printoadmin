@@ -87,100 +87,110 @@ export default function Settings() {
             <Shield className="h-4 w-4" />
             Permissions
           </TabsTrigger>
-          <TabsTrigger value="ip-address" className="gap-2">
-            <Wifi className="h-4 w-4" />
-            IP Address
-          </TabsTrigger>
-          <TabsTrigger value="device-type" className="gap-2">
-            <Monitor className="h-4 w-4" />
-            Device Type
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users-roles" className="space-y-4">
-          <p className="text-muted-foreground">Invite/manage users and roles.</p>
+          <Tabs defaultValue="users-list" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="users-list">
+                Users List
+              </TabsTrigger>
+              <TabsTrigger value="ip-address" className="gap-2">
+                <Wifi className="h-4 w-4" />
+                IP Address
+              </TabsTrigger>
+              <TabsTrigger value="device-type" className="gap-2">
+                <Monitor className="h-4 w-4" />
+                Device Type
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Search and Actions */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search users..."
-                className="pl-9"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-              <Button size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Invite User
-              </Button>
-            </div>
-          </div>
+            <TabsContent value="users-list" className="space-y-4">
+              <p className="text-muted-foreground">Invite/manage users and roles.</p>
 
-          {/* Users Table */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Branch</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Login</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.email}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getRoleBadge(user.role)}</TableCell>
-                      <TableCell>{user.branch}</TableCell>
-                      <TableCell>{getStatusBadge(user.status)}</TableCell>
-                      <TableCell className="text-sm">{user.lastLogin}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+              {/* Search and Actions */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search users..."
+                    className="pl-9"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filters
+                  </Button>
+                  <Button size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Invite User
+                  </Button>
+                </div>
+              </div>
+
+              {/* Users Table */}
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Branch</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Last Login</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((user) => (
+                        <TableRow key={user.email}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{user.name}</div>
+                              <div className="text-sm text-muted-foreground">{user.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{getRoleBadge(user.role)}</TableCell>
+                          <TableCell>{user.branch}</TableCell>
+                          <TableCell>{getStatusBadge(user.status)}</TableCell>
+                          <TableCell className="text-sm">{user.lastLogin}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="outline" size="sm">
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="ip-address">
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-muted-foreground">IP address tracking and management settings will appear here.</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="device-type">
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-muted-foreground">Device type tracking and management settings will appear here.</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="permissions">
           <Card>
             <CardContent className="p-6">
               <p className="text-muted-foreground">Permission management and access control settings will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="ip-address">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">IP address tracking and management settings will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="device-type">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Device type tracking and management settings will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
