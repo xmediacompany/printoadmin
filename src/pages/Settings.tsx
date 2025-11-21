@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Users, Shield, Lock, FileText, Database } from "lucide-react";
+import { Search, Filter, Plus, Users, Shield } from "lucide-react";
 
 export default function Settings() {
   const users = [
@@ -87,18 +87,6 @@ export default function Settings() {
             <Shield className="h-4 w-4" />
             Permissions
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-2">
-            <Lock className="h-4 w-4" />
-            Security
-          </TabsTrigger>
-          <TabsTrigger value="audit-log" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Audit Log
-          </TabsTrigger>
-          <TabsTrigger value="data-retention" className="gap-2">
-            <Database className="h-4 w-4" />
-            Data Retention
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users-roles" className="space-y-4">
@@ -169,30 +157,6 @@ export default function Settings() {
           <Card>
             <CardContent className="p-6">
               <p className="text-muted-foreground">Permission management and access control settings will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="security">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Security settings including password policies and authentication methods will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="audit-log">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">System activity logs and audit trail will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="data-retention">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Data retention policies and archival settings will appear here.</p>
             </CardContent>
           </Card>
         </TabsContent>
