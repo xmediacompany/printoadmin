@@ -22,7 +22,12 @@ import {
   Printer,
   Phone,
   Mail,
-  Plus
+  Plus,
+  Share2,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,6 +65,13 @@ interface ContactSection {
   features: { title: string; description: string }[];
   newsletterTitle: string;
   newsletterSubtitle: string;
+  isActive: boolean;
+}
+
+interface SocialLink {
+  id: string;
+  platform: string;
+  url: string;
   isActive: boolean;
 }
 
@@ -156,6 +168,16 @@ const HomePageEditor = () => {
     newsletterSubtitle: "Get exclusive offers, tips and updates straight to your inbox!",
     isActive: true,
   });
+
+  // Social Media Links
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
+    { id: "social-1", platform: "Facebook", url: "https://facebook.com/printo", isActive: true },
+    { id: "social-2", platform: "Instagram", url: "https://instagram.com/printo", isActive: true },
+    { id: "social-3", platform: "TikTok", url: "https://tiktok.com/@printo", isActive: true },
+    { id: "social-4", platform: "LinkedIn", url: "https://linkedin.com/company/printo", isActive: true },
+  ]);
+
+  const [newSocialLink, setNewSocialLink] = useState({ platform: "", url: "" });
 
   const handleSave = () => {
     toast.success("Home page changes saved successfully");
@@ -262,6 +284,43 @@ const HomePageEditor = () => {
     setAddServiceDialogOpen(false);
     setHasChanges(true);
     toast.success("Service added successfully");
+  };
+
+  const handleAddSocialLink = () => {
+    if (!newSocialLink.platform || !newSocialLink.url) {
+      toast.error("Please enter platform name and URL");
+      return;
+    }
+    const link: SocialLink = {
+      id: `social-${Date.now()}`,
+      ...newSocialLink,
+      isActive: true,
+    };
+    setSocialLinks(prev => [...prev, link]);
+    setNewSocialLink({ platform: "", url: "" });
+    setHasChanges(true);
+    toast.success("Social link added successfully");
+  };
+
+  const handleDeleteSocialLink = (linkId: string) => {
+    setSocialLinks(prev => prev.filter(link => link.id !== linkId));
+    setHasChanges(true);
+    toast.success("Social link deleted");
+  };
+
+  const handleToggleSocialLink = (linkId: string) => {
+    setSocialLinks(prev => prev.map(link => 
+      link.id === linkId ? { ...link, isActive: !link.isActive } : link
+    ));
+    setHasChanges(true);
+  };
+
+  const getSocialIcon = (platform: string) => {
+    const platformLower = platform.toLowerCase();
+    if (platformLower.includes("facebook")) return <Facebook className="h-5 w-5" />;
+    if (platformLower.includes("instagram")) return <Instagram className="h-5 w-5" />;
+    if (platformLower.includes("linkedin")) return <Linkedin className="h-5 w-5" />;
+    return <Share2 className="h-5 w-5" />;
   };
 
   const renderSectionCard = (section: PageSection, setter: React.Dispatch<React.SetStateAction<PageSection>>) => (
@@ -373,6 +432,10 @@ const HomePageEditor = () => {
           <TabsTrigger value="contact" className="gap-2">
             <Phone className="h-4 w-4" />
             Get In Touch
+          </TabsTrigger>
+          <TabsTrigger value="social" className="gap-2">
+            <Share2 className="h-4 w-4" />
+            Social Media
           </TabsTrigger>
         </TabsList>
 
@@ -564,6 +627,96 @@ const HomePageEditor = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Social Media Tab */}
+        <TabsContent value="social" className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold">Social Media Links</h2>
+            <p className="text-muted-foreground">Manage your social media links displayed in the footer</p>
+          </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Add New Social Link</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Platform Name</Label>
+                  <Input 
+                    placeholder="e.g., Facebook, Instagram, TikTok"
+                    value={newSocialLink.platform}
+                    onChange={(e) => setNewSocialLink({ ...newSocialLink, platform: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Profile URL</Label>
+                  <Input 
+                    placeholder="https://..."
+                    value={newSocialLink.url}
+                    onChange={(e) => setNewSocialLink({ ...newSocialLink, url: e.target.value })}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleAddSocialLink}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Social Link
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            {socialLinks.map((link) => (
+              <Card key={link.id} className={!link.isActive ? "opacity-60" : ""}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                      {getSocialIcon(link.platform)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{link.platform}</h3>
+                      <p className="text-sm text-muted-foreground truncate max-w-md">{link.url}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Switch 
+                        checked={link.isActive}
+                        onCheckedChange={() => handleToggleSocialLink(link.id)}
+                      />
+                      <Input 
+                        className="w-64 hidden md:block"
+                        value={link.url}
+                        onChange={(e) => {
+                          setSocialLinks(prev => prev.map(l => 
+                            l.id === link.id ? { ...l, url: e.target.value } : l
+                          ));
+                          setHasChanges(true);
+                        }}
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-destructive"
+                        onClick={() => handleDeleteSocialLink(link.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {socialLinks.length === 0 && (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center">
+                <Share2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="font-semibold mb-2">No social links yet</h3>
+                <p className="text-sm text-muted-foreground">Add your first social media link above</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 
