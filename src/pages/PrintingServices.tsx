@@ -609,19 +609,6 @@ const PrintingServices = () => {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="add-category">Category *</Label>
-                <Select value={addForm.category} onValueChange={(value) => setAddForm({ ...addForm, category: value })}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             {/* Paper Size & Pricing */}
