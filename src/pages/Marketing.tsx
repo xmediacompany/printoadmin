@@ -118,7 +118,7 @@ export default function Marketing() {
   const [addCouponOpen, setAddCouponOpen] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     name: "",
-    type: "Promotional",
+    type: "Christmas",
     status: "Draft",
     description: "",
     couponCode: "",
@@ -223,7 +223,7 @@ export default function Marketing() {
     setCampaigns(prev => [...prev, campaign]);
     setNewCampaign({
       name: "",
-      type: "Promotional",
+      type: "Christmas",
       status: "Draft",
       description: "",
       couponCode: "",
@@ -452,10 +452,17 @@ export default function Marketing() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Promotional">Promotional</SelectItem>
-                    <SelectItem value="Onboarding">Onboarding</SelectItem>
-                    <SelectItem value="Retention">Retention</SelectItem>
-                    <SelectItem value="Seasonal">Seasonal</SelectItem>
+                    <SelectItem value="Christmas">Christmas</SelectItem>
+                    <SelectItem value="New Year's Day">New Year's Day</SelectItem>
+                    <SelectItem value="Kuwait National Day">Kuwait National Day</SelectItem>
+                    <SelectItem value="Isra' and Mi'raj">Isra' and Mi'raj</SelectItem>
+                    <SelectItem value="Ramadan">Ramadan</SelectItem>
+                    <SelectItem value="Eid al-Fitr">Eid al-Fitr</SelectItem>
+                    <SelectItem value="Eid al-Adha">Eid al-Adha</SelectItem>
+                    <SelectItem value="Valentine's Day">Valentine's Day</SelectItem>
+                    <SelectItem value="Mother's Day">Mother's Day</SelectItem>
+                    <SelectItem value="Halloween">Halloween</SelectItem>
+                    <SelectItem value="Black Friday">Black Friday</SelectItem>
                     <SelectItem value="Flash Sale">Flash Sale</SelectItem>
                   </SelectContent>
                 </Select>
