@@ -80,21 +80,6 @@ export default function Settings() {
       { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
       { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
     ],
-    Manager: [
-      { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "inventory", name: "Inventory", description: "Stock and procurement", icon: <Package className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "fulfillment", name: "Fulfillment", description: "Delivery management", icon: <Truck className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "customers", name: "Customers", description: "Customer database", icon: <UserCircle className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "b2b", name: "B2B Corporate", description: "Corporate accounts", icon: <Building2 className="h-4 w-4" />, actions: { view: true, create: true, edit: false, delete: false } },
-      { id: "marketing", name: "Marketing", description: "Campaigns and promotions", icon: <Megaphone className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "cms", name: "Website CMS", description: "Content management", icon: <FileText className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
-      { id: "printing", name: "Printing Services", description: "Print job management", icon: <Printer className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "finance", name: "Finance", description: "Financial reports", icon: <DollarSign className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
-      { id: "support", name: "Support Team", description: "Customer support", icon: <Headphones className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
-      { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
-      { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
-    ],
     Operator: [
       { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
       { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
@@ -174,8 +159,6 @@ export default function Settings() {
     switch (role) {
       case "Admin":
         return <Badge className="bg-purple-500/10 text-purple-700 hover:bg-purple-500/20">Admin</Badge>;
-      case "Manager":
-        return <Badge className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20">Manager</Badge>;
       case "Operator":
         return <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Operator</Badge>;
       default:
@@ -331,8 +314,8 @@ export default function Settings() {
           </div>
 
           {/* Role Selection Cards */}
-          <div className="grid gap-4 md:grid-cols-3">
-            {["Admin", "Manager", "Operator"].map((role) => (
+          <div className="grid gap-4 md:grid-cols-2">
+            {["Admin", "Operator"].map((role) => (
               <Card 
                 key={role}
                 className={`cursor-pointer transition-all hover:shadow-md ${
@@ -349,7 +332,7 @@ export default function Settings() {
                   </div>
                   <CardDescription>
                     {role === "Admin" && "Full system access with all permissions"}
-                    {role === "Manager" && "Branch-level management capabilities"}
+                    
                     {role === "Operator" && "Day-to-day operational tasks"}
                   </CardDescription>
                 </CardHeader>
@@ -532,7 +515,7 @@ export default function Settings() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Manager">Manager</SelectItem>
+                  
                   <SelectItem value="Operator">Operator</SelectItem>
                 </SelectContent>
               </Select>
