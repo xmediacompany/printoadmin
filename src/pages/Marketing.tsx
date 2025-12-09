@@ -82,10 +82,6 @@ export default function Marketing() {
             <Target className="h-4 w-4" />
             Campaigns
           </TabsTrigger>
-          <TabsTrigger value="push-sms" className="gap-2">
-            <MessageSquare className="h-4 w-4" />
-            WhatsApp
-          </TabsTrigger>
           <TabsTrigger value="merchandising" className="gap-2">
             <Store className="h-4 w-4" />
             Promotions
@@ -197,13 +193,6 @@ export default function Marketing() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="push-sms">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">WhatsApp campaigns and notifications will appear here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="merchandising" className="space-y-6">
           {/* Newsletter */}
