@@ -165,6 +165,9 @@ const PrintingServices = () => {
     pagesPerSheet1: "0.000",
     pagesPerSheet2: "0.010",
     pagesPerSheet4: "0.015",
+    // Color mode pricing
+    blackWhitePrice: "0.000",
+    colorPrice: "0.050",
     // Finishing options
     finishingNone: true,
     finishingStapled: true,
@@ -273,6 +276,8 @@ const PrintingServices = () => {
       pagesPerSheet1: "0.000",
       pagesPerSheet2: "0.010",
       pagesPerSheet4: "0.015",
+      blackWhitePrice: "0.000",
+      colorPrice: "0.050",
       finishingNone: true,
       finishingStapled: true,
       finishingSpiral: true,
@@ -736,6 +741,46 @@ const PrintingServices = () => {
                       placeholder="KD"
                       value={addForm.doubleSidedPrice}
                       onChange={(e) => setAddForm({ ...addForm, doubleSidedPrice: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Color Mode */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Color Mode</h3>
+              <p className="text-xs text-muted-foreground">Additional price for color printing (per page)</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">Black & White</Label>
+                    <p className="text-xs text-muted-foreground">Monochrome printing</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.blackWhitePrice}
+                      onChange={(e) => setAddForm({ ...addForm, blackWhitePrice: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">Color</Label>
+                    <p className="text-xs text-muted-foreground">Full color printing</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.colorPrice}
+                      onChange={(e) => setAddForm({ ...addForm, colorPrice: e.target.value })}
                       className="text-right"
                     />
                   </div>
