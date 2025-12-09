@@ -126,36 +126,6 @@ const CMS = () => {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Page Components</CardTitle>
-              <CardDescription>Reusable blocks for page building</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-lg p-4 space-y-2">
-                  <Layout className="h-6 w-6 text-primary" />
-                  <h4 className="font-semibold">Hero Sliders</h4>
-                  <p className="text-sm text-muted-foreground">8 templates</p>
-                </div>
-                <div className="border rounded-lg p-4 space-y-2">
-                  <Image className="h-6 w-6 text-primary" />
-                  <h4 className="font-semibold">Banners</h4>
-                  <p className="text-sm text-muted-foreground">15 templates</p>
-                </div>
-                <div className="border rounded-lg p-4 space-y-2">
-                  <FileText className="h-6 w-6 text-primary" />
-                  <h4 className="font-semibold">USP Rows</h4>
-                  <p className="text-sm text-muted-foreground">6 templates</p>
-                </div>
-                <div className="border rounded-lg p-4 space-y-2">
-                  <ShoppingBag className="h-6 w-6 text-primary" />
-                  <h4 className="font-semibold">Product Grids</h4>
-                  <p className="text-sm text-muted-foreground">10 templates</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Content Tab */}
