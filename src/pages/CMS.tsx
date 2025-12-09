@@ -61,7 +61,7 @@ const CMS = () => {
                   Last updated: 2 hours ago
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/cms/home-page")}>
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
