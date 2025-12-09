@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,17 +8,108 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Plus, Users, Shield } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { 
+  Search, 
+  Filter, 
+  Plus, 
+  Users, 
+  Shield, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  Settings2,
+  ShoppingCart,
+  Package,
+  Truck,
+  UserCircle,
+  Building2,
+  Megaphone,
+  FileText,
+  DollarSign,
+  BarChart3,
+  Bot,
+  Headphones,
+  Printer,
+  Save
+} from "lucide-react";
 import { toast } from "sonner";
+
+interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  actions: {
+    view: boolean;
+    create: boolean;
+    edit: boolean;
+    delete: boolean;
+  };
+}
+
+interface RolePermissions {
+  [key: string]: Permission[];
+}
 
 export default function Settings() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("Admin");
   const [inviteForm, setInviteForm] = useState({
     name: "",
     email: "",
     mobile: "",
     role: "",
     branch: "",
+  });
+
+  const [rolePermissions, setRolePermissions] = useState<RolePermissions>({
+    Admin: [
+      { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "inventory", name: "Inventory", description: "Stock and procurement", icon: <Package className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "fulfillment", name: "Fulfillment", description: "Delivery management", icon: <Truck className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "customers", name: "Customers", description: "Customer database", icon: <UserCircle className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "b2b", name: "B2B Corporate", description: "Corporate accounts", icon: <Building2 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "marketing", name: "Marketing", description: "Campaigns and promotions", icon: <Megaphone className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "cms", name: "Website CMS", description: "Content management", icon: <FileText className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "printing", name: "Printing Services", description: "Print job management", icon: <Printer className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "finance", name: "Finance", description: "Financial reports", icon: <DollarSign className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "support", name: "Support Team", description: "Customer support", icon: <Headphones className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+      { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
+    ],
+    Manager: [
+      { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "inventory", name: "Inventory", description: "Stock and procurement", icon: <Package className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "fulfillment", name: "Fulfillment", description: "Delivery management", icon: <Truck className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "customers", name: "Customers", description: "Customer database", icon: <UserCircle className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "b2b", name: "B2B Corporate", description: "Corporate accounts", icon: <Building2 className="h-4 w-4" />, actions: { view: true, create: true, edit: false, delete: false } },
+      { id: "marketing", name: "Marketing", description: "Campaigns and promotions", icon: <Megaphone className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "cms", name: "Website CMS", description: "Content management", icon: <FileText className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "printing", name: "Printing Services", description: "Print job management", icon: <Printer className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "finance", name: "Finance", description: "Financial reports", icon: <DollarSign className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "support", name: "Support Team", description: "Customer support", icon: <Headphones className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+    ],
+    Operator: [
+      { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "inventory", name: "Inventory", description: "Stock and procurement", icon: <Package className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "fulfillment", name: "Fulfillment", description: "Delivery management", icon: <Truck className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "customers", name: "Customers", description: "Customer database", icon: <UserCircle className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
+      { id: "b2b", name: "B2B Corporate", description: "Corporate accounts", icon: <Building2 className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+      { id: "marketing", name: "Marketing", description: "Campaigns and promotions", icon: <Megaphone className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+      { id: "cms", name: "Website CMS", description: "Content management", icon: <FileText className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+      { id: "printing", name: "Printing Services", description: "Print job management", icon: <Printer className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
+      { id: "finance", name: "Finance", description: "Financial reports", icon: <DollarSign className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+      { id: "support", name: "Support Team", description: "Customer support", icon: <Headphones className="h-4 w-4" />, actions: { view: true, create: true, edit: false, delete: false } },
+      { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+      { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: false, create: false, edit: false, delete: false } },
+    ],
   });
 
   const users = [
@@ -110,6 +201,38 @@ export default function Settings() {
     setInviteForm({ name: "", email: "", mobile: "", role: "", branch: "" });
   };
 
+  const handlePermissionChange = (permissionId: string, action: keyof Permission["actions"], value: boolean) => {
+    setRolePermissions(prev => ({
+      ...prev,
+      [selectedRole]: prev[selectedRole].map(p => 
+        p.id === permissionId 
+          ? { ...p, actions: { ...p.actions, [action]: value } }
+          : p
+      )
+    }));
+  };
+
+  const handleToggleAllActions = (permissionId: string, enabled: boolean) => {
+    setRolePermissions(prev => ({
+      ...prev,
+      [selectedRole]: prev[selectedRole].map(p => 
+        p.id === permissionId 
+          ? { ...p, actions: { view: enabled, create: enabled, edit: enabled, delete: enabled } }
+          : p
+      )
+    }));
+  };
+
+  const handleSavePermissions = () => {
+    toast.success(`Permissions for ${selectedRole} saved successfully`);
+  };
+
+  const getPermissionCount = (role: string) => {
+    const perms = rolePermissions[role];
+    if (!perms) return 0;
+    return perms.filter(p => p.actions.view || p.actions.create || p.actions.edit || p.actions.delete).length;
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -195,12 +318,173 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="permissions">
+        <TabsContent value="permissions" className="space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Role-Based Permissions</h2>
+              <p className="text-muted-foreground">Configure access levels for each role across all modules.</p>
+            </div>
+            <Button onClick={handleSavePermissions}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+
+          {/* Role Selection Cards */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {["Admin", "Manager", "Operator"].map((role) => (
+              <Card 
+                key={role}
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  selectedRole === role 
+                    ? "ring-2 ring-primary border-primary" 
+                    : "hover:border-primary/50"
+                }`}
+                onClick={() => setSelectedRole(role)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{role}</CardTitle>
+                    {getRoleBadge(role)}
+                  </div>
+                  <CardDescription>
+                    {role === "Admin" && "Full system access with all permissions"}
+                    {role === "Manager" && "Branch-level management capabilities"}
+                    {role === "Operator" && "Day-to-day operational tasks"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="h-4 w-4" />
+                    <span>{getPermissionCount(role)} modules enabled</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Permissions Matrix */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Permission management and access control settings will appear here.</p>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {getRoleBadge(selectedRole)}
+                    <span>Permissions</span>
+                  </CardTitle>
+                  <CardDescription>Configure what {selectedRole.toLowerCase()}s can access and modify</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[300px]">Module</TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span className="text-xs">View</span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Plus className="h-4 w-4" />
+                        <span className="text-xs">Create</span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Edit className="h-4 w-4" />
+                        <span className="text-xs">Edit</span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="text-xs">Delete</span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center w-[120px]">Full Access</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rolePermissions[selectedRole]?.map((permission) => {
+                    const allEnabled = permission.actions.view && permission.actions.create && permission.actions.edit && permission.actions.delete;
+                    const noneEnabled = !permission.actions.view && !permission.actions.create && !permission.actions.edit && !permission.actions.delete;
+                    
+                    return (
+                      <TableRow key={permission.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${noneEnabled ? "bg-muted/50 text-muted-foreground" : "bg-primary/10 text-primary"}`}>
+                              {permission.icon}
+                            </div>
+                            <div>
+                              <div className={`font-medium ${noneEnabled ? "text-muted-foreground" : ""}`}>
+                                {permission.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">{permission.description}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Checkbox 
+                            checked={permission.actions.view}
+                            onCheckedChange={(checked) => handlePermissionChange(permission.id, "view", checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Checkbox 
+                            checked={permission.actions.create}
+                            onCheckedChange={(checked) => handlePermissionChange(permission.id, "create", checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Checkbox 
+                            checked={permission.actions.edit}
+                            onCheckedChange={(checked) => handlePermissionChange(permission.id, "edit", checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Checkbox 
+                            checked={permission.actions.delete}
+                            onCheckedChange={(checked) => handlePermissionChange(permission.id, "delete", checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Switch 
+                            checked={allEnabled}
+                            onCheckedChange={(checked) => handleToggleAllActions(permission.id, checked)}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
+
+          {/* Quick Actions Legend */}
+          <div className="flex flex-wrap gap-6 p-4 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-2 text-sm">
+              <Eye className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">View: Access to read data</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Plus className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Create: Add new records</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Edit className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Edit: Modify existing data</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Trash2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Delete: Remove records</span>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 
