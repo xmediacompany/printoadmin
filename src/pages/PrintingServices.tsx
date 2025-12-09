@@ -392,10 +392,11 @@ const PrintingServices = () => {
               <TableRow>
                 <TableHead>Service</TableHead>
                 <TableHead>Service Code</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Paper Sizes</TableHead>
-                <TableHead>Bindings</TableHead>
-                <TableHead>Base Price</TableHead>
+                <TableHead>Format</TableHead>
+                <TableHead>Sides</TableHead>
+                <TableHead>Color Mode</TableHead>
+                <TableHead>Layout</TableHead>
+                <TableHead>Finishing</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -414,12 +415,6 @@ const PrintingServices = () => {
                     <code className="text-sm bg-muted px-2 py-1 rounded">{service.serviceCode}</code>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getCategoryIcon(service.category)}
-                      <span>{service.category}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {service.paperSizes.slice(0, 2).map((size) => (
                         <Badge key={size} variant="outline" className="text-xs">{size}</Badge>
@@ -427,6 +422,25 @@ const PrintingServices = () => {
                       {service.paperSizes.length > 2 && (
                         <Badge variant="outline" className="text-xs">+{service.paperSizes.length - 2}</Badge>
                       )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-xs">Single</Badge>
+                      <Badge variant="outline" className="text-xs">Double</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-xs">B&W</Badge>
+                      <Badge variant="outline" className="text-xs">Color</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">1pp</Badge>
+                      <Badge variant="secondary" className="text-xs">2pp</Badge>
+                      <Badge variant="secondary" className="text-xs">4pp</Badge>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -439,7 +453,6 @@ const PrintingServices = () => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">KD {service.basePrice}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
