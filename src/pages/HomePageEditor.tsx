@@ -29,7 +29,9 @@ import {
   Linkedin,
   Trash2,
   FileText,
-  HelpCircle
+  HelpCircle,
+  Building2,
+  Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -217,6 +219,31 @@ const HomePageEditor = () => {
       name: "Refund Policy", 
       title: "Refund Policy",
       content: "Understand our refund and return policies to ensure a smooth shopping experience.",
+      isActive: true 
+    },
+  ]);
+
+  // Company Pages
+  const [companyPages, setCompanyPages] = useState<SupportPage[]>([
+    { 
+      id: "about", 
+      name: "About Us", 
+      title: "About PRINTO",
+      content: "PRINTO is Kuwait's leading printing and merchandise company, offering premium quality products and exceptional customer service since 2015.",
+      isActive: true 
+    },
+    { 
+      id: "careers", 
+      name: "Careers", 
+      title: "Join Our Team",
+      content: "We're always looking for talented individuals to join our growing team. Explore exciting career opportunities at PRINTO.",
+      isActive: true 
+    },
+    { 
+      id: "b2b", 
+      name: "B2B Services", 
+      title: "B2B & Corporate Services",
+      content: "Partner with PRINTO for all your corporate printing and merchandise needs. We offer bulk discounts, dedicated account managers, and customized solutions.",
       isActive: true 
     },
   ]);
@@ -482,6 +509,10 @@ const HomePageEditor = () => {
           <TabsTrigger value="support" className="gap-2">
             <HelpCircle className="h-4 w-4" />
             Support Pages
+          </TabsTrigger>
+          <TabsTrigger value="company" className="gap-2">
+            <Building2 className="h-4 w-4" />
+            Company Pages
           </TabsTrigger>
         </TabsList>
 
@@ -816,6 +847,73 @@ const HomePageEditor = () => {
                       value={page.content}
                       onChange={(e) => {
                         setSupportPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, content: e.target.value } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                      rows={4}
+                      placeholder="Enter the page content..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Company Pages Tab */}
+        <TabsContent value="company" className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold">Company Pages</h2>
+            <p className="text-muted-foreground">Manage the content for About Us, Careers, and B2B Services pages</p>
+          </div>
+          
+          <div className="space-y-4">
+            {companyPages.map((page) => (
+              <Card key={page.id} className={!page.isActive ? "opacity-60" : ""}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        {page.id === "about" && <Building2 className="h-5 w-5 text-muted-foreground" />}
+                        {page.id === "careers" && <Briefcase className="h-5 w-5 text-muted-foreground" />}
+                        {page.id === "b2b" && <ShoppingBag className="h-5 w-5 text-muted-foreground" />}
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{page.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">/{page.id}</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={page.isActive}
+                      onCheckedChange={() => {
+                        setCompanyPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, isActive: !p.isActive } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Page Title</Label>
+                    <Input 
+                      value={page.title}
+                      onChange={(e) => {
+                        setCompanyPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, title: e.target.value } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Page Content / Description</Label>
+                    <Textarea 
+                      value={page.content}
+                      onChange={(e) => {
+                        setCompanyPages(prev => prev.map(p => 
                           p.id === page.id ? { ...p, content: e.target.value } : p
                         ));
                         setHasChanges(true);
