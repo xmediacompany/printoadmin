@@ -116,6 +116,13 @@ export default function Marketing() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addCampaignOpen, setAddCampaignOpen] = useState(false);
   const [addCouponOpen, setAddCouponOpen] = useState(false);
+  const [campaignTypes, setCampaignTypes] = useState([
+    "Christmas", "New Year's Day", "Kuwait National Day", "Isra' and Mi'raj",
+    "Ramadan", "Eid al-Fitr", "Eid al-Adha", "Valentine's Day",
+    "Mother's Day", "Halloween", "Black Friday", "Flash Sale"
+  ]);
+  const [customTypeInput, setCustomTypeInput] = useState("");
+  const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     name: "",
     type: "Christmas",
@@ -432,26 +439,63 @@ export default function Marketing() {
                 <Label>Campaign Type</Label>
                 <Select 
                   value={newCampaign.type} 
-                  onValueChange={(value) => setNewCampaign({ ...newCampaign, type: value })}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom__") {
+                      setShowCustomTypeInput(true);
+                    } else {
+                      setNewCampaign({ ...newCampaign, type: value });
+                    }
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Christmas">Christmas</SelectItem>
-                    <SelectItem value="New Year's Day">New Year's Day</SelectItem>
-                    <SelectItem value="Kuwait National Day">Kuwait National Day</SelectItem>
-                    <SelectItem value="Isra' and Mi'raj">Isra' and Mi'raj</SelectItem>
-                    <SelectItem value="Ramadan">Ramadan</SelectItem>
-                    <SelectItem value="Eid al-Fitr">Eid al-Fitr</SelectItem>
-                    <SelectItem value="Eid al-Adha">Eid al-Adha</SelectItem>
-                    <SelectItem value="Valentine's Day">Valentine's Day</SelectItem>
-                    <SelectItem value="Mother's Day">Mother's Day</SelectItem>
-                    <SelectItem value="Halloween">Halloween</SelectItem>
-                    <SelectItem value="Black Friday">Black Friday</SelectItem>
-                    <SelectItem value="Flash Sale">Flash Sale</SelectItem>
+                    {campaignTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom__" className="text-primary font-medium">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-3 w-3" />
+                        Add Custom Type
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
+                {showCustomTypeInput && (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      placeholder="Enter custom type..."
+                      value={customTypeInput}
+                      onChange={(e) => setCustomTypeInput(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={() => {
+                        if (customTypeInput.trim()) {
+                          setCampaignTypes(prev => [...prev, customTypeInput.trim()]);
+                          setNewCampaign({ ...newCampaign, type: customTypeInput.trim() });
+                          setCustomTypeInput("");
+                          setShowCustomTypeInput(false);
+                          toast.success("Custom type added!");
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        setCustomTypeInput("");
+                        setShowCustomTypeInput(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
