@@ -1,12 +1,25 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Plus, Users, Shield } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Settings() {
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteForm, setInviteForm] = useState({
+    name: "",
+    email: "",
+    role: "",
+    branch: "",
+  });
+
   const users = [
     {
       name: "Ahmed Al-Mansouri",
@@ -81,6 +94,16 @@ export default function Settings() {
     );
   };
 
+  const handleInviteUser = () => {
+    if (!inviteForm.name || !inviteForm.email || !inviteForm.role || !inviteForm.branch) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    toast.success(`Invitation sent to ${inviteForm.email}`);
+    setInviteDialogOpen(false);
+    setInviteForm({ name: "", email: "", role: "", branch: "" });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -116,7 +139,7 @@ export default function Settings() {
                 <Filter className="mr-2 h-4 w-4" />
                 Filters
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setInviteDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Invite User
               </Button>
@@ -175,6 +198,71 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Invite User Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invite User</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter full name"
+                value={inviteForm.name}
+                onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter email address"
+                value={inviteForm.email}
+                onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={inviteForm.role} onValueChange={(value) => setInviteForm({ ...inviteForm, role: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                  <SelectItem value="Manager">Manager</SelectItem>
+                  <SelectItem value="Operator">Operator</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="branch">Branch</Label>
+              <Select value={inviteForm.branch} onValueChange={(value) => setInviteForm({ ...inviteForm, branch: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All Branches">All Branches</SelectItem>
+                  <SelectItem value="City">City</SelectItem>
+                  <SelectItem value="Salmiya">Salmiya</SelectItem>
+                  <SelectItem value="Hawally">Hawally</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleInviteUser}>
+              Send Invitation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
