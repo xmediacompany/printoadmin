@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Download, CreditCard, Banknote, Smartphone, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Search, Filter, Download, CreditCard, Banknote, Smartphone, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, RotateCcw, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
 export default function Finance() {
   const invoices = [
@@ -338,10 +338,250 @@ export default function Finance() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="refunds">
+        <TabsContent value="refunds" className="space-y-6">
+          {/* Refund Stats */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Refunded</CardTitle>
+                <RotateCcw className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">KD 1,245.750</div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <ArrowDownRight className="mr-1 h-3 w-3 text-emerald-500" />
+                  <span className="text-emerald-500">-8.3%</span>
+                  <span className="ml-1">from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">5</div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <ArrowUpRight className="mr-1 h-3 w-3 text-yellow-500" />
+                  <span className="text-yellow-500">+2</span>
+                  <span className="ml-1">new today</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Approved</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">23</div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <span className="text-muted-foreground">This month</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+                <XCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">3</div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <span className="text-muted-foreground">This month</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Search refunds..." className="pl-9" />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Filter className="mr-2 h-4 w-4" />
+                Filters
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+            </div>
+          </div>
+
+          {/* Refunds Table */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">Refund requests and processing will appear here.</p>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Refund ID</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Order</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Reason</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Requested</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-001</TableCell>
+                    <TableCell>Sara Al-Mutairi</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1239</TableCell>
+                    <TableCell className="font-medium">KD 42.750</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-yellow-500" />
+                        <span>Payment Failed</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Pending</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-15</div>
+                        <div className="text-xs text-muted-foreground">10:45 AM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="text-emerald-600">Approve</Button>
+                        <Button variant="outline" size="sm" className="text-red-600">Reject</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-002</TableCell>
+                    <TableCell>Omar Hassan</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1225</TableCell>
+                    <TableCell className="font-medium">KD 89.000</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-500" />
+                        <span>Defective Product</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Pending</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-14</div>
+                        <div className="text-xs text-muted-foreground">3:22 PM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="text-emerald-600">Approve</Button>
+                        <Button variant="outline" size="sm" className="text-red-600">Reject</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-003</TableCell>
+                    <TableCell>Layla Al-Ahmad</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1210</TableCell>
+                    <TableCell className="font-medium">KD 156.500</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="h-4 w-4 text-blue-500" />
+                        <span>Changed Mind</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Approved</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-13</div>
+                        <div className="text-xs text-muted-foreground">11:15 AM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm">View</Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-004</TableCell>
+                    <TableCell>Mohammed Al-Sabah</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1198</TableCell>
+                    <TableCell className="font-medium">KD 67.250</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-orange-500" />
+                        <span>Late Delivery</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20">Processing</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-12</div>
+                        <div className="text-xs text-muted-foreground">2:30 PM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm">View</Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-005</TableCell>
+                    <TableCell>Noura Al-Sabah</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1185</TableCell>
+                    <TableCell className="font-medium">KD 34.000</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-500" />
+                        <span>Wrong Item</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-red-500/10 text-red-700 hover:bg-red-500/20">Rejected</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-10</div>
+                        <div className="text-xs text-muted-foreground">9:45 AM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm">View</Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">REF-006</TableCell>
+                    <TableCell>Hasan Al-Rashid</TableCell>
+                    <TableCell className="text-muted-foreground">ORD-1172</TableCell>
+                    <TableCell className="font-medium">KD 245.000</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-yellow-500" />
+                        <span>Print Quality Issue</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Refunded</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">2024-01-08</div>
+                        <div className="text-xs text-muted-foreground">4:10 PM</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm">View</Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
