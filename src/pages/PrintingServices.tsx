@@ -147,11 +147,30 @@ const PrintingServices = () => {
     title: "",
     serviceCode: "",
     category: "",
-    paperSizes: "",
-    bindings: "",
-    basePrice: "",
     description: "",
     isVisible: true,
+    // Paper size prices
+    paperSizeA4: "0.050",
+    paperSizeA5: "0.030",
+    paperSizeA3: "0.100",
+    paperSizeCustom: "0.150",
+    paperSizeA4Enabled: true,
+    paperSizeA5Enabled: false,
+    paperSizeA3Enabled: false,
+    paperSizeCustomEnabled: false,
+    // Sides pricing
+    singleSidedPrice: "0.000",
+    doubleSidedPrice: "0.020",
+    // Layout - pages per sheet
+    pagesPerSheet1: "0.000",
+    pagesPerSheet2: "0.010",
+    pagesPerSheet4: "0.015",
+    // Finishing options
+    finishingNone: true,
+    finishingStapled: true,
+    finishingSpiral: true,
+    finishingStapledPrice: "0.100",
+    finishingSpiralPrice: "1.500",
   });
 
   const categories = ["Documents", "Academic", "Marketing", "Publications", "Signage", "Photography"];
@@ -201,19 +220,32 @@ const PrintingServices = () => {
   };
 
   const handleAddService = () => {
-    if (!addForm.title || !addForm.serviceCode || !addForm.basePrice || !addForm.category) {
+    if (!addForm.title || !addForm.serviceCode || !addForm.category) {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    // Build paper sizes array from enabled options
+    const paperSizes: string[] = [];
+    if (addForm.paperSizeA4Enabled) paperSizes.push("A4");
+    if (addForm.paperSizeA5Enabled) paperSizes.push("A5");
+    if (addForm.paperSizeA3Enabled) paperSizes.push("A3");
+    if (addForm.paperSizeCustomEnabled) paperSizes.push("Custom");
+
+    // Build bindings array from enabled options
+    const bindings: string[] = [];
+    if (addForm.finishingNone) bindings.push("None");
+    if (addForm.finishingStapled) bindings.push("Stapled");
+    if (addForm.finishingSpiral) bindings.push("Spiral Binding");
 
     const newService: PrintingService = {
       id: `SRV-${String(services.length + 1).padStart(3, '0')}`,
       title: addForm.title,
       serviceCode: addForm.serviceCode,
       category: addForm.category,
-      paperSizes: addForm.paperSizes ? addForm.paperSizes.split(",").map(p => p.trim()) : [],
-      bindings: addForm.bindings ? addForm.bindings.split(",").map(b => b.trim()) : [],
-      basePrice: addForm.basePrice,
+      paperSizes,
+      bindings,
+      basePrice: addForm.paperSizeA4,
       description: addForm.description,
       isVisible: addForm.isVisible,
       status: addForm.isVisible ? "Active" : "Draft",
@@ -226,11 +258,26 @@ const PrintingServices = () => {
       title: "",
       serviceCode: "",
       category: "",
-      paperSizes: "",
-      bindings: "",
-      basePrice: "",
       description: "",
       isVisible: true,
+      paperSizeA4: "0.050",
+      paperSizeA5: "0.030",
+      paperSizeA3: "0.100",
+      paperSizeCustom: "0.150",
+      paperSizeA4Enabled: true,
+      paperSizeA5Enabled: false,
+      paperSizeA3Enabled: false,
+      paperSizeCustomEnabled: false,
+      singleSidedPrice: "0.000",
+      doubleSidedPrice: "0.020",
+      pagesPerSheet1: "0.000",
+      pagesPerSheet2: "0.010",
+      pagesPerSheet4: "0.015",
+      finishingNone: true,
+      finishingStapled: true,
+      finishingSpiral: true,
+      finishingStapledPrice: "0.100",
+      finishingSpiralPrice: "1.500",
     });
   };
 
@@ -534,37 +581,38 @@ const PrintingServices = () => {
 
       {/* Add Service Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Printing Service</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="add-title">Service Title *</Label>
-                <Input
-                  id="add-title"
-                  placeholder="Enter service title"
-                  value={addForm.title}
-                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                />
+          <div className="grid gap-6 py-4">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Basic Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="add-title">Service Title *</Label>
+                  <Input
+                    id="add-title"
+                    placeholder="Enter service title"
+                    value={addForm.title}
+                    onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="add-serviceCode">Service Code *</Label>
+                  <Input
+                    id="add-serviceCode"
+                    placeholder="e.g., DOC-PRINT"
+                    value={addForm.serviceCode}
+                    onChange={(e) => setAddForm({ ...addForm, serviceCode: e.target.value.toUpperCase() })}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="add-serviceCode">Service Code *</Label>
-                <Input
-                  id="add-serviceCode"
-                  placeholder="e.g., DOC-PRINT"
-                  value={addForm.serviceCode}
-                  onChange={(e) => setAddForm({ ...addForm, serviceCode: e.target.value.toUpperCase() })}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="add-category">Category *</Label>
                 <Select value={addForm.category} onValueChange={(value) => setAddForm({ ...addForm, category: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -574,52 +622,270 @@ const PrintingServices = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="add-basePrice">Base Price (KD) *</Label>
-                <Input
-                  id="add-basePrice"
-                  type="number"
-                  step="0.001"
-                  placeholder="0.000"
-                  value={addForm.basePrice}
-                  onChange={(e) => setAddForm({ ...addForm, basePrice: e.target.value })}
-                />
+            </div>
+
+            {/* Paper Size & Pricing */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Format - Paper Size & Pricing</h3>
+              <p className="text-xs text-muted-foreground">Set price per page for each paper size</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.paperSizeA4Enabled}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, paperSizeA4Enabled: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">A4</Label>
+                    <p className="text-xs text-muted-foreground">210 × 297 mm</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.paperSizeA4}
+                      onChange={(e) => setAddForm({ ...addForm, paperSizeA4: e.target.value })}
+                      disabled={!addForm.paperSizeA4Enabled}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.paperSizeA5Enabled}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, paperSizeA5Enabled: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">A5</Label>
+                    <p className="text-xs text-muted-foreground">148 × 210 mm</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.paperSizeA5}
+                      onChange={(e) => setAddForm({ ...addForm, paperSizeA5: e.target.value })}
+                      disabled={!addForm.paperSizeA5Enabled}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.paperSizeA3Enabled}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, paperSizeA3Enabled: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">A3</Label>
+                    <p className="text-xs text-muted-foreground">297 × 420 mm</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.paperSizeA3}
+                      onChange={(e) => setAddForm({ ...addForm, paperSizeA3: e.target.value })}
+                      disabled={!addForm.paperSizeA3Enabled}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.paperSizeCustomEnabled}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, paperSizeCustomEnabled: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">Custom Size</Label>
+                    <p className="text-xs text-muted-foreground">User defined</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.paperSizeCustom}
+                      onChange={(e) => setAddForm({ ...addForm, paperSizeCustom: e.target.value })}
+                      disabled={!addForm.paperSizeCustomEnabled}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="add-paperSizes">Paper Sizes (comma-separated)</Label>
-              <Input
-                id="add-paperSizes"
-                placeholder="e.g., A4, A3, Letter, Custom"
-                value={addForm.paperSizes}
-                onChange={(e) => setAddForm({ ...addForm, paperSizes: e.target.value })}
-              />
-              <p className="text-xs text-muted-foreground">Common sizes: A0, A1, A2, A3, A4, A5, Letter, Legal, Custom</p>
+            {/* Sides */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Sides - Print Options</h3>
+              <p className="text-xs text-muted-foreground">Additional price for print sides (added to base price)</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">Single-sided</Label>
+                    <p className="text-xs text-muted-foreground">Print on one side only</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.singleSidedPrice}
+                      onChange={(e) => setAddForm({ ...addForm, singleSidedPrice: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">Double-sided</Label>
+                    <p className="text-xs text-muted-foreground">Print on both sides</p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.doubleSidedPrice}
+                      onChange={(e) => setAddForm({ ...addForm, doubleSidedPrice: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="add-bindings">Binding Options (comma-separated)</Label>
-              <Input
-                id="add-bindings"
-                placeholder="e.g., None, Spiral, Hard Cover, Soft Cover"
-                value={addForm.bindings}
-                onChange={(e) => setAddForm({ ...addForm, bindings: e.target.value })}
-              />
-              <p className="text-xs text-muted-foreground">Common bindings: None, Stapled, Spiral, Perfect Bound, Hard Cover, Soft Cover, Saddle Stitch</p>
+            {/* Layout - Pages per sheet */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Layout - Pages Per Sheet</h3>
+              <p className="text-xs text-muted-foreground">Additional price for multiple pages per sheet</p>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">1 Page</Label>
+                    <p className="text-xs text-muted-foreground">Standard</p>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.pagesPerSheet1}
+                      onChange={(e) => setAddForm({ ...addForm, pagesPerSheet1: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">2 Pages</Label>
+                    <p className="text-xs text-muted-foreground">Per sheet</p>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.pagesPerSheet2}
+                      onChange={(e) => setAddForm({ ...addForm, pagesPerSheet2: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <div className="flex-1">
+                    <Label className="font-medium">4 Pages</Label>
+                    <p className="text-xs text-muted-foreground">Per sheet</p>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.pagesPerSheet4}
+                      onChange={(e) => setAddForm({ ...addForm, pagesPerSheet4: e.target.value })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Finishing */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Finishing Options</h3>
+              <p className="text-xs text-muted-foreground">Enable finishing options and set prices</p>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.finishingNone}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, finishingNone: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">No Finishing</Label>
+                    <p className="text-xs text-muted-foreground">Loose pages</p>
+                  </div>
+                  <div className="w-16 text-right text-sm text-muted-foreground">Free</div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.finishingStapled}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, finishingStapled: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">Stapled</Label>
+                    <p className="text-xs text-muted-foreground">Corner staple</p>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.finishingStapledPrice}
+                      onChange={(e) => setAddForm({ ...addForm, finishingStapledPrice: e.target.value })}
+                      disabled={!addForm.finishingStapled}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <Switch
+                    checked={addForm.finishingSpiral}
+                    onCheckedChange={(checked) => setAddForm({ ...addForm, finishingSpiral: checked })}
+                  />
+                  <div className="flex-1">
+                    <Label className="font-medium">Spiral Binding</Label>
+                    <p className="text-xs text-muted-foreground">Coil bound</p>
+                  </div>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      step="0.001"
+                      placeholder="KD"
+                      value={addForm.finishingSpiralPrice}
+                      onChange={(e) => setAddForm({ ...addForm, finishingSpiralPrice: e.target.value })}
+                      disabled={!addForm.finishingSpiral}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="add-description">Service Description</Label>
               <Textarea
                 id="add-description"
                 placeholder="Describe the service, its features, and what customers can expect..."
-                rows={4}
+                rows={3}
                 value={addForm.description}
                 onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
               />
             </div>
 
+            {/* Visibility */}
             <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
               <div className="space-y-0.5">
                 <Label>Service Visibility</Label>
