@@ -397,8 +397,8 @@ const PrintingServices = () => {
                 <TableHead>Color Mode</TableHead>
                 <TableHead>Layout</TableHead>
                 <TableHead>Finishing</TableHead>
+                <TableHead>Price</TableHead>
                 <TableHead>Visibility</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -453,6 +453,7 @@ const PrintingServices = () => {
                       )}
                     </div>
                   </TableCell>
+                  <TableCell className="font-medium">KD {service.basePrice}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -462,13 +463,6 @@ const PrintingServices = () => {
                     >
                       {service.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </Button>
-                  </TableCell>
-                  <TableCell>
-                    {service.status === "Active" ? (
-                      <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Draft</Badge>
-                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
