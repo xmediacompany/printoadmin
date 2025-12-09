@@ -55,6 +55,10 @@ export default function SmartReports() {
       title: "B2C Monthly Recurring Revenue",
       description: "Track recurring revenue from B2C customers",
     },
+    {
+      title: "Customer Spend Analysis",
+      description: "Analyze customer spending patterns and behavior",
+    },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
