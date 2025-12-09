@@ -35,7 +35,7 @@ interface PrintingService {
   basePrice: string;
   description: string;
   isVisible: boolean;
-  status: "Active" | "Draft";
+  status: "Visible online" | "Draft";
 }
 
 const PrintingServices = () => {
@@ -56,7 +56,7 @@ const PrintingServices = () => {
       basePrice: "0.050",
       description: "High-quality document printing for reports, presentations, and general documents.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
     {
       id: "SRV-002",
@@ -68,7 +68,7 @@ const PrintingServices = () => {
       basePrice: "15.000",
       description: "Professional thesis and dissertation binding with embossed covers and gold lettering.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
     {
       id: "SRV-003",
@@ -80,7 +80,7 @@ const PrintingServices = () => {
       basePrice: "8.500",
       description: "Premium business cards with various finishes including matte, glossy, and textured.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
     {
       id: "SRV-004",
@@ -92,7 +92,7 @@ const PrintingServices = () => {
       basePrice: "5.000",
       description: "Professional booklet printing for catalogs, magazines, and brochures.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
     {
       id: "SRV-005",
@@ -116,7 +116,7 @@ const PrintingServices = () => {
       basePrice: "0.500",
       description: "High-quality photo printing on premium glossy or matte paper.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
     {
       id: "SRV-007",
@@ -128,7 +128,7 @@ const PrintingServices = () => {
       basePrice: "2.500",
       description: "Official certificate printing with security features and premium paper.",
       isVisible: true,
-      status: "Active",
+      status: "Visible online",
     },
   ]);
 
@@ -212,7 +212,7 @@ const PrintingServices = () => {
               basePrice: editForm.basePrice,
               description: editForm.description,
               isVisible: editForm.isVisible,
-              status: editForm.isVisible ? "Active" : "Draft",
+              status: editForm.isVisible ? "Visible online" : "Draft",
             }
           : s
       ));
@@ -251,7 +251,7 @@ const PrintingServices = () => {
       basePrice: addForm.paperSizeA4,
       description: addForm.description,
       isVisible: addForm.isVisible,
-      status: addForm.isVisible ? "Active" : "Draft",
+      status: addForm.isVisible ? "Visible online" : "Draft",
     };
 
     setServices([...services, newService]);
@@ -289,7 +289,7 @@ const PrintingServices = () => {
   const handleToggleVisibility = (serviceId: string) => {
     setServices(services.map(s => 
       s.id === serviceId 
-        ? { ...s, isVisible: !s.isVisible, status: !s.isVisible ? "Active" : "Draft" }
+        ? { ...s, isVisible: !s.isVisible, status: !s.isVisible ? "Visible online" : "Draft" }
         : s
     ));
     toast.success("Visibility updated");
