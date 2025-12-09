@@ -141,7 +141,7 @@ export default function Settings() {
               </Button>
               <Button size="sm" onClick={() => setInviteDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Invite User
+                Add User
               </Button>
             </div>
           </div>
@@ -203,7 +203,7 @@ export default function Settings() {
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite User</DialogTitle>
+            <DialogTitle>Add User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
