@@ -258,7 +258,7 @@ export default function Settings() {
               Cancel
             </Button>
             <Button onClick={handleInviteUser}>
-              Send Invitation
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
