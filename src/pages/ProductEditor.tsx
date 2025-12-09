@@ -432,19 +432,6 @@ const ProductEditor = () => {
                 </div>
               </div>
 
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title">Product Title *</Label>
-                <Input
-                  id="title"
-                  value={editingProduct.title}
-                  onChange={(e) =>
-                    setEditingProduct({ ...editingProduct, title: e.target.value })
-                  }
-                  placeholder="Enter product title"
-                />
-              </div>
-
               {/* Price */}
               <div className="space-y-2">
                 <Label htmlFor="price">Price (KD)</Label>
