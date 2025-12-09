@@ -27,15 +27,9 @@ const CMS = () => {
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Website CMS Management Console</h1>
-          <p className="text-muted-foreground">Publish and optimize your public site without developer help</p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create New Page
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Website CMS Management Console</h1>
+        <p className="text-muted-foreground">Publish and optimize your public site without developer help</p>
       </div>
 
       <Tabs defaultValue="pages" className="space-y-6">
