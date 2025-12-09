@@ -15,7 +15,8 @@ export default function Marketing() {
       name: "Summer Discount Campaign",
       type: "Promotional",
       status: "Active",
-      duration: "2024-06-01 - 2024-08-31",
+      startDate: "2024-06-01",
+      endDate: "2024-08-31",
       usedCoupons: 245,
     },
     {
@@ -23,7 +24,8 @@ export default function Marketing() {
       name: "New Customer Welcome",
       type: "Onboarding",
       status: "Active",
-      duration: "2024-01-01 - 2024-12-31",
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
       usedCoupons: 128,
     },
     {
@@ -31,7 +33,8 @@ export default function Marketing() {
       name: "Weekend Special Offer",
       type: "Promotional",
       status: "Scheduled",
-      duration: "2024-02-01 - 2024-02-28",
+      startDate: "2024-02-01",
+      endDate: "2024-02-28",
       usedCoupons: 0,
     },
     {
@@ -39,7 +42,8 @@ export default function Marketing() {
       name: "Loyalty Rewards Program",
       type: "Retention",
       status: "Draft",
-      duration: "2024-03-01 - 2024-05-31",
+      startDate: "2024-03-01",
+      endDate: "2024-05-31",
       usedCoupons: 0,
     },
   ];
@@ -142,7 +146,12 @@ export default function Marketing() {
                       </TableCell>
                       <TableCell>{campaign.type}</TableCell>
                       <TableCell>{getStatusBadge(campaign.status)}</TableCell>
-                      <TableCell className="text-sm">{campaign.duration}</TableCell>
+                      <TableCell className="text-sm">
+                        <div className="space-y-0.5">
+                          <div><span className="text-muted-foreground">From:</span> {campaign.startDate}</div>
+                          <div><span className="text-muted-foreground">Until:</span> {campaign.endDate}</div>
+                        </div>
+                      </TableCell>
                       <TableCell className="font-medium">{campaign.usedCoupons.toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
