@@ -108,14 +108,19 @@ const initialProducts: Product[] = [
 ];
 
 const categories = [
-  "Business Cards",
-  "Flyers",
-  "Posters",
-  "Brochures",
+  "Custom T-Shirts",
+  "Ceramic Mugs",
+  "Tote Bags",
+  "Hoodies",
+  "Caps",
+  "Thermo Bottles",
+  "Cups",
+  "Stationery",
+  "Diary",
   "Stickers",
-  "Banners",
-  "Labels",
-  "Invitations",
+  "Papers",
+  "Cards",
+  "Notebooks",
 ];
 
 const ProductEditor = () => {
