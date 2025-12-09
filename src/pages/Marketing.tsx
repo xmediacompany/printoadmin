@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Plus, Target, MessageSquare, Store, Edit, Megaphone, Tag, Mail } from "lucide-react";
 
 export default function Marketing() {
@@ -42,10 +44,19 @@ export default function Marketing() {
     },
   ];
 
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const filteredCampaigns = campaigns.filter(campaign => {
+    if (statusFilter === "all") return true;
+    return campaign.status === statusFilter;
+  });
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Active":
         return <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Active</Badge>;
+      case "Expired":
+        return <Badge className="bg-red-500/10 text-red-700 hover:bg-red-500/20">Expired</Badge>;
       case "Scheduled":
         return <Badge className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20">Scheduled</Badge>;
       case "Draft":
@@ -88,10 +99,18 @@ export default function Marketing() {
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Expired">Expired</SelectItem>
+                  <SelectItem value="Scheduled">Scheduled</SelectItem>
+                  <SelectItem value="Draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
               <Button size="sm">
                 <Plus className="mr-2 h-4 w-4" />
                 New Campaign
@@ -113,7 +132,7 @@ export default function Marketing() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {campaigns.map((campaign) => (
+                  {filteredCampaigns.map((campaign) => (
                     <TableRow key={campaign.id}>
                       <TableCell>
                         <div className="space-y-1">
