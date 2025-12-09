@@ -43,6 +43,10 @@ export default function SmartReports() {
       title: "Profitability",
       description: "Monitor profit margins and cost analysis",
     },
+    {
+      title: "Sales Performance Analysis",
+      description: "Analyze sales metrics and conversion rates",
+    },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
