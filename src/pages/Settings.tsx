@@ -80,7 +80,7 @@ export default function Settings() {
       { id: "ai_bot", name: "AI Order Bot", description: "AI assistant settings", icon: <Bot className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
       { id: "settings", name: "Settings", description: "System configuration", icon: <Settings2 className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: true } },
     ],
-    Operator: [
+    Employee: [
       { id: "dashboard", name: "Dashboard", description: "View analytics and reports", icon: <BarChart3 className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
       { id: "orders", name: "Orders", description: "Manage customer orders", icon: <ShoppingCart className="h-4 w-4" />, actions: { view: true, create: true, edit: true, delete: false } },
       { id: "inventory", name: "Inventory", description: "Stock and procurement", icon: <Package className="h-4 w-4" />, actions: { view: true, create: false, edit: false, delete: false } },
@@ -159,8 +159,8 @@ export default function Settings() {
     switch (role) {
       case "Admin":
         return <Badge className="bg-purple-500/10 text-purple-700 hover:bg-purple-500/20">Admin</Badge>;
-      case "Operator":
-        return <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Operator</Badge>;
+      case "Employee":
+        return <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Employee</Badge>;
       default:
         return <Badge variant="outline">{role}</Badge>;
     }
@@ -315,7 +315,7 @@ export default function Settings() {
 
           {/* Role Selection Cards */}
           <div className="grid gap-4 md:grid-cols-2">
-            {["Admin", "Operator"].map((role) => (
+            {["Admin", "Employee"].map((role) => (
               <Card 
                 key={role}
                 className={`cursor-pointer transition-all hover:shadow-md ${
@@ -333,7 +333,7 @@ export default function Settings() {
                   <CardDescription>
                     {role === "Admin" && "Full system access with all permissions"}
                     
-                    {role === "Operator" && "Day-to-day operational tasks"}
+                    {role === "Employee" && "Day-to-day operational tasks"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -516,7 +516,7 @@ export default function Settings() {
                 <SelectContent>
                   <SelectItem value="Admin">Admin</SelectItem>
                   
-                  <SelectItem value="Operator">Operator</SelectItem>
+                  <SelectItem value="Employee">Employee</SelectItem>
                 </SelectContent>
               </Select>
             </div>
