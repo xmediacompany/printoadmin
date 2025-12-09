@@ -24,6 +24,7 @@ export default function Settings() {
     {
       name: "Ahmed Al-Mansouri",
       email: "ahmed@printo.press",
+      mobile: "+965 9876 5432",
       role: "Admin",
       branch: "All Branches",
       status: "Active",
@@ -34,6 +35,7 @@ export default function Settings() {
     {
       name: "Fatima Al-Zahra",
       email: "fatima@printo.press",
+      mobile: "+965 9765 4321",
       role: "Manager",
       branch: "Salmiya",
       status: "Active",
@@ -44,6 +46,7 @@ export default function Settings() {
     {
       name: "Omar Hassan",
       email: "omar@printo.press",
+      mobile: "+965 9654 3210",
       role: "Operator",
       branch: "City",
       status: "Active",
@@ -54,6 +57,7 @@ export default function Settings() {
     {
       name: "Noura Al-Sabah",
       email: "noura@printo.press",
+      mobile: "+965 9543 2109",
       role: "Operator",
       branch: "Hawally",
       status: "Inactive",
@@ -64,6 +68,7 @@ export default function Settings() {
     {
       name: "Hasan Al-Rashid",
       email: "hasan@printo.press",
+      mobile: "+965 9432 1098",
       role: "Manager",
       branch: "Salmiya",
       status: "Active",
@@ -152,7 +157,9 @@ export default function Settings() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Mobile</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Branch</TableHead>
                     <TableHead>Status</TableHead>
@@ -165,12 +172,9 @@ export default function Settings() {
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.email}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
-                        </div>
-                      </TableCell>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                      <TableCell className="text-sm">{user.mobile}</TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>{user.branch}</TableCell>
                       <TableCell>{getStatusBadge(user.status)}</TableCell>
