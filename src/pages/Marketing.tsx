@@ -12,9 +12,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { Search, Plus, Target, Tag, Mail, CalendarIcon } from "lucide-react";
+import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+
+interface Coupon {
+  id: string;
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderValue?: number;
+  maxUses?: number;
+  usedCount: number;
+  status: "Active" | "Expired" | "Paused";
+  validFrom: string;
+  validUntil: string;
+  applicableTo: "all" | "specific";
+}
 
 interface Campaign {
   id: string;
@@ -69,8 +84,38 @@ export default function Marketing() {
     },
   ]);
 
+  const [coupons, setCoupons] = useState<Coupon[]>([
+    {
+      id: "CPN-001",
+      code: "PRINT20",
+      discountType: "percentage",
+      discountValue: 20,
+      minOrderValue: 10,
+      maxUses: 100,
+      usedCount: 45,
+      status: "Active",
+      validFrom: "2024-01-01",
+      validUntil: "2024-12-31",
+      applicableTo: "all",
+    },
+    {
+      id: "CPN-002",
+      code: "WELCOME15",
+      discountType: "percentage",
+      discountValue: 15,
+      minOrderValue: 5,
+      maxUses: 500,
+      usedCount: 128,
+      status: "Active",
+      validFrom: "2024-01-01",
+      validUntil: "2024-12-31",
+      applicableTo: "all",
+    },
+  ]);
+
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addCampaignOpen, setAddCampaignOpen] = useState(false);
+  const [addCouponOpen, setAddCouponOpen] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     name: "",
     type: "Promotional",
@@ -79,8 +124,73 @@ export default function Marketing() {
     couponCode: "",
     discountValue: "",
   });
+  const [newCoupon, setNewCoupon] = useState({
+    code: "",
+    discountType: "percentage" as "percentage" | "fixed",
+    discountValue: "",
+    minOrderValue: "",
+    maxUses: "",
+    applicableTo: "all" as "all" | "specific",
+    hasExpiry: true,
+  });
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [couponStartDate, setCouponStartDate] = useState<Date>();
+  const [couponEndDate, setCouponEndDate] = useState<Date>();
+
+  const generateCouponCode = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setNewCoupon({ ...newCoupon, code });
+    toast.success("Code generated!");
+  };
+
+  const handleAddCoupon = () => {
+    if (!newCoupon.code) {
+      toast.error("Please enter or generate a coupon code");
+      return;
+    }
+    if (!newCoupon.discountValue) {
+      toast.error("Please enter a discount value");
+      return;
+    }
+    if (newCoupon.hasExpiry && (!couponStartDate || !couponEndDate)) {
+      toast.error("Please select validity dates");
+      return;
+    }
+
+    const coupon: Coupon = {
+      id: `CPN-${String(coupons.length + 1).padStart(3, '0')}`,
+      code: newCoupon.code.toUpperCase(),
+      discountType: newCoupon.discountType,
+      discountValue: parseFloat(newCoupon.discountValue),
+      minOrderValue: newCoupon.minOrderValue ? parseFloat(newCoupon.minOrderValue) : undefined,
+      maxUses: newCoupon.maxUses ? parseInt(newCoupon.maxUses) : undefined,
+      usedCount: 0,
+      status: "Active",
+      validFrom: couponStartDate ? format(couponStartDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      validUntil: couponEndDate ? format(couponEndDate, "yyyy-MM-dd") : "2099-12-31",
+      applicableTo: newCoupon.applicableTo,
+    };
+
+    setCoupons(prev => [...prev, coupon]);
+    setNewCoupon({
+      code: "",
+      discountType: "percentage",
+      discountValue: "",
+      minOrderValue: "",
+      maxUses: "",
+      applicableTo: "all",
+      hasExpiry: true,
+    });
+    setCouponStartDate(undefined);
+    setCouponEndDate(undefined);
+    setAddCouponOpen(false);
+    toast.success("Coupon created successfully!");
+  };
 
   const filteredCampaigns = campaigns.filter(campaign => {
     if (statusFilter === "all") return true;
@@ -236,7 +346,7 @@ export default function Marketing() {
                   </CardTitle>
                   <CardDescription>Discount codes and vouchers</CardDescription>
                 </div>
-                <Button size="sm">
+                <Button size="sm" onClick={() => setAddCouponOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Create Coupon
                 </Button>
@@ -244,20 +354,29 @@ export default function Marketing() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <h4 className="font-semibold font-mono text-lg">PRINT20</h4>
-                    <p className="text-sm text-muted-foreground">Used 45 times</p>
+                {coupons.map((coupon) => (
+                  <div key={coupon.id} className="flex flex-col p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold font-mono text-lg">{coupon.code}</h4>
+                      <Badge className={coupon.status === "Active" ? "bg-emerald-500/10 text-emerald-700" : "bg-muted text-muted-foreground"}>
+                        {coupon.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-1 text-primary font-medium mb-1">
+                      {coupon.discountType === "percentage" ? (
+                        <>
+                          <Percent className="h-3 w-3" />
+                          {coupon.discountValue}% off
+                        </>
+                      ) : (
+                        <>{coupon.discountValue} KD off</>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Used {coupon.usedCount}{coupon.maxUses ? ` / ${coupon.maxUses}` : ""} times
+                    </p>
                   </div>
-                  <Badge>Active</Badge>
-                </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <h4 className="font-semibold font-mono text-lg">WELCOME15</h4>
-                    <p className="text-sm text-muted-foreground">Used 128 times</p>
-                  </div>
-                  <Badge>Active</Badge>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -460,6 +579,249 @@ export default function Marketing() {
             </Button>
             <Button onClick={handleAddCampaign}>
               Create Campaign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Coupon Dialog */}
+      <Dialog open={addCouponOpen} onOpenChange={setAddCouponOpen}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-primary" />
+              Create New Coupon
+            </DialogTitle>
+            <DialogDescription>Generate a discount code for your customers</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Coupon Code */}
+            <div className="space-y-2">
+              <Label>Coupon Code *</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="e.g., SUMMER20"
+                  value={newCoupon.code}
+                  onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                  className="font-mono uppercase flex-1"
+                />
+                <Button variant="outline" onClick={generateCouponCode} type="button">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate
+                </Button>
+              </div>
+            </div>
+
+            {/* Discount Type Selection */}
+            <div className="space-y-3">
+              <Label>Discount Type</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setNewCoupon({ ...newCoupon, discountType: "percentage" })}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all",
+                    newCoupon.discountType === "percentage" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center",
+                    newCoupon.discountType === "percentage" ? "bg-primary text-primary-foreground" : "bg-muted"
+                  )}>
+                    <Percent className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">Percentage</span>
+                  <span className="text-xs text-muted-foreground">e.g., 20% off</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewCoupon({ ...newCoupon, discountType: "fixed" })}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all",
+                    newCoupon.discountType === "fixed" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center",
+                    newCoupon.discountType === "fixed" ? "bg-primary text-primary-foreground" : "bg-muted"
+                  )}>
+                    <Tag className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">Fixed Amount</span>
+                  <span className="text-xs text-muted-foreground">e.g., 5 KD off</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Discount Value */}
+            <div className="space-y-2">
+              <Label>Discount Value *</Label>
+              <div className="relative">
+                <Input 
+                  type="number"
+                  placeholder={newCoupon.discountType === "percentage" ? "20" : "5"}
+                  value={newCoupon.discountValue}
+                  onChange={(e) => setNewCoupon({ ...newCoupon, discountValue: e.target.value })}
+                  className="pr-12"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {newCoupon.discountType === "percentage" ? "%" : "KD"}
+                </span>
+              </div>
+            </div>
+
+            {/* Conditions */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Conditions
+              </h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Minimum Order Value</Label>
+                  <div className="relative">
+                    <Input 
+                      type="number"
+                      placeholder="Optional"
+                      value={newCoupon.minOrderValue}
+                      onChange={(e) => setNewCoupon({ ...newCoupon, minOrderValue: e.target.value })}
+                      className="pr-10"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">KD</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Maximum Uses</Label>
+                  <Input 
+                    type="number"
+                    placeholder="Unlimited"
+                    value={newCoupon.maxUses}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, maxUses: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Applicable To */}
+            <div className="space-y-3">
+              <Label>Applicable To</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setNewCoupon({ ...newCoupon, applicableTo: "all" })}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCoupon.applicableTo === "all" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">All Customers</div>
+                    <div className="text-xs text-muted-foreground">Anyone can use</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewCoupon({ ...newCoupon, applicableTo: "specific" })}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCoupon.applicableTo === "specific" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <Gift className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">Specific</div>
+                    <div className="text-xs text-muted-foreground">Selected users</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Validity */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Set Expiry Date</Label>
+                <Switch 
+                  checked={newCoupon.hasExpiry}
+                  onCheckedChange={(checked) => setNewCoupon({ ...newCoupon, hasExpiry: checked })}
+                />
+              </div>
+              
+              {newCoupon.hasExpiry && (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Valid From</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !couponStartDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {couponStartDate ? format(couponStartDate, "PPP") : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={couponStartDate}
+                          onSelect={setCouponStartDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Valid Until</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !couponEndDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {couponEndDate ? format(couponEndDate, "PPP") : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={couponEndDate}
+                          onSelect={setCouponEndDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddCouponOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddCoupon}>
+              <Tag className="mr-2 h-4 w-4" />
+              Create Coupon
             </Button>
           </DialogFooter>
         </DialogContent>
