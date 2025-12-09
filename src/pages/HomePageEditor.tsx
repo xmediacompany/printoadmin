@@ -27,7 +27,9 @@ import {
   Facebook,
   Instagram,
   Linkedin,
-  Trash2
+  Trash2,
+  FileText,
+  HelpCircle
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -72,6 +74,14 @@ interface SocialLink {
   id: string;
   platform: string;
   url: string;
+  isActive: boolean;
+}
+
+interface SupportPage {
+  id: string;
+  name: string;
+  title: string;
+  content: string;
   isActive: boolean;
 }
 
@@ -178,6 +188,38 @@ const HomePageEditor = () => {
   ]);
 
   const [newSocialLink, setNewSocialLink] = useState({ platform: "", url: "" });
+
+  // Support Pages
+  const [supportPages, setSupportPages] = useState<SupportPage[]>([
+    { 
+      id: "faq", 
+      name: "FAQs", 
+      title: "Frequently Asked Questions",
+      content: "Find answers to common questions about our products, ordering process, shipping, and more.",
+      isActive: true 
+    },
+    { 
+      id: "contact", 
+      name: "Contact Us", 
+      title: "Contact Us",
+      content: "Get in touch with our team for any inquiries, support, or feedback. We're here to help!",
+      isActive: true 
+    },
+    { 
+      id: "privacy", 
+      name: "Privacy Policy", 
+      title: "Privacy Policy",
+      content: "Learn how we collect, use, and protect your personal information when you use our services.",
+      isActive: true 
+    },
+    { 
+      id: "refund", 
+      name: "Refund Policy", 
+      title: "Refund Policy",
+      content: "Understand our refund and return policies to ensure a smooth shopping experience.",
+      isActive: true 
+    },
+  ]);
 
   const handleSave = () => {
     toast.success("Home page changes saved successfully");
@@ -436,6 +478,10 @@ const HomePageEditor = () => {
           <TabsTrigger value="social" className="gap-2">
             <Share2 className="h-4 w-4" />
             Social Media
+          </TabsTrigger>
+          <TabsTrigger value="support" className="gap-2">
+            <HelpCircle className="h-4 w-4" />
+            Support Pages
           </TabsTrigger>
         </TabsList>
 
@@ -717,6 +763,71 @@ const HomePageEditor = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Support Pages Tab */}
+        <TabsContent value="support" className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold">Support Pages</h2>
+            <p className="text-muted-foreground">Manage the content for your support and policy pages</p>
+          </div>
+          
+          <div className="space-y-4">
+            {supportPages.map((page) => (
+              <Card key={page.id} className={!page.isActive ? "opacity-60" : ""}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{page.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">/{page.id}</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={page.isActive}
+                      onCheckedChange={() => {
+                        setSupportPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, isActive: !p.isActive } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Page Title</Label>
+                    <Input 
+                      value={page.title}
+                      onChange={(e) => {
+                        setSupportPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, title: e.target.value } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Page Content / Description</Label>
+                    <Textarea 
+                      value={page.content}
+                      onChange={(e) => {
+                        setSupportPages(prev => prev.map(p => 
+                          p.id === page.id ? { ...p, content: e.target.value } : p
+                        ));
+                        setHasChanges(true);
+                      }}
+                      rows={4}
+                      placeholder="Enter the page content..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
 
