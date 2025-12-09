@@ -83,8 +83,8 @@ export default function Marketing() {
             Campaigns
           </TabsTrigger>
           <TabsTrigger value="merchandising" className="gap-2">
-            <Store className="h-4 w-4" />
-            Promotions
+            <Mail className="h-4 w-4" />
+            Newsletters
           </TabsTrigger>
         </TabsList>
 
