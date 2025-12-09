@@ -9,6 +9,7 @@ import Orders from "./pages/Orders";
 import Catalog from "./pages/Catalog";
 import CMS from "./pages/CMS";
 import ProductEditor from "./pages/ProductEditor";
+import PrintingServices from "./pages/PrintingServices";
 import Workstations from "./pages/Workstations";
 import Fulfillment from "./pages/Fulfillment";
 import Customers from "./pages/Customers";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/catalog" element={<AppLayout><Catalog /></AppLayout>} />
           <Route path="/cms" element={<AppLayout><CMS /></AppLayout>} />
           <Route path="/cms/products" element={<AppLayout><ProductEditor /></AppLayout>} />
+          <Route path="/cms/printing-services" element={<AppLayout><PrintingServices /></AppLayout>} />
           <Route path="/workstations" element={<AppLayout><Workstations /></AppLayout>} />
           <Route path="/fulfillment" element={<AppLayout><Fulfillment /></AppLayout>} />
           <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />

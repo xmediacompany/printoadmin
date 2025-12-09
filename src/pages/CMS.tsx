@@ -113,7 +113,7 @@ const CMS = () => {
                   12 pages active
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/cms/printing-services")}>
                     <Edit className="h-4 w-4 mr-1" />
                     Manage
                   </Button>
