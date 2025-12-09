@@ -159,6 +159,42 @@ export default function Marketing() {
               </Table>
             </CardContent>
           </Card>
+          {/* Coupons Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    Coupons
+                  </CardTitle>
+                  <CardDescription>Discount codes and vouchers</CardDescription>
+                </div>
+                <Button size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Coupon
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1">
+                    <h4 className="font-semibold font-mono text-lg">PRINT20</h4>
+                    <p className="text-sm text-muted-foreground">Used 45 times</p>
+                  </div>
+                  <Badge>Active</Badge>
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1">
+                    <h4 className="font-semibold font-mono text-lg">WELCOME15</h4>
+                    <p className="text-sm text-muted-foreground">Used 128 times</p>
+                  </div>
+                  <Badge>Active</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="push-sms">
@@ -170,78 +206,40 @@ export default function Marketing() {
         </TabsContent>
 
         <TabsContent value="merchandising" className="space-y-6">
-          {/* Newsletter and Coupons Row */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="h-5 w-5" />
-                      Newsletter
-                    </CardTitle>
-                    <CardDescription>Email subscription management</CardDescription>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    Settings
-                  </Button>
+          {/* Newsletter */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Newsletter
+                  </CardTitle>
+                  <CardDescription>Email subscription management</CardDescription>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 bg-muted rounded-lg">
-                      <div className="text-3xl font-bold">1,234</div>
-                      <div className="text-sm text-muted-foreground mt-1">Total Subscribers</div>
-                    </div>
-                    <div className="p-6 bg-muted rounded-lg">
-                      <div className="text-3xl font-bold">+48</div>
-                      <div className="text-sm text-muted-foreground mt-1">This Week</div>
-                    </div>
+                <Button size="sm" variant="outline">
+                  Settings
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-6 bg-muted rounded-lg">
+                    <div className="text-3xl font-bold">1,234</div>
+                    <div className="text-sm text-muted-foreground mt-1">Total Subscribers</div>
                   </div>
-                  <Button variant="outline" className="w-full">
-                    Export Subscriber List
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Tag className="h-5 w-5" />
-                      Coupons
-                    </CardTitle>
-                    <CardDescription>Discount codes and vouchers</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Coupon
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold font-mono text-lg">PRINT20</h4>
-                      <p className="text-sm text-muted-foreground">Used 45 times</p>
-                    </div>
-                    <Badge>Active</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold font-mono text-lg">WELCOME15</h4>
-                      <p className="text-sm text-muted-foreground">Used 128 times</p>
-                    </div>
-                    <Badge>Active</Badge>
+                  <div className="p-6 bg-muted rounded-lg">
+                    <div className="text-3xl font-bold">+48</div>
+                    <div className="text-sm text-muted-foreground mt-1">This Week</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <Button variant="outline" className="w-full">
+                  Export Subscriber List
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
