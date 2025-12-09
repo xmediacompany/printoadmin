@@ -47,6 +47,10 @@ export default function SmartReports() {
       title: "Sales Performance Analysis",
       description: "Analyze sales metrics and conversion rates",
     },
+    {
+      title: "B2B Monthly Recurring Revenue",
+      description: "Track recurring revenue from B2B corporate accounts",
+    },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
