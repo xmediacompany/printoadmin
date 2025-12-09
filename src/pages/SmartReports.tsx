@@ -1,13 +1,38 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, FileSpreadsheet } from "lucide-react";
+import { Upload, FileSpreadsheet, Calendar as CalendarIcon, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+interface SavedSpreadsheet {
+  id: string;
+  title: string;
+  fileName: string;
+  date: Date;
+  size: number;
+}
 
 export default function SmartReports() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [savedSpreadsheets, setSavedSpreadsheets] = useState<SavedSpreadsheet[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const reports = [
     {
@@ -49,12 +74,43 @@ export default function SmartReports() {
       const fileExtension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
 
       if (validTypes.includes(file.type) || validExtensions.includes(fileExtension)) {
-        setUploadedFile(file);
-        toast.success(`File "${file.name}" uploaded successfully`);
+        setPendingFile(file);
+        setTitle(file.name.replace(/\.[^/.]+$/, ""));
+        setSelectedDate(new Date());
+        setDialogOpen(true);
       } else {
         toast.error("Please upload a valid Excel or CSV file");
       }
     }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSaveSpreadsheet = () => {
+    if (!pendingFile || !title.trim() || !selectedDate) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    const newSpreadsheet: SavedSpreadsheet = {
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      fileName: pendingFile.name,
+      date: selectedDate,
+      size: pendingFile.size,
+    };
+
+    setSavedSpreadsheets((prev) => [...prev, newSpreadsheet]);
+    toast.success(`"${title}" saved successfully`);
+    setDialogOpen(false);
+    setPendingFile(null);
+    setTitle("");
+  };
+
+  const handleRemoveSpreadsheet = (id: string) => {
+    setSavedSpreadsheets((prev) => prev.filter((s) => s.id !== id));
+    toast.success("Spreadsheet removed");
   };
 
   const triggerFileUpload = () => {
@@ -80,21 +136,35 @@ export default function SmartReports() {
         </div>
       </div>
 
-      {uploadedFile && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="flex items-center gap-3 py-4">
-            <FileSpreadsheet className="h-8 w-8 text-primary" />
-            <div className="flex-1">
-              <p className="font-medium">{uploadedFile.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {(uploadedFile.size / 1024).toFixed(1)} KB
-              </p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setUploadedFile(null)}>
-              Remove
-            </Button>
-          </CardContent>
-        </Card>
+      {savedSpreadsheets.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">Saved Spreadsheets</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {savedSpreadsheets.map((spreadsheet) => (
+              <Card key={spreadsheet.id} className="border-primary/20">
+                <CardContent className="flex items-center gap-3 py-4">
+                  <FileSpreadsheet className="h-8 w-8 text-primary flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{spreadsheet.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(spreadsheet.date, "PPP")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {(spreadsheet.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveSpreadsheet(spreadsheet.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -117,6 +187,66 @@ export default function SmartReports() {
           Schedule
         </Button>
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Spreadsheet</DialogTitle>
+            <DialogDescription>
+              Add a title and date for your uploaded spreadsheet.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter a title for this report"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            {pendingFile && (
+              <div className="flex items-center gap-2 rounded-md bg-muted p-3">
+                <FileSpreadsheet className="h-5 w-5 text-primary" />
+                <span className="text-sm truncate">{pendingFile.name}</span>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveSpreadsheet}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
