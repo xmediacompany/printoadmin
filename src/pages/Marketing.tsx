@@ -154,54 +154,8 @@ export default function Marketing() {
         </TabsContent>
 
         <TabsContent value="merchandising" className="space-y-6">
-          {/* Collections and Newsletter Row */}
+          {/* Newsletter and Coupons Row */}
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Collections</CardTitle>
-                    <CardDescription>Product groupings and categories</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Collection
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Business Essentials</h4>
-                      <p className="text-sm text-muted-foreground">24 products</p>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Marketing Materials</h4>
-                      <p className="text-sm text-muted-foreground">18 products</p>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Promotional Products</h4>
-                      <p className="text-sm text-muted-foreground">32 products</p>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -232,55 +186,6 @@ export default function Marketing() {
                   <Button variant="outline" className="w-full">
                     Export Subscriber List
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Promotions and Coupons Row */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Megaphone className="h-5 w-5" />
-                      Promotions
-                    </CardTitle>
-                    <CardDescription>Active campaigns and offers</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Promo
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold">Summer Sale 2024</h4>
-                        <Badge>Active</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">20% off • Ends in 5 days</p>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold">First Order Discount</h4>
-                        <Badge variant="secondary">Scheduled</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">15% off • Starts in 2 days</p>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -321,46 +226,6 @@ export default function Marketing() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Upsells & Cross-sells */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upsells & Cross-sells</CardTitle>
-              <CardDescription>Product recommendations and bundles</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">Business Card Bundle</h4>
-                    <p className="text-sm text-muted-foreground">
-                      When buying Business Cards → Suggest Letterhead + Envelopes
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">12 conversions</span>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1">Marketing Combo</h4>
-                    <p className="text-sm text-muted-foreground">
-                      When buying Flyers → Suggest Posters + Banners
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">8 conversions</span>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
