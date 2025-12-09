@@ -42,6 +42,7 @@ const PrintingServices = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<PrintingService | null>(null);
 
   const [services, setServices] = useState<PrintingService[]>([
@@ -142,6 +143,17 @@ const PrintingServices = () => {
     isVisible: true,
   });
 
+  const [addForm, setAddForm] = useState({
+    title: "",
+    serviceCode: "",
+    category: "",
+    paperSizes: "",
+    bindings: "",
+    basePrice: "",
+    description: "",
+    isVisible: true,
+  });
+
   const categories = ["Documents", "Academic", "Marketing", "Publications", "Signage", "Photography"];
 
   const handleEditService = (service: PrintingService) => {
@@ -188,6 +200,40 @@ const PrintingServices = () => {
     setSelectedService(null);
   };
 
+  const handleAddService = () => {
+    if (!addForm.title || !addForm.serviceCode || !addForm.basePrice || !addForm.category) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const newService: PrintingService = {
+      id: `SRV-${String(services.length + 1).padStart(3, '0')}`,
+      title: addForm.title,
+      serviceCode: addForm.serviceCode,
+      category: addForm.category,
+      paperSizes: addForm.paperSizes ? addForm.paperSizes.split(",").map(p => p.trim()) : [],
+      bindings: addForm.bindings ? addForm.bindings.split(",").map(b => b.trim()) : [],
+      basePrice: addForm.basePrice,
+      description: addForm.description,
+      isVisible: addForm.isVisible,
+      status: addForm.isVisible ? "Active" : "Draft",
+    };
+
+    setServices([...services, newService]);
+    toast.success("Service added successfully");
+    setAddDialogOpen(false);
+    setAddForm({
+      title: "",
+      serviceCode: "",
+      category: "",
+      paperSizes: "",
+      bindings: "",
+      basePrice: "",
+      description: "",
+      isVisible: true,
+    });
+  };
+
   const handleToggleVisibility = (serviceId: string) => {
     setServices(services.map(s => 
       s.id === serviceId 
@@ -227,7 +273,7 @@ const PrintingServices = () => {
           <h1 className="text-3xl font-bold">Manage Printing Services</h1>
           <p className="text-muted-foreground">Edit and modify printing services, paper sizes, bindings, and prices</p>
         </div>
-        <Button>
+        <Button onClick={() => setAddDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Service
         </Button>
@@ -481,6 +527,118 @@ const PrintingServices = () => {
             </Button>
             <Button onClick={handleSaveService}>
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Service Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Printing Service</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-title">Service Title *</Label>
+                <Input
+                  id="add-title"
+                  placeholder="Enter service title"
+                  value={addForm.title}
+                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-serviceCode">Service Code *</Label>
+                <Input
+                  id="add-serviceCode"
+                  placeholder="e.g., DOC-PRINT"
+                  value={addForm.serviceCode}
+                  onChange={(e) => setAddForm({ ...addForm, serviceCode: e.target.value.toUpperCase() })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-category">Category *</Label>
+                <Select value={addForm.category} onValueChange={(value) => setAddForm({ ...addForm, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-basePrice">Base Price (KD) *</Label>
+                <Input
+                  id="add-basePrice"
+                  type="number"
+                  step="0.001"
+                  placeholder="0.000"
+                  value={addForm.basePrice}
+                  onChange={(e) => setAddForm({ ...addForm, basePrice: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="add-paperSizes">Paper Sizes (comma-separated)</Label>
+              <Input
+                id="add-paperSizes"
+                placeholder="e.g., A4, A3, Letter, Custom"
+                value={addForm.paperSizes}
+                onChange={(e) => setAddForm({ ...addForm, paperSizes: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Common sizes: A0, A1, A2, A3, A4, A5, Letter, Legal, Custom</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="add-bindings">Binding Options (comma-separated)</Label>
+              <Input
+                id="add-bindings"
+                placeholder="e.g., None, Spiral, Hard Cover, Soft Cover"
+                value={addForm.bindings}
+                onChange={(e) => setAddForm({ ...addForm, bindings: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">Common bindings: None, Stapled, Spiral, Perfect Bound, Hard Cover, Soft Cover, Saddle Stitch</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="add-description">Service Description</Label>
+              <Textarea
+                id="add-description"
+                placeholder="Describe the service, its features, and what customers can expect..."
+                rows={4}
+                value={addForm.description}
+                onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
+              <div className="space-y-0.5">
+                <Label>Service Visibility</Label>
+                <p className="text-sm text-muted-foreground">
+                  {addForm.isVisible ? "Service will be visible to customers immediately" : "Service will be saved as draft (hidden)"}
+                </p>
+              </div>
+              <Switch
+                checked={addForm.isVisible}
+                onCheckedChange={(checked) => setAddForm({ ...addForm, isVisible: checked })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddService}>
+              Add Service
             </Button>
           </DialogFooter>
         </DialogContent>
