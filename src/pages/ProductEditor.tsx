@@ -107,7 +107,7 @@ const initialProducts: Product[] = [
   },
 ];
 
-const categories = [
+const defaultCategories = [
   "Custom T-Shirts",
   "Ceramic Mugs",
   "Tote Bags",
@@ -126,11 +126,14 @@ const categories = [
 const ProductEditor = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [categories, setCategories] = useState<string[]>(defaultCategories);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isNewProduct, setIsNewProduct] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = 
@@ -412,23 +415,77 @@ const ProductEditor = () => {
                 {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={editingProduct.category}
-                    onValueChange={(value) =>
-                      setEditingProduct({ ...editingProduct, category: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {isAddingCategory ? (
+                    <div className="flex gap-2">
+                      <Input
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="Enter new category name"
+                        className="flex-1"
+                        autoFocus
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          const trimmed = newCategoryName.trim();
+                          if (trimmed && !categories.includes(trimmed)) {
+                            setCategories([...categories, trimmed]);
+                            setEditingProduct({ ...editingProduct, category: trimmed });
+                            toast({
+                              title: "Category Added",
+                              description: `"${trimmed}" has been added to categories.`,
+                            });
+                          }
+                          setNewCategoryName("");
+                          setIsAddingCategory(false);
+                        }}
+                        disabled={!newCategoryName.trim()}
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setNewCategoryName("");
+                          setIsAddingCategory(false);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Select
+                        value={editingProduct.category}
+                        onValueChange={(value) =>
+                          setEditingProduct({ ...editingProduct, category: value })
+                        }
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => setIsAddingCategory(true)}
+                        title="Add new category"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 
