@@ -14,8 +14,7 @@ export default function Marketing() {
       type: "Promotional",
       status: "Active",
       duration: "2024-06-01 - 2024-08-31",
-      reach: 2450,
-      conversion: "12.5%",
+      usedCoupons: 245,
     },
     {
       id: "CAMP-002",
@@ -23,8 +22,7 @@ export default function Marketing() {
       type: "Onboarding",
       status: "Active",
       duration: "2024-01-01 - 2024-12-31",
-      reach: 1230,
-      conversion: "18.2%",
+      usedCoupons: 128,
     },
     {
       id: "CAMP-003",
@@ -32,8 +30,7 @@ export default function Marketing() {
       type: "Promotional",
       status: "Scheduled",
       duration: "2024-02-01 - 2024-02-28",
-      reach: 3100,
-      conversion: "8.7%",
+      usedCoupons: 0,
     },
     {
       id: "CAMP-004",
@@ -41,8 +38,7 @@ export default function Marketing() {
       type: "Retention",
       status: "Draft",
       duration: "2024-03-01 - 2024-05-31",
-      reach: 890,
-      conversion: "22.1%",
+      usedCoupons: 0,
     },
   ];
 
@@ -113,8 +109,7 @@ export default function Marketing() {
                     <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Duration</TableHead>
-                    <TableHead>Reach</TableHead>
-                    <TableHead>Conversion</TableHead>
+                    <TableHead>Used Coupons</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -130,8 +125,7 @@ export default function Marketing() {
                       <TableCell>{campaign.type}</TableCell>
                       <TableCell>{getStatusBadge(campaign.status)}</TableCell>
                       <TableCell className="text-sm">{campaign.duration}</TableCell>
-                      <TableCell className="font-medium">{campaign.reach.toLocaleString()}</TableCell>
-                      <TableCell className="font-medium">{campaign.conversion}</TableCell>
+                      <TableCell className="font-medium">{campaign.usedCoupons.toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="default" size="sm" className="bg-foreground text-background hover:bg-foreground/90">
                           View
