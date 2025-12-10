@@ -113,6 +113,8 @@ const HomePageEditor = () => {
   });
   const [newColorInput, setNewColorInput] = useState("");
   const [newSizeInput, setNewSizeInput] = useState("");
+  const [isCustomProductName, setIsCustomProductName] = useState(false);
+  const [customProductName, setCustomProductName] = useState("");
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [newService, setNewService] = useState<Omit<ServiceItem, 'id' | 'isActive'>>({
     name: "",
@@ -341,6 +343,8 @@ const HomePageEditor = () => {
     setNewProduct({ name: "", subtitle: "", imageUrl: "", colors: [], sizes: [], quantity: 0, showSizes: true });
     setNewColorInput("");
     setNewSizeInput("");
+    setIsCustomProductName(false);
+    setCustomProductName("");
     setAddProductDialogOpen(false);
     setHasChanges(true);
     toast.success("Product added successfully");
@@ -1043,29 +1047,67 @@ const HomePageEditor = () => {
 
             <div className="space-y-2">
               <Label>Product Name</Label>
-              <Select
-                value={newProduct.name}
-                onValueChange={(value) => setNewProduct({ ...newProduct, name: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a product" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Custom T-Shirts">Custom T-Shirts</SelectItem>
-                  <SelectItem value="Ceramic Mugs">Ceramic Mugs</SelectItem>
-                  <SelectItem value="Tote Bags">Tote Bags</SelectItem>
-                  <SelectItem value="Hoodies">Hoodies</SelectItem>
-                  <SelectItem value="Caps">Caps</SelectItem>
-                  <SelectItem value="Thermo Bottles">Thermo Bottles</SelectItem>
-                  <SelectItem value="Cups">Cups</SelectItem>
-                  <SelectItem value="Stationery">Stationery</SelectItem>
-                  <SelectItem value="Stickers">Stickers</SelectItem>
-                  <SelectItem value="Papers">Papers</SelectItem>
-                  <SelectItem value="Cards">Cards</SelectItem>
-                  <SelectItem value="Notebooks">Notebooks</SelectItem>
-                  <SelectItem value="Diary">Diary</SelectItem>
-                </SelectContent>
-              </Select>
+              {!isCustomProductName ? (
+                <Select
+                  value={newProduct.name}
+                  onValueChange={(value) => {
+                    if (value === "__other__") {
+                      setIsCustomProductName(true);
+                      setNewProduct({ ...newProduct, name: "" });
+                    } else {
+                      setNewProduct({ ...newProduct, name: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Custom T-Shirts">Custom T-Shirts</SelectItem>
+                    <SelectItem value="Ceramic Mugs">Ceramic Mugs</SelectItem>
+                    <SelectItem value="Tote Bags">Tote Bags</SelectItem>
+                    <SelectItem value="Hoodies">Hoodies</SelectItem>
+                    <SelectItem value="Caps">Caps</SelectItem>
+                    <SelectItem value="Thermo Bottles">Thermo Bottles</SelectItem>
+                    <SelectItem value="Cups">Cups</SelectItem>
+                    <SelectItem value="Stationery">Stationery</SelectItem>
+                    <SelectItem value="Stickers">Stickers</SelectItem>
+                    <SelectItem value="Papers">Papers</SelectItem>
+                    <SelectItem value="Cards">Cards</SelectItem>
+                    <SelectItem value="Notebooks">Notebooks</SelectItem>
+                    <SelectItem value="Diary">Diary</SelectItem>
+                    <SelectItem value="__other__" className="text-primary font-medium">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Custom Product
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={customProductName}
+                    onChange={(e) => {
+                      setCustomProductName(e.target.value);
+                      setNewProduct({ ...newProduct, name: e.target.value });
+                    }}
+                    placeholder="Enter custom product name"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      setIsCustomProductName(false);
+                      setCustomProductName("");
+                      setNewProduct({ ...newProduct, name: "" });
+                    }}
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
