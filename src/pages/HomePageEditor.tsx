@@ -55,6 +55,7 @@ interface ProductItem {
   colors: string[];
   sizes: string[];
   quantity: number;
+  showSizes: boolean;
   isActive: boolean;
 }
 
@@ -107,6 +108,7 @@ const HomePageEditor = () => {
     colors: [],
     sizes: [],
     quantity: 0,
+    showSizes: true,
   });
   const [newColorInput, setNewColorInput] = useState("");
   const [newSizeInput, setNewSizeInput] = useState("");
@@ -156,15 +158,15 @@ const HomePageEditor = () => {
 
   // Custom Design Products
   const [products, setProducts] = useState<ProductItem[]>([
-    { id: "prod-1", name: "Custom T-Shirts", subtitle: "DTF/DTG/Screen-print", imageUrl: "/products/tshirts.jpg", colors: ["Black", "White", "Navy"], sizes: ["S", "M", "L", "XL"], quantity: 100, isActive: true },
-    { id: "prod-2", name: "Ceramic Mugs", subtitle: "Sublimation print", imageUrl: "/products/mugs.jpg", colors: ["White"], sizes: ["11oz", "15oz"], quantity: 50, isActive: true },
-    { id: "prod-3", name: "Tote Bags", subtitle: "Screen Print/DTG", imageUrl: "/products/totebags.jpg", colors: ["Natural", "Black"], sizes: ["Standard"], quantity: 75, isActive: true },
-    { id: "prod-4", name: "Hoodies", subtitle: "DTG/Screen/Print/Emb", imageUrl: "/products/hoodies.jpg", colors: ["Black", "Grey", "Navy"], sizes: ["S", "M", "L", "XL", "XXL"], quantity: 60, isActive: true },
-    { id: "prod-5", name: "Caps", subtitle: "Embroidery-print", imageUrl: "/products/caps.jpg", colors: ["Black", "White", "Red"], sizes: ["One Size"], quantity: 120, isActive: true },
-    { id: "prod-6", name: "Thermo Bottles", subtitle: "Sublimation-laser", imageUrl: "/products/bottles.jpg", colors: ["Silver", "Black", "White"], sizes: ["500ml", "750ml"], quantity: 80, isActive: true },
-    { id: "prod-7", name: "Cups", subtitle: "Custom branded cups", imageUrl: "/products/cups.jpg", colors: ["White", "Black"], sizes: ["250ml", "350ml"], quantity: 90, isActive: true },
-    { id: "prod-8", name: "Stationery", subtitle: "Branded stationery sets", imageUrl: "/products/stationery.jpg", colors: [], sizes: [], quantity: 40, isActive: true },
-    { id: "prod-9", name: "Diary", subtitle: "Personalized diary/journal", imageUrl: "/products/diary.jpg", colors: ["Black", "Brown", "Blue"], sizes: ["A5", "A4"], quantity: 35, isActive: true },
+    { id: "prod-1", name: "Custom T-Shirts", subtitle: "DTF/DTG/Screen-print", imageUrl: "/products/tshirts.jpg", colors: ["#000000", "#FFFFFF", "#1E3A5F"], sizes: ["S", "M", "L", "XL"], quantity: 100, showSizes: true, isActive: true },
+    { id: "prod-2", name: "Ceramic Mugs", subtitle: "Sublimation print", imageUrl: "/products/mugs.jpg", colors: ["#FFFFFF"], sizes: ["11oz", "15oz"], quantity: 50, showSizes: true, isActive: true },
+    { id: "prod-3", name: "Tote Bags", subtitle: "Screen Print/DTG", imageUrl: "/products/totebags.jpg", colors: ["#F5F5DC", "#000000"], sizes: ["Standard"], quantity: 75, showSizes: false, isActive: true },
+    { id: "prod-4", name: "Hoodies", subtitle: "DTG/Screen/Print/Emb", imageUrl: "/products/hoodies.jpg", colors: ["#000000", "#808080", "#1E3A5F"], sizes: ["S", "M", "L", "XL", "XXL"], quantity: 60, showSizes: true, isActive: true },
+    { id: "prod-5", name: "Caps", subtitle: "Embroidery-print", imageUrl: "/products/caps.jpg", colors: ["#000000", "#FFFFFF", "#FF0000"], sizes: ["One Size"], quantity: 120, showSizes: false, isActive: true },
+    { id: "prod-6", name: "Thermo Bottles", subtitle: "Sublimation-laser", imageUrl: "/products/bottles.jpg", colors: ["#C0C0C0", "#000000", "#FFFFFF"], sizes: ["500ml", "750ml"], quantity: 80, showSizes: true, isActive: true },
+    { id: "prod-7", name: "Cups", subtitle: "Custom branded cups", imageUrl: "/products/cups.jpg", colors: ["#FFFFFF", "#000000"], sizes: ["250ml", "350ml"], quantity: 90, showSizes: true, isActive: true },
+    { id: "prod-8", name: "Stationery", subtitle: "Branded stationery sets", imageUrl: "/products/stationery.jpg", colors: [], sizes: [], quantity: 40, showSizes: false, isActive: true },
+    { id: "prod-9", name: "Diary", subtitle: "Personalized diary/journal", imageUrl: "/products/diary.jpg", colors: ["#000000", "#8B4513", "#0000FF"], sizes: ["A5", "A4"], quantity: 35, showSizes: true, isActive: true },
   ]);
 
   // Printing Services
@@ -335,7 +337,7 @@ const HomePageEditor = () => {
       isActive: true,
     };
     setProducts(prev => [...prev, product]);
-    setNewProduct({ name: "", subtitle: "", imageUrl: "", colors: [], sizes: [], quantity: 0 });
+    setNewProduct({ name: "", subtitle: "", imageUrl: "", colors: [], sizes: [], quantity: 0, showSizes: true });
     setNewColorInput("");
     setNewSizeInput("");
     setAddProductDialogOpen(false);
@@ -1110,50 +1112,90 @@ const HomePageEditor = () => {
             </div>
 
             {/* Sizes */}
-            <div className="space-y-2">
-              <Label>Sizes</Label>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="Add a size (e.g., S, M, L, XL)"
-                  value={newSizeInput}
-                  onChange={(e) => setNewSizeInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && newSizeInput.trim()) {
-                      e.preventDefault();
-                      setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
-                      setNewSizeInput("");
-                    }
-                  }}
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon"
-                  onClick={() => {
-                    if (newSizeInput.trim()) {
-                      setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
-                      setNewSizeInput("");
-                    }
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {newProduct.sizes.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {newProduct.sizes.map((size, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      {size}
-                      <button
-                        type="button"
-                        onClick={() => setNewProduct({ ...newProduct, sizes: newProduct.sizes.filter((_, i) => i !== index) })}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        ×
-                      </button>
-                    </Badge>
-                  ))}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Sizes</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Show sizes</span>
+                  <Switch
+                    checked={newProduct.showSizes}
+                    onCheckedChange={(checked) => setNewProduct({ ...newProduct, showSizes: checked })}
+                  />
                 </div>
+              </div>
+              
+              {newProduct.showSizes && (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => {
+                          if (newProduct.sizes.includes(size)) {
+                            setNewProduct({ ...newProduct, sizes: newProduct.sizes.filter(s => s !== size) });
+                          } else {
+                            setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, size] });
+                          }
+                        }}
+                        className={`min-w-[48px] h-10 px-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+                          newProduct.sizes.includes(size)
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background text-foreground border-input hover:border-foreground/50"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Custom size input */}
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Add custom size"
+                      value={newSizeInput}
+                      onChange={(e) => setNewSizeInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newSizeInput.trim()) {
+                          e.preventDefault();
+                          if (!newProduct.sizes.includes(newSizeInput.trim())) {
+                            setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
+                          }
+                          setNewSizeInput("");
+                        }
+                      }}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        if (newSizeInput.trim() && !newProduct.sizes.includes(newSizeInput.trim())) {
+                          setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
+                          setNewSizeInput("");
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Show custom sizes that aren't in the predefined list */}
+                  {newProduct.sizes.filter(s => !["XS", "S", "M", "L", "XL", "XXL"].includes(s)).length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newProduct.sizes.filter(s => !["XS", "S", "M", "L", "XL", "XXL"].includes(s)).map((size, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setNewProduct({ ...newProduct, sizes: newProduct.sizes.filter(s => s !== size) })}
+                          className="min-w-[48px] h-10 px-3 rounded-lg border-2 bg-foreground text-background border-foreground text-sm font-medium transition-colors"
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
