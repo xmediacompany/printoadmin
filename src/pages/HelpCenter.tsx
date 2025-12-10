@@ -23,6 +23,8 @@ import {
   BookOpen,
   ChevronRight,
   Eye,
+  EyeOff,
+  Download,
   GripVertical
 } from "lucide-react";
 import { toast } from "sonner";
@@ -35,6 +37,7 @@ interface Article {
   status: "published" | "draft";
   views: number;
   lastUpdated: string;
+  isVisible: boolean;
 }
 
 interface Category {
@@ -65,12 +68,12 @@ const HelpCenter = () => {
   ]);
 
   const [articles, setArticles] = useState<Article[]>([
-    { id: "art-1", title: "How to place your first order", content: "Step-by-step guide to placing your first custom printing order with PRINTO...", category: "Getting Started", status: "published", views: 1250, lastUpdated: "2 days ago" },
-    { id: "art-2", title: "Understanding print formats and sizes", content: "Learn about different paper sizes, print formats, and how to choose the right one...", category: "Getting Started", status: "published", views: 890, lastUpdated: "1 week ago" },
-    { id: "art-3", title: "Track your order status", content: "How to track your order from production to delivery...", category: "Orders & Shipping", status: "published", views: 2100, lastUpdated: "3 days ago" },
-    { id: "art-4", title: "Shipping options and delivery times", content: "Overview of available shipping methods and estimated delivery times...", category: "Orders & Shipping", status: "published", views: 1560, lastUpdated: "5 days ago" },
-    { id: "art-5", title: "Custom design guidelines", content: "Best practices for preparing your custom designs for printing...", category: "Products & Printing", status: "draft", views: 0, lastUpdated: "1 day ago" },
-    { id: "art-6", title: "Refund policy explained", content: "Understanding our refund and return policy for printed products...", category: "Payments & Refunds", status: "published", views: 780, lastUpdated: "1 week ago" },
+    { id: "art-1", title: "How to place your first order", content: "Step-by-step guide to placing your first custom printing order with PRINTO...", category: "Getting Started", status: "published", views: 1250, lastUpdated: "2 days ago", isVisible: true },
+    { id: "art-2", title: "Understanding print formats and sizes", content: "Learn about different paper sizes, print formats, and how to choose the right one...", category: "Getting Started", status: "published", views: 890, lastUpdated: "1 week ago", isVisible: true },
+    { id: "art-3", title: "Track your order status", content: "How to track your order from production to delivery...", category: "Orders & Shipping", status: "published", views: 2100, lastUpdated: "3 days ago", isVisible: true },
+    { id: "art-4", title: "Shipping options and delivery times", content: "Overview of available shipping methods and estimated delivery times...", category: "Orders & Shipping", status: "published", views: 1560, lastUpdated: "5 days ago", isVisible: true },
+    { id: "art-5", title: "Custom design guidelines", content: "Best practices for preparing your custom designs for printing...", category: "Products & Printing", status: "draft", views: 0, lastUpdated: "1 day ago", isVisible: false },
+    { id: "art-6", title: "Refund policy explained", content: "Understanding our refund and return policy for printed products...", category: "Payments & Refunds", status: "published", views: 780, lastUpdated: "1 week ago", isVisible: true },
   ]);
 
   const [newArticle, setNewArticle] = useState({
@@ -78,6 +81,7 @@ const HelpCenter = () => {
     content: "",
     category: "",
     status: "draft" as "published" | "draft",
+    isVisible: true,
   });
 
   const [newCategory, setNewCategory] = useState({
@@ -102,10 +106,31 @@ const HelpCenter = () => {
       lastUpdated: "Just now",
     };
     setArticles(prev => [...prev, article]);
-    setNewArticle({ title: "", content: "", category: "", status: "draft" });
+    setNewArticle({ title: "", content: "", category: "", status: "draft", isVisible: true });
     setAddArticleDialogOpen(false);
     setHasChanges(true);
     toast.success("Article added successfully");
+  };
+
+  const handleToggleVisibility = (articleId: string) => {
+    setArticles(prev => prev.map(a => 
+      a.id === articleId ? { ...a, isVisible: !a.isVisible } : a
+    ));
+    setHasChanges(true);
+  };
+
+  const handleDownloadArticle = (article: Article) => {
+    const content = `Title: ${article.title}\nCategory: ${article.category}\nStatus: ${article.status}\nViews: ${article.views}\nLast Updated: ${article.lastUpdated}\nVisible: ${article.isVisible ? "Yes" : "No"}\n\n---\n\n${article.content}`;
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${article.title.toLowerCase().replace(/\s+/g, "-")}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Article downloaded");
   };
 
   const handleEditArticle = (article: Article) => {
@@ -217,7 +242,7 @@ const HelpCenter = () => {
           {/* Articles List */}
           <div className="space-y-3">
             {filteredArticles.map((article) => (
-              <Card key={article.id} className="hover:shadow-md transition-shadow">
+              <Card key={article.id} className={`hover:shadow-md transition-shadow ${!article.isVisible ? "opacity-60" : ""}`}>
                 <CardContent className="flex items-center gap-4 py-4">
                   <div className="cursor-grab">
                     <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -228,6 +253,12 @@ const HelpCenter = () => {
                       <Badge variant={article.status === "published" ? "default" : "secondary"}>
                         {article.status}
                       </Badge>
+                      {!article.isVisible && (
+                        <Badge variant="outline" className="text-muted-foreground">
+                          <EyeOff className="h-3 w-3 mr-1" />
+                          Hidden
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -242,6 +273,13 @@ const HelpCenter = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Switch 
+                      checked={article.isVisible}
+                      onCheckedChange={() => handleToggleVisibility(article.id)}
+                    />
+                    <Button variant="ghost" size="icon" onClick={() => handleDownloadArticle(article)}>
+                      <Download className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => { setViewingArticle(article); setViewArticleDialogOpen(true); }}>
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -354,6 +392,13 @@ const HelpCenter = () => {
                 rows={8}
               />
             </div>
+            <div className="flex items-center justify-between">
+              <Label>Visible on Website</Label>
+              <Switch 
+                checked={newArticle.isVisible}
+                onCheckedChange={(checked) => setNewArticle({ ...newArticle, isVisible: checked })}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddArticleDialogOpen(false)}>Cancel</Button>
@@ -418,6 +463,13 @@ const HelpCenter = () => {
                   rows={8}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <Label>Visible on Website</Label>
+                <Switch 
+                  checked={selectedArticle.isVisible}
+                  onCheckedChange={(checked) => setSelectedArticle({ ...selectedArticle, isVisible: checked })}
+                />
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -457,6 +509,10 @@ const HelpCenter = () => {
             </div>
           )}
           <DialogFooter>
+            <Button variant="outline" onClick={() => handleDownloadArticle(viewingArticle!)}>
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
             <Button variant="outline" onClick={() => setViewArticleDialogOpen(false)}>Close</Button>
             <Button onClick={() => { 
               setViewArticleDialogOpen(false); 
