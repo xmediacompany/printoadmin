@@ -1057,18 +1057,18 @@ const HomePageEditor = () => {
             {/* Colors */}
             <div className="space-y-2">
               <Label>Colors</Label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <input 
+                  type="color"
+                  value={newColorInput || "#000000"}
+                  onChange={(e) => setNewColorInput(e.target.value)}
+                  className="w-12 h-10 rounded border border-input cursor-pointer"
+                />
                 <Input 
-                  placeholder="Add a color (e.g., Black, White)"
+                  placeholder="#000000"
                   value={newColorInput}
                   onChange={(e) => setNewColorInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && newColorInput.trim()) {
-                      e.preventDefault();
-                      setNewProduct({ ...newProduct, colors: [...newProduct.colors, newColorInput.trim()] });
-                      setNewColorInput("");
-                    }
-                  }}
+                  className="flex-1"
                 />
                 <Button 
                   type="button" 
@@ -1087,16 +1087,23 @@ const HomePageEditor = () => {
               {newProduct.colors.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {newProduct.colors.map((color, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      {color}
+                    <div
+                      key={index}
+                      className="relative group"
+                    >
+                      <div
+                        className="w-8 h-8 rounded-full border-2 border-muted-foreground/20 cursor-pointer"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
                       <button
                         type="button"
                         onClick={() => setNewProduct({ ...newProduct, colors: newProduct.colors.filter((_, i) => i !== index) })}
-                        className="ml-1 hover:text-destructive"
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         ×
                       </button>
-                    </Badge>
+                    </div>
                   ))}
                 </div>
               )}
