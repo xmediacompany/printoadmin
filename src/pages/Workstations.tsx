@@ -6,57 +6,45 @@ import { Monitor, Activity, Clock, User } from "lucide-react";
 const workstations = [
   {
     id: "WS-01",
-    name: "Digital Press 1",
-    operator: "Ahmed Al-Mansoori",
+    type: "Digital Press",
+    dateOfPurchase: "2022-03-15",
     status: "Active",
-    currentJob: "ORD-10234",
-    utilization: "87%",
-    uptime: "8.2 hrs today"
+    location: "Production Floor A"
   },
   {
     id: "WS-02",
-    name: "Digital Press 2",
-    operator: "Fatima Al-Rashid",
+    type: "Digital Press",
+    dateOfPurchase: "2022-03-15",
     status: "Active",
-    currentJob: "ORD-10233",
-    utilization: "92%",
-    uptime: "8.5 hrs today"
+    location: "Production Floor A"
   },
   {
     id: "WS-03",
-    name: "Large Format Printer",
-    operator: "Mohammed Al-Ali",
+    type: "Large Format Printer",
+    dateOfPurchase: "2021-08-20",
     status: "Active",
-    currentJob: "ORD-10230",
-    utilization: "78%",
-    uptime: "7.8 hrs today"
+    location: "Production Floor B"
   },
   {
     id: "WS-04",
-    name: "Finishing Station 1",
-    operator: "Noura Al-Salem",
+    type: "Finishing Station",
+    dateOfPurchase: "2023-01-10",
     status: "Active",
-    currentJob: "ORD-10232",
-    utilization: "65%",
-    uptime: "6.5 hrs today"
+    location: "Finishing Area"
   },
   {
     id: "WS-05",
-    name: "Cutting Station",
-    operator: "Unassigned",
+    type: "Cutting Station",
+    dateOfPurchase: "2022-06-05",
     status: "Idle",
-    currentJob: "-",
-    utilization: "12%",
-    uptime: "1.2 hrs today"
+    location: "Finishing Area"
   },
   {
     id: "WS-06",
-    name: "Quality Control Desk",
-    operator: "Sara Al-Mutawa",
+    type: "Quality Control Desk",
+    dateOfPurchase: "2023-05-12",
     status: "Active",
-    currentJob: "ORD-10231",
-    utilization: "54%",
-    uptime: "5.4 hrs today"
+    location: "QC Department"
   }
 ];
 
@@ -138,50 +126,24 @@ const Workstations = () => {
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="text-left p-4 font-medium text-sm">Station ID</th>
-                  <th className="text-left p-4 font-medium text-sm">Name</th>
-                  <th className="text-left p-4 font-medium text-sm">Operator</th>
+                  <th className="text-left p-4 font-medium text-sm">Type</th>
+                  <th className="text-left p-4 font-medium text-sm">Date of Purchase</th>
                   <th className="text-left p-4 font-medium text-sm">Status</th>
-                  <th className="text-left p-4 font-medium text-sm">Current Job</th>
-                  <th className="text-left p-4 font-medium text-sm">Utilization</th>
-                  <th className="text-left p-4 font-medium text-sm">Uptime</th>
+                  <th className="text-left p-4 font-medium text-sm">Location</th>
                 </tr>
               </thead>
               <tbody>
                 {workstations.map((station) => (
                   <tr key={station.id} className="border-b hover:bg-muted/30 transition-colors">
                     <td className="p-4 font-medium">{station.id}</td>
-                    <td className="p-4">{station.name}</td>
-                    <td className="p-4">
-                      {station.operator !== "Unassigned" ? (
-                        <span>{station.operator}</span>
-                      ) : (
-                        <span className="text-muted-foreground italic">{station.operator}</span>
-                      )}
-                    </td>
+                    <td className="p-4">{station.type}</td>
+                    <td className="p-4">{station.dateOfPurchase}</td>
                     <td className="p-4">
                       <Badge variant={getStatusColor(station.status)}>
                         {station.status}
                       </Badge>
                     </td>
-                    <td className="p-4">
-                      {station.currentJob !== "-" ? (
-                        <span className="font-medium">{station.currentJob}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary transition-all"
-                            style={{ width: station.utilization }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">{station.utilization}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm">{station.uptime}</td>
+                    <td className="p-4">{station.location}</td>
                   </tr>
                 ))}
               </tbody>
