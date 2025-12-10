@@ -13,7 +13,6 @@ import {
   Building2, 
   Search, 
   Filter, 
-  Eye, 
   Edit,
   Plus,
   ArrowLeft,
@@ -26,8 +25,10 @@ import {
   CreditCard,
   FileText,
   Upload,
-  X
+  X,
+  Trash2
 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 
 interface CorporateAccount {
@@ -70,6 +71,9 @@ const AllCorporateAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [addAccountOpen, setAddAccountOpen] = useState(false);
+  const [editAccountOpen, setEditAccountOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<CorporateAccount | null>(null);
   const [customIndustries, setCustomIndustries] = useState<string[]>([]);
   const [customManagers, setCustomManagers] = useState<string[]>([]);
   const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
@@ -197,6 +201,103 @@ const AllCorporateAccounts = () => {
     });
   };
 
+  const handleEditAccount = (account: CorporateAccount) => {
+    setSelectedAccount(account);
+    setNewAccount({
+      companyName: account.companyName,
+      industry: account.industry,
+      website: account.website,
+      address: account.address || "",
+      contactName: account.contactName,
+      contactEmail: account.contactEmail,
+      contactPhone: account.contactPhone || "",
+      tier: account.tier || "standard",
+      paymentTerms: account.paymentTerms,
+      creditLimit: account.creditLimit,
+      accountManager: "",
+      notes: account.notes || "",
+    });
+    setEditAccountOpen(true);
+  };
+
+  const handleUpdateAccount = () => {
+    if (!selectedAccount) return;
+    
+    if (!newAccount.companyName || !newAccount.contactName || !newAccount.contactEmail) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newAccount.contactEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCorporateAccounts(corporateAccounts.map(acc => 
+      acc.id === selectedAccount.id 
+        ? {
+            ...acc,
+            companyName: newAccount.companyName,
+            industry: newAccount.industry,
+            website: newAccount.website,
+            address: newAccount.address,
+            contactName: newAccount.contactName,
+            contactEmail: newAccount.contactEmail,
+            contactPhone: newAccount.contactPhone,
+            tier: newAccount.tier,
+            paymentTerms: newAccount.paymentTerms,
+            creditLimit: newAccount.creditLimit,
+            notes: newAccount.notes,
+          }
+        : acc
+    ));
+
+    setEditAccountOpen(false);
+    setSelectedAccount(null);
+    setNewAccount({
+      companyName: "",
+      industry: "",
+      website: "",
+      address: "",
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+      tier: "standard",
+      paymentTerms: "net30",
+      creditLimit: "",
+      accountManager: "",
+      notes: "",
+    });
+
+    toast({
+      title: "Account Updated",
+      description: `${newAccount.companyName} has been updated successfully.`,
+    });
+  };
+
+  const handleDeleteAccount = () => {
+    if (!selectedAccount) return;
+    
+    setCorporateAccounts(corporateAccounts.filter(acc => acc.id !== selectedAccount.id));
+    setDeleteDialogOpen(false);
+    
+    toast({
+      title: "Account Deleted",
+      description: `${selectedAccount.companyName} has been removed.`,
+    });
+    
+    setSelectedAccount(null);
+  };
+
   const filteredAccounts = corporateAccounts.filter((account) => {
     const matchesSearch = account.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       account.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -307,11 +408,23 @@ const AllCorporateAccounts = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditAccount(account)}
+                        >
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setSelectedAccount(account);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -674,6 +787,213 @@ const AllCorporateAccounts = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Corporate Account Dialog */}
+      <Dialog open={editAccountOpen} onOpenChange={setEditAccountOpen}>
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5 text-primary" />
+              Edit Corporate Account
+            </DialogTitle>
+            <DialogDescription>
+              Update the corporate account details.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Company Information */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Briefcase className="h-4 w-4" />
+                Company Information
+              </h3>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="editCompanyName">Company Name *</Label>
+                  <Input
+                    id="editCompanyName"
+                    placeholder="e.g., Acme Corporation"
+                    value={newAccount.companyName}
+                    onChange={(e) => setNewAccount({ ...newAccount, companyName: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Industry</Label>
+                    <Select
+                      value={newAccount.industry}
+                      onValueChange={(value) => setNewAccount({ ...newAccount, industry: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select industry" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...industries, ...customIndustries].map((industry) => (
+                          <SelectItem key={industry} value={industry}>
+                            {industry}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="editWebsite" className="flex items-center gap-1">
+                      <Globe className="h-3 w-3" />
+                      Website
+                    </Label>
+                    <Input
+                      id="editWebsite"
+                      placeholder="www.company.com"
+                      value={newAccount.website}
+                      onChange={(e) => setNewAccount({ ...newAccount, website: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="editAddress" className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Address
+                  </Label>
+                  <Input
+                    id="editAddress"
+                    placeholder="e.g., Kuwait City, Block 5"
+                    value={newAccount.address}
+                    onChange={(e) => setNewAccount({ ...newAccount, address: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                Primary Contact
+              </h3>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="editContactName">Contact Name *</Label>
+                  <Input
+                    id="editContactName"
+                    placeholder="e.g., Ahmed Al-Rashid"
+                    value={newAccount.contactName}
+                    onChange={(e) => setNewAccount({ ...newAccount, contactName: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="editContactEmail" className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      Email *
+                    </Label>
+                    <Input
+                      id="editContactEmail"
+                      type="email"
+                      placeholder="contact@company.com"
+                      value={newAccount.contactEmail}
+                      onChange={(e) => setNewAccount({ ...newAccount, contactEmail: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="editContactPhone" className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      Phone
+                    </Label>
+                    <Input
+                      id="editContactPhone"
+                      placeholder="+965 1234 5678"
+                      value={newAccount.contactPhone}
+                      onChange={(e) => setNewAccount({ ...newAccount, contactPhone: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Terms */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <CreditCard className="h-4 w-4" />
+                Payment Terms
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label>Payment Terms</Label>
+                  <Select
+                    value={newAccount.paymentTerms}
+                    onValueChange={(value) => setNewAccount({ ...newAccount, paymentTerms: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="prepaid">Prepaid</SelectItem>
+                      <SelectItem value="net15">Net 15 Days</SelectItem>
+                      <SelectItem value="net30">Net 30 Days</SelectItem>
+                      <SelectItem value="net45">Net 45 Days</SelectItem>
+                      <SelectItem value="net60">Net 60 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="editCreditLimit">Credit Limit (KD)</Label>
+                  <Input
+                    id="editCreditLimit"
+                    type="number"
+                    placeholder="e.g., 50000"
+                    value={newAccount.creditLimit}
+                    onChange={(e) => setNewAccount({ ...newAccount, creditLimit: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="grid gap-2">
+              <Label htmlFor="editNotes">Additional Notes</Label>
+              <Textarea
+                id="editNotes"
+                placeholder="Any special requirements or notes about this account..."
+                value={newAccount.notes}
+                onChange={(e) => setNewAccount({ ...newAccount, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditAccountOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateAccount}>
+              <Edit className="h-4 w-4 mr-2" />
+              Update Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Corporate Account</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{selectedAccount?.companyName}</strong>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAccount}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
