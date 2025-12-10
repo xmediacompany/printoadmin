@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, Plus, Edit, Trash2, Search, Eye, GripVertical, HelpCircle } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Search, Eye, GripVertical, HelpCircle, Download, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -89,6 +89,8 @@ export default function FAQManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingFAQ, setViewingFAQ] = useState<FAQ | null>(null);
   const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null);
   const [formData, setFormData] = useState({
     question: "",
@@ -158,6 +160,26 @@ export default function FAQManagement() {
     setFaqs(faqs.map((f) => (f.id === id ? { ...f, isPublished: !f.isPublished } : f)));
   };
 
+  const handleView = (faq: FAQ) => {
+    setViewingFAQ(faq);
+    setViewDialogOpen(true);
+  };
+
+  const handleDownload = () => {
+    const exportData = faqs.map(({ id, order, ...rest }) => rest);
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "faqs-export.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ title: "Downloaded", description: "FAQs exported successfully" });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -169,10 +191,16 @@ export default function FAQManagement() {
           <h1 className="text-2xl font-bold">FAQ Management</h1>
           <p className="text-muted-foreground">Create and manage frequently asked questions</p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add FAQ
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button onClick={() => handleOpenDialog()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add FAQ
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -256,6 +284,9 @@ export default function FAQManagement() {
                       <Eye className="h-3 w-3" />
                       {faq.views}
                     </span>
+                    <Button variant="ghost" size="icon" onClick={() => handleView(faq)}>
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(faq)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -349,6 +380,45 @@ export default function FAQManagement() {
               Cancel
             </Button>
             <Button onClick={handleSave}>{editingFAQ ? "Update FAQ" : "Add FAQ"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>FAQ Preview</DialogTitle>
+          </DialogHeader>
+          {viewingFAQ && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant={viewingFAQ.isPublished ? "default" : "secondary"}>
+                    {viewingFAQ.isPublished ? "Published" : "Draft"}
+                  </Badge>
+                  <Badge variant="outline">{viewingFAQ.category}</Badge>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
+                    <Eye className="h-3 w-3" />
+                    {viewingFAQ.views} views
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold mb-3">{viewingFAQ.question}</h3>
+                <p className="text-muted-foreground">{viewingFAQ.answer}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={() => {
+              setViewDialogOpen(false);
+              if (viewingFAQ) handleOpenDialog(viewingFAQ);
+            }}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
