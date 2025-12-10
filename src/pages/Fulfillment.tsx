@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Truck, Navigation, Banknote, Package, CheckCircle2, Plus } from "lucide-react";
+import { Truck, Navigation, Package, CheckCircle2, Plus } from "lucide-react";
 
 const Fulfillment = () => {
   // Mock data for routes
@@ -91,7 +91,7 @@ const Fulfillment = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Active Routes</CardTitle>
@@ -122,17 +122,6 @@ const Fulfillment = () => {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
               <div className="text-2xl font-bold">19</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">COD Collected</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Banknote className="h-8 w-8 text-primary" />
-              <div className="text-2xl font-bold">KD 215</div>
             </div>
           </CardContent>
         </Card>
