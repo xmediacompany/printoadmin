@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, 
   Save, 
@@ -1042,10 +1043,29 @@ const HomePageEditor = () => {
 
             <div className="space-y-2">
               <Label>Product Name</Label>
-              <Input 
+              <Select
                 value={newProduct.name}
-                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              />
+                onValueChange={(value) => setNewProduct({ ...newProduct, name: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a product" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Custom T-Shirts">Custom T-Shirts</SelectItem>
+                  <SelectItem value="Ceramic Mugs">Ceramic Mugs</SelectItem>
+                  <SelectItem value="Tote Bags">Tote Bags</SelectItem>
+                  <SelectItem value="Hoodies">Hoodies</SelectItem>
+                  <SelectItem value="Caps">Caps</SelectItem>
+                  <SelectItem value="Thermo Bottles">Thermo Bottles</SelectItem>
+                  <SelectItem value="Cups">Cups</SelectItem>
+                  <SelectItem value="Stationery">Stationery</SelectItem>
+                  <SelectItem value="Stickers">Stickers</SelectItem>
+                  <SelectItem value="Papers">Papers</SelectItem>
+                  <SelectItem value="Cards">Cards</SelectItem>
+                  <SelectItem value="Notebooks">Notebooks</SelectItem>
+                  <SelectItem value="Diary">Diary</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
