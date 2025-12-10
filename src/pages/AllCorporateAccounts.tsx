@@ -26,7 +26,8 @@ import {
   FileText,
   Upload,
   X,
-  Trash2
+  Trash2,
+  Eye
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -73,6 +74,7 @@ const AllCorporateAccounts = () => {
   const [addAccountOpen, setAddAccountOpen] = useState(false);
   const [editAccountOpen, setEditAccountOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [viewAccountOpen, setViewAccountOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<CorporateAccount | null>(null);
   const [customIndustries, setCustomIndustries] = useState<string[]>([]);
   const [customManagers, setCustomManagers] = useState<string[]>([]);
@@ -402,6 +404,16 @@ const AllCorporateAccounts = () => {
                     <TableCell>{account.creditLimit ? `${parseInt(account.creditLimit).toLocaleString()} KD` : "-"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAccount(account);
+                            setViewAccountOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -988,6 +1000,126 @@ const AllCorporateAccounts = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* View Account Dialog */}
+      <Dialog open={viewAccountOpen} onOpenChange={setViewAccountOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Account Details
+            </DialogTitle>
+            <DialogDescription>
+              View corporate account information
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedAccount && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Account ID</p>
+                  <p className="font-medium">{selectedAccount.id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge variant={selectedAccount.status === "Active" ? "default" : "secondary"}>
+                    {selectedAccount.status}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <Briefcase className="h-4 w-4" />
+                  Company Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4 pl-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Company Name</p>
+                    <p className="font-medium">{selectedAccount.companyName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Industry</p>
+                    <p className="font-medium">{selectedAccount.industry || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Website</p>
+                    <p className="font-medium">{selectedAccount.website || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="font-medium">{selectedAccount.address || "-"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  Contact Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4 pl-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Contact Name</p>
+                    <p className="font-medium">{selectedAccount.contactName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{selectedAccount.contactEmail}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <p className="font-medium">{selectedAccount.contactPhone || "-"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <CreditCard className="h-4 w-4" />
+                  Payment Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4 pl-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Payment Terms</p>
+                    <Badge variant="outline">
+                      {selectedAccount.paymentTerms === "prepaid" ? "Prepaid" : 
+                       selectedAccount.paymentTerms === "net15" ? "Net 15" :
+                       selectedAccount.paymentTerms === "net30" ? "Net 30" :
+                       selectedAccount.paymentTerms === "net45" ? "Net 45" : "Net 60"}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Credit Limit</p>
+                    <p className="font-medium">{selectedAccount.creditLimit ? `${parseInt(selectedAccount.creditLimit).toLocaleString()} KD` : "-"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {selectedAccount.notes && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-muted-foreground">Notes</h4>
+                  <p className="text-sm pl-6">{selectedAccount.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewAccountOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={() => {
+              setViewAccountOpen(false);
+              if (selectedAccount) handleEditAccount(selectedAccount);
+            }}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
