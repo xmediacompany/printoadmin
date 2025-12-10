@@ -69,6 +69,7 @@ export default function Settings() {
   const [newRole, setNewRole] = useState("");
   const [showAddBranch, setShowAddBranch] = useState(false);
   const [showAddRole, setShowAddRole] = useState(false);
+  const [branchFilter, setBranchFilter] = useState("all");
 
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>({
     Admin: [
@@ -253,10 +254,18 @@ export default function Settings() {
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
+              <Select value={branchFilter} onValueChange={setBranchFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Filter by Branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Branches</SelectItem>
+                  <SelectItem value="City">City</SelectItem>
+                  <SelectItem value="Salmiya">Salmiya</SelectItem>
+                  <SelectItem value="Hawally">Hawally</SelectItem>
+                </SelectContent>
+              </Select>
               <Button size="sm" onClick={() => setInviteDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add User
@@ -283,7 +292,9 @@ export default function Settings() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
+                  {users
+                    .filter((user) => branchFilter === "all" || user.branch === branchFilter)
+                    .map((user) => (
                     <TableRow key={user.email}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
