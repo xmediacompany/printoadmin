@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Monitor, Plus, MapPin, Calendar, Wrench } from "lucide-react";
+import { Monitor, Plus, MapPin, Calendar, Wrench, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,22 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Popover,
   PopoverContent,
@@ -114,6 +130,9 @@ const Workstations = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedWorkstation, setSelectedWorkstation] = useState<typeof initialWorkstations[0] | null>(null);
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
   const [customTypeInput, setCustomTypeInput] = useState("");
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
@@ -121,6 +140,13 @@ const Workstations = () => {
     type: "",
     status: "Active",
     location: ""
+  });
+  const [editWorkstation, setEditWorkstation] = useState({
+    id: "",
+    type: "",
+    status: "",
+    location: "",
+    dateOfPurchase: ""
   });
 
   const filteredWorkstations = workstations.filter((station) => {
@@ -149,6 +175,48 @@ const Workstations = () => {
     setNewWorkstation({ type: "", status: "Active", location: "" });
     setPurchaseDate(undefined);
     toast.success("Workstation added successfully!");
+  };
+
+  const handleEditClick = (station: typeof initialWorkstations[0]) => {
+    setEditWorkstation({
+      id: station.id,
+      type: station.type,
+      status: station.status,
+      location: station.location,
+      dateOfPurchase: station.dateOfPurchase
+    });
+    setPurchaseDate(new Date(station.dateOfPurchase));
+    setEditDialogOpen(true);
+  };
+
+  const handleEditWorkstation = () => {
+    if (!editWorkstation.type || !editWorkstation.location || !purchaseDate) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setWorkstations(workstations.map(ws => 
+      ws.id === editWorkstation.id 
+        ? { ...editWorkstation, dateOfPurchase: format(purchaseDate, "yyyy-MM-dd") }
+        : ws
+    ));
+    setEditDialogOpen(false);
+    setPurchaseDate(undefined);
+    toast.success("Workstation updated successfully!");
+  };
+
+  const handleDeleteClick = (station: typeof initialWorkstations[0]) => {
+    setSelectedWorkstation(station);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteWorkstation = () => {
+    if (selectedWorkstation) {
+      setWorkstations(workstations.filter(ws => ws.id !== selectedWorkstation.id));
+      setDeleteDialogOpen(false);
+      setSelectedWorkstation(null);
+      toast.success("Workstation deleted successfully!");
+    }
   };
 
   return (
@@ -408,6 +476,7 @@ const Workstations = () => {
                   <th className="text-left p-4 font-medium text-sm">Date of Purchase</th>
                   <th className="text-left p-4 font-medium text-sm">Status</th>
                   <th className="text-left p-4 font-medium text-sm">Location</th>
+                  <th className="text-left p-4 font-medium text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -422,11 +491,33 @@ const Workstations = () => {
                       </Badge>
                     </td>
                     <td className="p-4">{station.location}</td>
+                    <td className="p-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditClick(station)}>
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteClick(station)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
                   </tr>
                 ))}
                 {filteredWorkstations.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                    <td colSpan={6} className="p-8 text-center text-muted-foreground">
                       No workstations found matching the filters
                     </td>
                   </tr>
@@ -436,6 +527,167 @@ const Workstations = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Workstation Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" />
+              Edit Workstation
+            </DialogTitle>
+            <DialogDescription>
+              Update the workstation details below.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-4">
+            {/* Station ID (readonly) */}
+            <div className="space-y-2">
+              <Label>Station ID</Label>
+              <Input value={editWorkstation.id} disabled className="bg-muted" />
+            </div>
+
+            {/* Workstation Type */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Wrench className="h-4 w-4 text-muted-foreground" />
+                Workstation Type *
+              </Label>
+              <Select 
+                value={editWorkstation.type} 
+                onValueChange={(value) => setEditWorkstation({ ...editWorkstation, type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select workstation type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workstationTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date of Purchase */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                Date of Purchase *
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !purchaseDate && "text-muted-foreground"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {purchaseDate ? format(purchaseDate, "PPP") : "Select purchase date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={purchaseDate}
+                    onSelect={setPurchaseDate}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <Label>Status *</Label>
+              <Select 
+                value={editWorkstation.status} 
+                onValueChange={(value) => setEditWorkstation({ ...editWorkstation, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-green-500" />
+                      Active
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Not Active">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-gray-400" />
+                      Not Active
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Maintenance">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      Maintenance
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                Location *
+              </Label>
+              <Select 
+                value={editWorkstation.location} 
+                onValueChange={(value) => setEditWorkstation({ ...editWorkstation, location: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select location in Kuwait" />
+                </SelectTrigger>
+                <SelectContent>
+                  {kuwaitLocations.map((location) => (
+                    <SelectItem key={location} value={location}>{location}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditWorkstation}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Workstation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete workstation <strong>{selectedWorkstation?.id}</strong>? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteWorkstation}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
