@@ -365,53 +365,6 @@ const B2BCorporate = () => {
               </div>
             </div>
 
-            {/* Account Tier */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
-                <Star className="h-4 w-4" />
-                Account Tier
-              </h3>
-              <RadioGroup
-                value={newAccount.tier}
-                onValueChange={(value) => setNewAccount({ ...newAccount, tier: value })}
-                className="grid grid-cols-3 gap-3"
-              >
-                <div>
-                  <RadioGroupItem value="standard" id="tier-standard" className="peer sr-only" />
-                  <Label
-                    htmlFor="tier-standard"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                  >
-                    <span className="text-sm font-medium">Standard</span>
-                    <span className="text-xs text-muted-foreground mt-1">Up to 20K KD</span>
-                    <Badge variant="secondary" className="mt-2">10% Discount</Badge>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem value="premium" id="tier-premium" className="peer sr-only" />
-                  <Label
-                    htmlFor="tier-premium"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                  >
-                    <span className="text-sm font-medium">Premium</span>
-                    <span className="text-xs text-muted-foreground mt-1">20K - 50K KD</span>
-                    <Badge variant="secondary" className="mt-2">15% Discount</Badge>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem value="enterprise" id="tier-enterprise" className="peer sr-only" />
-                  <Label
-                    htmlFor="tier-enterprise"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                  >
-                    <span className="text-sm font-medium">Enterprise</span>
-                    <span className="text-xs text-muted-foreground mt-1">50K+ KD</span>
-                    <Badge variant="secondary" className="mt-2">25% Discount</Badge>
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-
             {/* Payment Terms */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
