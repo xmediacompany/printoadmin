@@ -63,6 +63,12 @@ export default function Settings() {
     role: "",
     branch: "",
   });
+  const [customBranches, setCustomBranches] = useState<string[]>([]);
+  const [customRoles, setCustomRoles] = useState<string[]>([]);
+  const [newBranch, setNewBranch] = useState("");
+  const [newRole, setNewRole] = useState("");
+  const [showAddBranch, setShowAddBranch] = useState(false);
+  const [showAddRole, setShowAddRole] = useState(false);
 
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>({
     Admin: [
@@ -524,30 +530,113 @@ export default function Settings() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={inviteForm.role} onValueChange={(value) => setInviteForm({ ...inviteForm, role: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                  
-                  <SelectItem value="Employee">Employee</SelectItem>
-                </SelectContent>
-              </Select>
+              {showAddRole ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter new role"
+                    value={newRole}
+                    onChange={(e) => setNewRole(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (newRole.trim()) {
+                        setCustomRoles([...customRoles, newRole.trim()]);
+                        setInviteForm({ ...inviteForm, role: newRole.trim() });
+                        setNewRole("");
+                        setShowAddRole(false);
+                        toast.success(`Role "${newRole.trim()}" added`);
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowAddRole(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Select value={inviteForm.role} onValueChange={(value) => {
+                  if (value === "add_new_role") {
+                    setShowAddRole(true);
+                  } else {
+                    setInviteForm({ ...inviteForm, role: value });
+                  }
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Employee">Employee</SelectItem>
+                    {customRoles.map((role) => (
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    ))}
+                    <SelectItem value="add_new_role" className="text-primary font-medium">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Other Role
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="branch">Branch</Label>
-              <Select value={inviteForm.branch} onValueChange={(value) => setInviteForm({ ...inviteForm, branch: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All Branches">All Branches</SelectItem>
-                  <SelectItem value="City">City</SelectItem>
-                  <SelectItem value="Salmiya">Salmiya</SelectItem>
-                  <SelectItem value="Hawally">Hawally</SelectItem>
-                </SelectContent>
-              </Select>
+              {showAddBranch ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter new branch"
+                    value={newBranch}
+                    onChange={(e) => setNewBranch(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (newBranch.trim()) {
+                        setCustomBranches([...customBranches, newBranch.trim()]);
+                        setInviteForm({ ...inviteForm, branch: newBranch.trim() });
+                        setNewBranch("");
+                        setShowAddBranch(false);
+                        toast.success(`Branch "${newBranch.trim()}" added`);
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowAddBranch(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Select value={inviteForm.branch} onValueChange={(value) => {
+                  if (value === "add_new_branch") {
+                    setShowAddBranch(true);
+                  } else {
+                    setInviteForm({ ...inviteForm, branch: value });
+                  }
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All Branches">All Branches</SelectItem>
+                    <SelectItem value="City">City</SelectItem>
+                    <SelectItem value="Salmiya">Salmiya</SelectItem>
+                    <SelectItem value="Hawally">Hawally</SelectItem>
+                    {customBranches.map((branch) => (
+                      <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                    ))}
+                    <SelectItem value="add_new_branch" className="text-primary font-medium">
+                      <span className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Other Branch
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
           <DialogFooter>
