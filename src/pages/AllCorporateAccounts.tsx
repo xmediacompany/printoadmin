@@ -4,8 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Building2, 
   Search, 
@@ -13,26 +16,69 @@ import {
   Eye, 
   Edit,
   Plus,
-  ArrowLeft
+  ArrowLeft,
+  Briefcase,
+  Users,
+  Globe,
+  MapPin,
+  Mail,
+  Phone,
+  CreditCard,
+  FileText,
+  Upload,
+  X
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface CorporateAccount {
   id: string;
   companyName: string;
   industry: string;
   website: string;
+  address?: string;
   contactName: string;
   contactEmail: string;
+  contactPhone?: string;
   paymentTerms: string;
   creditLimit: string;
   status: string;
+  tier?: string;
+  notes?: string;
 }
+
+const industries = [
+  "Technology",
+  "Marketing & Advertising",
+  "Healthcare",
+  "Finance & Banking",
+  "Retail",
+  "Manufacturing",
+  "Education",
+  "Real Estate",
+  "Hospitality",
+  "Government",
+  "Other",
+];
+
+const accountManagers = [
+  "John Davis",
+  "Sarah Mitchell",
+  "Robert Chen",
+];
 
 const AllCorporateAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [addAccountOpen, setAddAccountOpen] = useState(false);
+  const [customIndustries, setCustomIndustries] = useState<string[]>([]);
+  const [customManagers, setCustomManagers] = useState<string[]>([]);
+  const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
+  const [showCustomManagerInput, setShowCustomManagerInput] = useState(false);
+  const [customIndustryValue, setCustomIndustryValue] = useState("");
+  const [customManagerValue, setCustomManagerValue] = useState("");
+  const [agreementFile, setAgreementFile] = useState<File | null>(null);
 
-  const corporateAccounts: CorporateAccount[] = [
+  const [corporateAccounts, setCorporateAccounts] = useState<CorporateAccount[]>([
     {
       id: "CA-001",
       companyName: "Tech Solutions Inc.",
@@ -66,7 +112,90 @@ const AllCorporateAccounts = () => {
       creditLimit: "20000",
       status: "Pending Review",
     },
-  ];
+  ]);
+
+  const [newAccount, setNewAccount] = useState({
+    companyName: "",
+    industry: "",
+    website: "",
+    address: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    tier: "standard",
+    paymentTerms: "net30",
+    creditLimit: "",
+    accountManager: "",
+    notes: "",
+  });
+
+  const generateAccountId = () => {
+    const maxId = corporateAccounts.reduce((max, acc) => {
+      const num = parseInt(acc.id.replace("CA-", ""));
+      return num > max ? num : max;
+    }, 0);
+    return `CA-${String(maxId + 1).padStart(3, "0")}`;
+  };
+
+  const handleAddAccount = () => {
+    if (!newAccount.companyName || !newAccount.contactName || !newAccount.contactEmail) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newAccount.contactEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const account: CorporateAccount = {
+      id: generateAccountId(),
+      companyName: newAccount.companyName,
+      industry: newAccount.industry,
+      website: newAccount.website,
+      address: newAccount.address,
+      contactName: newAccount.contactName,
+      contactEmail: newAccount.contactEmail,
+      contactPhone: newAccount.contactPhone,
+      tier: newAccount.tier,
+      paymentTerms: newAccount.paymentTerms,
+      creditLimit: newAccount.creditLimit,
+      notes: newAccount.notes,
+      status: "Pending Review",
+    };
+
+    setCorporateAccounts([...corporateAccounts, account]);
+    setAddAccountOpen(false);
+    setNewAccount({
+      companyName: "",
+      industry: "",
+      website: "",
+      address: "",
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+      tier: "standard",
+      paymentTerms: "net30",
+      creditLimit: "",
+      accountManager: "",
+      notes: "",
+    });
+    setAgreementFile(null);
+
+    toast({
+      title: "Corporate Account Created",
+      description: `${account.companyName} has been added successfully.`,
+    });
+  };
 
   const filteredAccounts = corporateAccounts.filter((account) => {
     const matchesSearch = account.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -94,7 +223,7 @@ const AllCorporateAccounts = () => {
             <p className="text-muted-foreground">View and manage all corporate accounts</p>
           </div>
         </div>
-        <Button>
+        <Button onClick={() => setAddAccountOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add New Account
         </Button>
@@ -203,6 +332,348 @@ const AllCorporateAccounts = () => {
       <div className="text-sm text-muted-foreground">
         Showing {filteredAccounts.length} of {corporateAccounts.length} accounts
       </div>
+
+      {/* Add Corporate Account Dialog */}
+      <Dialog open={addAccountOpen} onOpenChange={setAddAccountOpen}>
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Add New Corporate Account
+            </DialogTitle>
+            <DialogDescription>
+              Create a new B2B corporate account with company details and terms.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Company Information */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Briefcase className="h-4 w-4" />
+                Company Information
+              </h3>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="companyName">Company Name *</Label>
+                  <Input
+                    id="companyName"
+                    placeholder="e.g., Acme Corporation"
+                    value={newAccount.companyName}
+                    onChange={(e) => setNewAccount({ ...newAccount, companyName: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Industry</Label>
+                    {showCustomIndustryInput ? (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter industry name"
+                          value={customIndustryValue}
+                          onChange={(e) => setCustomIndustryValue(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => {
+                            if (customIndustryValue.trim()) {
+                              setCustomIndustries([...customIndustries, customIndustryValue.trim()]);
+                              setNewAccount({ ...newAccount, industry: customIndustryValue.trim() });
+                              setCustomIndustryValue("");
+                              setShowCustomIndustryInput(false);
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setShowCustomIndustryInput(false);
+                            setCustomIndustryValue("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <Select
+                        value={newAccount.industry}
+                        onValueChange={(value) => {
+                          if (value === "__add_custom__") {
+                            setShowCustomIndustryInput(true);
+                          } else {
+                            setNewAccount({ ...newAccount, industry: value });
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select industry" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[...industries, ...customIndustries].map((industry) => (
+                            <SelectItem key={industry} value={industry}>
+                              {industry}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="__add_custom__" className="text-primary">
+                            <span className="flex items-center gap-1">
+                              <Plus className="h-3 w-3" /> Add Custom Industry
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="website" className="flex items-center gap-1">
+                      <Globe className="h-3 w-3" />
+                      Website
+                    </Label>
+                    <Input
+                      id="website"
+                      placeholder="www.company.com"
+                      value={newAccount.website}
+                      onChange={(e) => setNewAccount({ ...newAccount, website: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="address" className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Address
+                  </Label>
+                  <Input
+                    id="address"
+                    placeholder="e.g., Kuwait City, Block 5"
+                    value={newAccount.address}
+                    onChange={(e) => setNewAccount({ ...newAccount, address: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                Primary Contact
+              </h3>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="contactName">Contact Name *</Label>
+                  <Input
+                    id="contactName"
+                    placeholder="e.g., Ahmed Al-Rashid"
+                    value={newAccount.contactName}
+                    onChange={(e) => setNewAccount({ ...newAccount, contactName: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="contactEmail" className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      Email *
+                    </Label>
+                    <Input
+                      id="contactEmail"
+                      type="email"
+                      placeholder="contact@company.com"
+                      value={newAccount.contactEmail}
+                      onChange={(e) => setNewAccount({ ...newAccount, contactEmail: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="contactPhone" className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      Phone
+                    </Label>
+                    <Input
+                      id="contactPhone"
+                      placeholder="+965 1234 5678"
+                      value={newAccount.contactPhone}
+                      onChange={(e) => setNewAccount({ ...newAccount, contactPhone: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Terms */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <CreditCard className="h-4 w-4" />
+                Payment Terms
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label>Payment Terms</Label>
+                  <Select
+                    value={newAccount.paymentTerms}
+                    onValueChange={(value) => setNewAccount({ ...newAccount, paymentTerms: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="prepaid">Prepaid</SelectItem>
+                      <SelectItem value="net15">Net 15 Days</SelectItem>
+                      <SelectItem value="net30">Net 30 Days</SelectItem>
+                      <SelectItem value="net45">Net 45 Days</SelectItem>
+                      <SelectItem value="net60">Net 60 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="creditLimit">Credit Limit (KD)</Label>
+                  <Input
+                    id="creditLimit"
+                    type="number"
+                    placeholder="e.g., 50000"
+                    value={newAccount.creditLimit}
+                    onChange={(e) => setNewAccount({ ...newAccount, creditLimit: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Assign Account Manager</Label>
+                {showCustomManagerInput ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter manager name"
+                      value={customManagerValue}
+                      onChange={(e) => setCustomManagerValue(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        if (customManagerValue.trim()) {
+                          setCustomManagers([...customManagers, customManagerValue.trim()]);
+                          setNewAccount({ ...newAccount, accountManager: customManagerValue.trim() });
+                          setCustomManagerValue("");
+                          setShowCustomManagerInput(false);
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowCustomManagerInput(false);
+                        setCustomManagerValue("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={newAccount.accountManager}
+                    onValueChange={(value) => {
+                      if (value === "__add_custom__") {
+                        setShowCustomManagerInput(true);
+                      } else {
+                        setNewAccount({ ...newAccount, accountManager: value });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select account manager" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[...accountManagers, ...customManagers].map((manager) => (
+                        <SelectItem key={manager} value={manager}>
+                          {manager}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="__add_custom__" className="text-primary">
+                        <span className="flex items-center gap-1">
+                          <Plus className="h-3 w-3" /> Add Custom Manager
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </div>
+
+            {/* Agreement Upload */}
+            <div className="grid gap-2">
+              <Label htmlFor="agreement" className="flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                Corporate Agreement
+              </Label>
+              {agreementFile ? (
+                <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <span className="text-sm flex-1 truncate">{agreementFile.name}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAgreementFile(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    id="agreement"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setAgreementFile(file);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start text-muted-foreground"
+                    onClick={() => document.getElementById('agreement')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Agreement (PDF, DOC, DOCX)
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Notes */}
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Additional Notes</Label>
+              <Textarea
+                id="notes"
+                placeholder="Any special requirements or notes about this account..."
+                value={newAccount.notes}
+                onChange={(e) => setNewAccount({ ...newAccount, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddAccountOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddAccount}>
+              <Building2 className="h-4 w-4 mr-2" />
+              Create Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
