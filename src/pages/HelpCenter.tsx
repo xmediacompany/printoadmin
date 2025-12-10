@@ -51,8 +51,10 @@ const HelpCenter = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [addArticleDialogOpen, setAddArticleDialogOpen] = useState(false);
   const [editArticleDialogOpen, setEditArticleDialogOpen] = useState(false);
+  const [viewArticleDialogOpen, setViewArticleDialogOpen] = useState(false);
   const [addCategoryDialogOpen, setAddCategoryDialogOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
 
   const [categories, setCategories] = useState<Category[]>([
     { id: "cat-1", name: "Getting Started", icon: "book", articleCount: 3, isActive: true },
@@ -240,6 +242,9 @@ const HelpCenter = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => { setViewingArticle(article); setViewArticleDialogOpen(true); }}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleEditArticle(article)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -418,6 +423,48 @@ const HelpCenter = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditArticleDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleUpdateArticle}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Article Dialog */}
+      <Dialog open={viewArticleDialogOpen} onOpenChange={setViewArticleDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {viewingArticle?.title}
+              <Badge variant={viewingArticle?.status === "published" ? "default" : "secondary"}>
+                {viewingArticle?.status}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          {viewingArticle && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4" />
+                  {viewingArticle.category}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {viewingArticle.views} views
+                </span>
+                <span>Updated {viewingArticle.lastUpdated}</span>
+              </div>
+              <div className="border-t pt-4">
+                <p className="text-foreground whitespace-pre-wrap">{viewingArticle.content}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewArticleDialogOpen(false)}>Close</Button>
+            <Button onClick={() => { 
+              setViewArticleDialogOpen(false); 
+              handleEditArticle(viewingArticle!); 
+            }}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Article
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
