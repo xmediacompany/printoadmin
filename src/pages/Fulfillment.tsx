@@ -56,7 +56,6 @@ const Fulfillment = () => {
                 <TableHead>Route ID</TableHead>
                 <TableHead>Driver</TableHead>
                 <TableHead>Stops</TableHead>
-                <TableHead>Progress</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>COD Total</TableHead>
                 <TableHead>Actions</TableHead>
@@ -68,17 +67,6 @@ const Fulfillment = () => {
                   <TableCell className="font-medium">{route.id}</TableCell>
                   <TableCell>{route.driver}</TableCell>
                   <TableCell>{route.stops} stops</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary"
-                          style={{ width: `${(route.completed / route.stops) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-muted-foreground">{route.completed}/{route.stops}</span>
-                    </div>
-                  </TableCell>
                   <TableCell>
                     <Badge variant={getStatusColor(route.status)}>
                       {route.status.replace("-", " ")}
