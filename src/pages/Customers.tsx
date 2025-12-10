@@ -55,6 +55,9 @@ export default function Customers() {
     setShowAddLocation(false);
     toast({ title: "Location Added", description: `${newLocation.trim()} has been added to locations` });
   };
+
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
   const stats = [
     { label: "Total Customers", value: "2,847", change: "+12.5%", changePositive: true },
     { label: "Active This Month", value: "1,923", change: "+8.2%", changePositive: true },
@@ -223,10 +226,18 @@ export default function Customers() {
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="VIP">VIP</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
           <Button size="sm" onClick={() => setAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Customer
@@ -252,7 +263,9 @@ export default function Customers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customers.map((customer) => (
+              {customers
+                .filter((customer) => statusFilter === "all" || customer.status === statusFilter)
+                .map((customer) => (
                 <TableRow key={customer.id}>
                   <TableCell>
                     <Checkbox />
