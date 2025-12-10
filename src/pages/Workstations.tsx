@@ -75,7 +75,7 @@ const initialWorkstations = [
   }
 ];
 
-const workstationTypes = [
+const initialWorkstationTypes = [
   "Digital Press",
   "Large Format Printer",
   "Finishing Station",
@@ -110,10 +110,13 @@ const getStatusColor = (status: string) => {
 
 const Workstations = () => {
   const [workstations, setWorkstations] = useState(initialWorkstations);
+  const [workstationTypes, setWorkstationTypes] = useState(initialWorkstationTypes);
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
+  const [customTypeInput, setCustomTypeInput] = useState("");
+  const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [newWorkstation, setNewWorkstation] = useState({
     type: "",
     status: "Active",
@@ -183,7 +186,13 @@ const Workstations = () => {
               </Label>
               <Select 
                 value={newWorkstation.type} 
-                onValueChange={(value) => setNewWorkstation({ ...newWorkstation, type: value })}
+                onValueChange={(value) => {
+                  if (value === "__add_custom__") {
+                    setShowCustomTypeInput(true);
+                  } else {
+                    setNewWorkstation({ ...newWorkstation, type: value });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select workstation type" />
@@ -192,8 +201,48 @@ const Workstations = () => {
                   {workstationTypes.map((type) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
+                  <SelectItem value="__add_custom__" className="text-primary font-medium">
+                    <span className="flex items-center gap-2">
+                      <Plus className="h-3 w-3" />
+                      Add Custom Type
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
+              {showCustomTypeInput && (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Enter custom type..."
+                    value={customTypeInput}
+                    onChange={(e) => setCustomTypeInput(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      if (customTypeInput.trim()) {
+                        setWorkstationTypes(prev => [...prev, customTypeInput.trim()]);
+                        setNewWorkstation({ ...newWorkstation, type: customTypeInput.trim() });
+                        setCustomTypeInput("");
+                        setShowCustomTypeInput(false);
+                        toast.success("Custom type added!");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      setCustomTypeInput("");
+                      setShowCustomTypeInput(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Date of Purchase */}
