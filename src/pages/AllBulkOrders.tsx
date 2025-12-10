@@ -21,6 +21,7 @@ import {
   AlertCircle,
   FileCheck
 } from "lucide-react";
+import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 
 interface BulkOrder {
   id: string;
@@ -36,8 +37,9 @@ interface BulkOrder {
 const AllBulkOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [newOrderOpen, setNewOrderOpen] = useState(false);
 
-  const bulkOrders: BulkOrder[] = [
+  const [bulkOrders, setBulkOrders] = useState<BulkOrder[]>([
     {
       id: "BO-001",
       product: "Business Cards",
@@ -98,7 +100,7 @@ const AllBulkOrders = () => {
       date: "2024-01-11",
       deliveryDate: "2024-01-26",
     },
-  ];
+  ]);
 
   const getOrderStatusIcon = (status: string) => {
     switch (status) {
@@ -146,11 +148,17 @@ const AllBulkOrders = () => {
             <p className="text-muted-foreground">View and manage all corporate bulk orders</p>
           </div>
         </div>
-        <Button>
+        <Button onClick={() => setNewOrderOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create New Order
         </Button>
       </div>
+
+      <NewOrderDialog 
+        open={newOrderOpen} 
+        onOpenChange={setNewOrderOpen}
+        onOrderCreated={() => {}}
+      />
 
       {/* Search and Filter */}
       <div className="flex gap-3">
