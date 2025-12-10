@@ -9,42 +9,42 @@ const workstations = [
     type: "Digital Press",
     dateOfPurchase: "2022-03-15",
     status: "Active",
-    location: "Production Floor A"
+    location: "Shuwaikh"
   },
   {
     id: "WS-02",
     type: "Digital Press",
     dateOfPurchase: "2022-03-15",
     status: "Active",
-    location: "Production Floor A"
+    location: "Mishref"
   },
   {
     id: "WS-03",
     type: "Large Format Printer",
     dateOfPurchase: "2021-08-20",
     status: "Active",
-    location: "Production Floor B"
+    location: "Salwa"
   },
   {
     id: "WS-04",
     type: "Finishing Station",
     dateOfPurchase: "2023-01-10",
     status: "Active",
-    location: "Finishing Area"
+    location: "Bayan"
   },
   {
     id: "WS-05",
     type: "Cutting Station",
     dateOfPurchase: "2022-06-05",
     status: "Idle",
-    location: "Finishing Area"
+    location: "Surra"
   },
   {
     id: "WS-06",
     type: "Quality Control Desk",
     dateOfPurchase: "2023-05-12",
     status: "Active",
-    location: "QC Department"
+    location: "Shuwaikh"
   }
 ];
 
