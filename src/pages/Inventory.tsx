@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -278,61 +278,55 @@ export default function Inventory() {
         ))}
       </div>
 
-      <Tabs defaultValue="stock-levels" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="stock-levels">Stock Levels</TabsTrigger>
-        </TabsList>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-muted-foreground">
+            Monitor inventory levels and reorder points
+          </p>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
+        </div>
 
-        <TabsContent value="stock-levels" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">
-              Monitor inventory levels and reorder points
-            </p>
-            <Button onClick={() => setAddDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
-            </Button>
-          </div>
-
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item ID</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Reorder Level</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Restocked</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item ID</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Reorder Level</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Restocked</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stockItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.id}</TableCell>
+                    <TableCell>{item.category}</TableCell>
+                    <TableCell>
+                      {item.quantity.toLocaleString()} {item.unit}
+                    </TableCell>
+                    <TableCell>{item.reorderLevel.toLocaleString()}</TableCell>
+                    <TableCell>{getStockStatusBadge(item.status)}</TableCell>
+                    <TableCell>{item.lastRestocked}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => handleReorderClick(item)}>
+                        <ShoppingCart className="h-4 w-4 mr-1" />
+                        Reorder
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stockItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.id}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>
-                        {item.quantity.toLocaleString()} {item.unit}
-                      </TableCell>
-                      <TableCell>{item.reorderLevel.toLocaleString()}</TableCell>
-                      <TableCell>{getStockStatusBadge(item.status)}</TableCell>
-                      <TableCell>{item.lastRestocked}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => handleReorderClick(item)}>
-                          <ShoppingCart className="h-4 w-4 mr-1" />
-                          Reorder
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Add Item Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
