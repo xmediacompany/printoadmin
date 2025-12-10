@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +16,11 @@ import {
   Phone,
   Calendar
 } from "lucide-react";
+import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 
 const B2BCorporate = () => {
+  const [newOrderOpen, setNewOrderOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -24,11 +28,23 @@ const B2BCorporate = () => {
           <h1 className="text-3xl font-bold">B2B Corporate Management</h1>
           <p className="text-muted-foreground">Manage corporate accounts, bulk orders, and enterprise services</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Corporate Account
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setNewOrderOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Order
+          </Button>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Corporate Account
+          </Button>
+        </div>
       </div>
+
+      <NewOrderDialog 
+        open={newOrderOpen} 
+        onOpenChange={setNewOrderOpen}
+        onOrderCreated={() => {}}
+      />
 
       {/* Stats Overview */}
       <div className="grid gap-6 md:grid-cols-4">
