@@ -758,9 +758,6 @@ const B2BCorporate = () => {
                       <Building2 className="h-4 w-4 text-primary" />
                       <h4 className="font-semibold">{account.companyName}</h4>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {getTierLabel(account.tier)} • {getMonthlyValue(account.tier)}
-                    </p>
                   </div>
                   <Badge variant={account.status === "Active" ? "default" : "secondary"}>
                     {account.status}
