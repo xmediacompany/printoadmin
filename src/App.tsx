@@ -23,6 +23,7 @@ import SmartReports from "./pages/SmartReports";
 import AIOrderBot from "./pages/AIOrderBot";
 import SupportTeam from "./pages/SupportTeam";
 import LiveChatDashboard from "./pages/LiveChatDashboard";
+import FAQManagement from "./pages/FAQManagement";
 import Inventory from "./pages/Inventory";
 import B2BCorporate from "./pages/B2BCorporate";
 import AllCorporateAccounts from "./pages/AllCorporateAccounts";
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
           <Route path="/customer-service" element={<AppLayout><SupportTeam /></AppLayout>} />
           <Route path="/customer-service/live-chat" element={<AppLayout><LiveChatDashboard /></AppLayout>} />
+          <Route path="/customer-service/faq" element={<AppLayout><FAQManagement /></AppLayout>} />
           <Route path="/ai-order-bot" element={<AppLayout><AIOrderBot /></AppLayout>} />
           <Route path="/marketing" element={<AppLayout><Marketing /></AppLayout>} />
           <Route path="/finance" element={<AppLayout><Finance /></AppLayout>} />
