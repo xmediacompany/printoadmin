@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X, ShoppingCart, Zap, Clock, Truck } from "lucide-react";
+import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X, ShoppingCart, Zap, Clock, Truck, Mail } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -93,6 +93,7 @@ export default function Inventory() {
   const [reorderData, setReorderData] = useState({
     quantity: "",
     supplier: "",
+    email: "",
     urgency: "standard",
     notes: "",
   });
@@ -187,6 +188,7 @@ export default function Inventory() {
     setReorderData({
       quantity: String(item.reorderLevel),
       supplier: item.supplier || "",
+      email: "",
       urgency: "standard",
       notes: "",
     });
@@ -203,9 +205,18 @@ export default function Inventory() {
       return;
     }
 
+    if (!reorderData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reorderData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
       title: "Reorder Placed",
-      description: `Reorder for ${selectedItem?.category} (${reorderData.quantity} units) has been submitted.`,
+      description: `Reorder for ${selectedItem?.category} (${reorderData.quantity} units) sent to ${reorderData.email}.`,
     });
 
     setReorderDialogOpen(false);
@@ -213,6 +224,7 @@ export default function Inventory() {
     setReorderData({
       quantity: "",
       supplier: "",
+      email: "",
       urgency: "standard",
       notes: "",
     });
@@ -514,6 +526,21 @@ export default function Inventory() {
                   placeholder="e.g., Al-Wazzan Trading Co."
                   value={reorderData.supplier}
                   onChange={(e) => setReorderData({ ...reorderData, supplier: e.target.value })}
+                />
+              </div>
+
+              {/* Email */}
+              <div className="grid gap-2">
+                <Label htmlFor="reorderEmail" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Send Order To (Email) *
+                </Label>
+                <Input
+                  id="reorderEmail"
+                  type="email"
+                  placeholder="supplier@example.com"
+                  value={reorderData.email}
+                  onChange={(e) => setReorderData({ ...reorderData, email: e.target.value })}
                 />
               </div>
 
