@@ -166,7 +166,6 @@ const Fulfillment = () => {
                 <TableHead>Stops</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Invoice Amount</TableHead>
-                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -181,17 +180,6 @@ const Fulfillment = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">KD {route.cod}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Navigation className="h-4 w-4 mr-1" />
-                        Track
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
