@@ -37,7 +37,11 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  FileCheck
+  FileCheck,
+  Video,
+  UserCircle,
+  Send,
+  Bell
 } from "lucide-react";
 import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 import { toast } from "@/hooks/use-toast";
@@ -88,6 +92,29 @@ const B2BCorporate = () => {
   const [customIndustryValue, setCustomIndustryValue] = useState("");
   const [customManagerValue, setCustomManagerValue] = useState("");
   const [agreementFile, setAgreementFile] = useState<File | null>(null);
+  
+  // Schedule Meeting state
+  const [meeting, setMeeting] = useState({
+    type: "online",
+    location: "our_office",
+    customLocation: "",
+    date: "",
+    time: "",
+    attendeeName: "",
+    subject: "",
+    email: "",
+    sendReminders: true,
+  });
+  const [scheduledMeetings, setScheduledMeetings] = useState<Array<{
+    id: string;
+    type: string;
+    location: string;
+    date: string;
+    time: string;
+    attendeeName: string;
+    subject: string;
+    email: string;
+  }>>([]);
 
   const bulkOrders = [
     {
@@ -938,60 +965,275 @@ const B2BCorporate = () => {
         </Card>
       </div>
 
-      {/* Pending Actions */}
+      {/* Schedule Meeting */}
       <Card>
         <CardHeader>
-          <CardTitle>Pending Actions</CardTitle>
-          <CardDescription>Items requiring attention</CardDescription>
+          <CardTitle>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Schedule Meeting
+            </div>
+          </CardTitle>
+          <CardDescription>Book a meeting with corporate clients</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 border rounded-lg border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
-              <div className="flex-1">
-                <h4 className="font-semibold">Contract Renewal - Global Marketing Group</h4>
-                <p className="text-sm text-muted-foreground">Annual contract expires in 15 days</p>
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Meeting Form */}
+            <div className="space-y-5">
+              {/* Meeting Type */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Meeting Type</Label>
+                <RadioGroup
+                  value={meeting.type}
+                  onValueChange={(value) => setMeeting({ ...meeting, type: value })}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="online" id="online" />
+                    <Label htmlFor="online" className="flex items-center gap-2 cursor-pointer">
+                      <Video className="h-4 w-4 text-blue-500" />
+                      Online Meeting
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="physical" id="physical" />
+                    <Label htmlFor="physical" className="flex items-center gap-2 cursor-pointer">
+                      <MapPin className="h-4 w-4 text-green-500" />
+                      In-Person
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  Schedule Meeting
-                </Button>
-                <Button size="sm">
-                  Review
+
+              {/* Location */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Location</Label>
+                <Select
+                  value={meeting.location}
+                  onValueChange={(value) => setMeeting({ ...meeting, location: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="our_office">
+                      <span className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        Our Office (PRINTO HQ)
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="client_office">
+                      <span className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        Client's Office
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="other">
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Other Location
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {meeting.location === "other" && (
+                  <Input
+                    placeholder="Enter meeting location address"
+                    value={meeting.customLocation}
+                    onChange={(e) => setMeeting({ ...meeting, customLocation: e.target.value })}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+
+              {/* Date & Time */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="meetingDate" className="text-sm font-medium">Date</Label>
+                  <Input
+                    id="meetingDate"
+                    type="date"
+                    value={meeting.date}
+                    onChange={(e) => setMeeting({ ...meeting, date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="meetingTime" className="text-sm font-medium">Time</Label>
+                  <Input
+                    id="meetingTime"
+                    type="time"
+                    value={meeting.time}
+                    onChange={(e) => setMeeting({ ...meeting, time: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Attendee Name */}
+              <div className="space-y-2">
+                <Label htmlFor="attendeeName" className="text-sm font-medium flex items-center gap-2">
+                  <UserCircle className="h-4 w-4" />
+                  Attendee Name
+                </Label>
+                <Input
+                  id="attendeeName"
+                  placeholder="Name of person attending the meeting"
+                  value={meeting.attendeeName}
+                  onChange={(e) => setMeeting({ ...meeting, attendeeName: e.target.value })}
+                />
+              </div>
+
+              {/* Subject */}
+              <div className="space-y-2">
+                <Label htmlFor="subject" className="text-sm font-medium">Meeting Subject</Label>
+                <Input
+                  id="subject"
+                  placeholder="e.g., Contract renewal discussion"
+                  value={meeting.subject}
+                  onChange={(e) => setMeeting({ ...meeting, subject: e.target.value })}
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="meetingEmail" className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email for Meeting Details & Reminders
+                </Label>
+                <Input
+                  id="meetingEmail"
+                  type="email"
+                  placeholder="attendee@company.com"
+                  value={meeting.email}
+                  onChange={(e) => setMeeting({ ...meeting, email: e.target.value })}
+                />
+              </div>
+
+              {/* Send Reminders Toggle */}
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-primary" />
+                  <span className="text-sm">Send email reminders (24h & 1h before)</span>
+                </div>
+                <Button
+                  variant={meeting.sendReminders ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMeeting({ ...meeting, sendReminders: !meeting.sendReminders })}
+                >
+                  {meeting.sendReminders ? "On" : "Off"}
                 </Button>
               </div>
+
+              {/* Schedule Button */}
+              <Button 
+                className="w-full"
+                onClick={() => {
+                  if (!meeting.attendeeName || !meeting.subject || !meeting.email || !meeting.date || !meeting.time) {
+                    toast({
+                      title: "Missing Information",
+                      description: "Please fill in all required fields.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(meeting.email)) {
+                    toast({
+                      title: "Invalid Email",
+                      description: "Please enter a valid email address.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  const newMeeting = {
+                    id: `MTG-${Date.now()}`,
+                    type: meeting.type,
+                    location: meeting.location === "other" ? meeting.customLocation : meeting.location,
+                    date: meeting.date,
+                    time: meeting.time,
+                    attendeeName: meeting.attendeeName,
+                    subject: meeting.subject,
+                    email: meeting.email,
+                  };
+                  
+                  setScheduledMeetings([newMeeting, ...scheduledMeetings]);
+                  setMeeting({
+                    type: "online",
+                    location: "our_office",
+                    customLocation: "",
+                    date: "",
+                    time: "",
+                    attendeeName: "",
+                    subject: "",
+                    email: "",
+                    sendReminders: true,
+                  });
+                  
+                  toast({
+                    title: "Meeting Scheduled",
+                    description: `Meeting with ${newMeeting.attendeeName} has been scheduled. Invitation sent to ${newMeeting.email}.`,
+                  });
+                }}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Schedule Meeting & Send Invite
+              </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex-1">
-                <h4 className="font-semibold">Custom Quote Request - New Corporate Client</h4>
-                <p className="text-sm text-muted-foreground">100,000 units order • Awaiting pricing</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Eye className="h-4 w-4 mr-1" />
-                  View Details
-                </Button>
-                <Button size="sm">
-                  Create Quote
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex-1">
-                <h4 className="font-semibold">Payment Terms Update - Design Studio Pro</h4>
-                <p className="text-sm text-muted-foreground">Request for extended payment terms</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit Terms
-                </Button>
-                <Button size="sm">
-                  Approve
-                </Button>
-              </div>
+            {/* Upcoming Meetings */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Upcoming Meetings
+              </h3>
+              <ScrollArea className="h-[400px] pr-4">
+                {scheduledMeetings.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center p-6 border border-dashed rounded-lg">
+                    <Calendar className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                    <p className="text-muted-foreground">No meetings scheduled yet</p>
+                    <p className="text-sm text-muted-foreground/70">Schedule a meeting to see it here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {scheduledMeetings.map((m) => (
+                      <div key={m.id} className="p-4 border rounded-lg hover:border-primary/50 transition-colors">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {m.type === "online" ? (
+                              <Video className="h-4 w-4 text-blue-500" />
+                            ) : (
+                              <MapPin className="h-4 w-4 text-green-500" />
+                            )}
+                            <span className="font-semibold text-sm">{m.subject}</span>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {m.type === "online" ? "Online" : "In-Person"}
+                          </Badge>
+                        </div>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                          <p className="flex items-center gap-2">
+                            <UserCircle className="h-3 w-3" />
+                            {m.attendeeName}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(m.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })} at {m.time}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <MapPin className="h-3 w-3" />
+                            {m.location === "our_office" ? "PRINTO HQ" : m.location === "client_office" ? "Client's Office" : m.location}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            {m.email}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
             </div>
           </div>
         </CardContent>
