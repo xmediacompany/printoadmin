@@ -22,7 +22,7 @@ const workstations = [
     id: "WS-03",
     type: "Large Format Printer",
     dateOfPurchase: "2021-08-20",
-    status: "Active",
+    status: "Maintenance",
     location: "Salwa"
   },
   {
@@ -36,7 +36,7 @@ const workstations = [
     id: "WS-05",
     type: "Cutting Station",
     dateOfPurchase: "2022-06-05",
-    status: "Idle",
+    status: "Not Active",
     location: "Surra"
   },
   {
@@ -51,7 +51,7 @@ const workstations = [
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Active": return "default";
-    case "Idle": return "secondary";
+    case "Not Active": return "secondary";
     case "Maintenance": return "destructive";
     default: return "secondary";
   }
