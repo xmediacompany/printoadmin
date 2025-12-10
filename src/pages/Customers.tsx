@@ -12,7 +12,7 @@ import { Search, Filter, Plus, Mail, Phone, MapPin, Calendar, Edit, Trash2, User
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 
-const locations = ["Salmiya", "Hawally", "City", "Farwaniya", "Jahra", "Ahmadi", "Mubarak Al-Kabeer"];
+const defaultLocations = ["Salmiya", "Hawally", "City", "Farwaniya", "Jahra", "Ahmadi", "Mubarak Al-Kabeer"];
 
 interface Customer {
   id: string;
@@ -29,6 +29,9 @@ interface Customer {
 export default function Customers() {
   const { toast } = useToast();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [locations, setLocations] = useState(defaultLocations);
+  const [showAddLocation, setShowAddLocation] = useState(false);
+  const [newLocation, setNewLocation] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -39,6 +42,19 @@ export default function Customers() {
     notes: "",
     status: "Active",
   });
+
+  const handleAddLocation = () => {
+    if (!newLocation.trim()) return;
+    if (locations.includes(newLocation.trim())) {
+      toast({ title: "Error", description: "This location already exists", variant: "destructive" });
+      return;
+    }
+    setLocations([...locations, newLocation.trim()]);
+    setFormData({ ...formData, location: newLocation.trim() });
+    setNewLocation("");
+    setShowAddLocation(false);
+    toast({ title: "Location Added", description: `${newLocation.trim()} has been added to locations` });
+  };
   const stats = [
     { label: "Total Customers", value: "2,847", change: "+12.5%", changePositive: true },
     { label: "Active This Month", value: "1,923", change: "+8.2%", changePositive: true },
@@ -412,21 +428,55 @@ export default function Customers() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Location <span className="text-destructive">*</span></Label>
-                <Select
-                  value={formData.location}
-                  onValueChange={(value) => setFormData({ ...formData, location: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc} value={loc}>
-                        {loc}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {!showAddLocation ? (
+                  <div className="space-y-2">
+                    <Select
+                      value={formData.location}
+                      onValueChange={(value) => {
+                        if (value === "__add_new__") {
+                          setShowAddLocation(true);
+                        } else {
+                          setFormData({ ...formData, location: value });
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((loc) => (
+                          <SelectItem key={loc} value={loc}>
+                            {loc}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="__add_new__" className="text-primary">
+                          <span className="flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add New Location
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter new location"
+                      value={newLocation}
+                      onChange={(e) => setNewLocation(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleAddLocation()}
+                    />
+                    <Button size="icon" onClick={handleAddLocation}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="outline" onClick={() => {
+                      setShowAddLocation(false);
+                      setNewLocation("");
+                    }}>
+                      ✕
+                    </Button>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
