@@ -186,7 +186,6 @@ const HelpCenter = () => {
         <TabsList>
           <TabsTrigger value="articles">Articles</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="articles" className="space-y-4">
@@ -291,67 +290,6 @@ const HelpCenter = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Articles</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{articles.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Published</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{articles.filter(a => a.status === "published").length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Views</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{articles.reduce((sum, a) => sum + a.views, 0).toLocaleString()}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{categories.length}</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Most Viewed Articles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {articles
-                  .sort((a, b) => b.views - a.views)
-                  .slice(0, 5)
-                  .map((article, index) => (
-                    <div key={article.id} className="flex items-center gap-4">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-medium">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{article.title}</p>
-                        <p className="text-sm text-muted-foreground">{article.category}</p>
-                      </div>
-                      <div className="text-sm font-medium">{article.views.toLocaleString()} views</div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Add Article Dialog */}
