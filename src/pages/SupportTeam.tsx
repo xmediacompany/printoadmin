@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, HelpCircle, Users, CheckCircle } from "lucide-react";
+import LiveChatDashboard from "@/components/support/LiveChatDashboard";
 
 export default function SupportTeam() {
+  const [chatDashboardOpen, setChatDashboardOpen] = useState(false);
   const stats = [
     {
       label: "Active Tickets",
@@ -77,7 +80,12 @@ export default function SupportTeam() {
               <CardDescription>{feature.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">{feature.buttonText}</Button>
+              <Button 
+                className="w-full"
+                onClick={() => feature.title === "Live Chat" && setChatDashboardOpen(true)}
+              >
+                {feature.buttonText}
+              </Button>
             </CardContent>
           </Card>
         ))}
@@ -133,6 +141,8 @@ export default function SupportTeam() {
           </div>
         </CardContent>
       </Card>
+
+      <LiveChatDashboard open={chatDashboardOpen} onOpenChange={setChatDashboardOpen} />
     </div>
   );
 }
