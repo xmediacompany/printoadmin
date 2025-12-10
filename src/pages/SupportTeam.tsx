@@ -81,7 +81,10 @@ export default function SupportTeam() {
             <CardContent>
               <Button 
                 className="w-full"
-                onClick={() => feature.title === "Live Chat" && navigate("/customer-service/live-chat")}
+                onClick={() => {
+                  if (feature.title === "Live Chat") navigate("/customer-service/live-chat");
+                  if (feature.title === "FAQ") navigate("/customer-service/faq");
+                }}
               >
                 {feature.buttonText}
               </Button>
