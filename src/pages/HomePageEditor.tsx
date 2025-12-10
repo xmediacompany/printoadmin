@@ -52,6 +52,9 @@ interface ProductItem {
   name: string;
   subtitle: string;
   imageUrl: string;
+  colors: string[];
+  sizes: string[];
+  quantity: number;
   isActive: boolean;
 }
 
@@ -101,7 +104,12 @@ const HomePageEditor = () => {
     name: "",
     subtitle: "",
     imageUrl: "",
+    colors: [],
+    sizes: [],
+    quantity: 0,
   });
+  const [newColorInput, setNewColorInput] = useState("");
+  const [newSizeInput, setNewSizeInput] = useState("");
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [newService, setNewService] = useState<Omit<ServiceItem, 'id' | 'isActive'>>({
     name: "",
@@ -148,15 +156,15 @@ const HomePageEditor = () => {
 
   // Custom Design Products
   const [products, setProducts] = useState<ProductItem[]>([
-    { id: "prod-1", name: "Custom T-Shirts", subtitle: "DTF/DTG/Screen-print", imageUrl: "/products/tshirts.jpg", isActive: true },
-    { id: "prod-2", name: "Ceramic Mugs", subtitle: "Sublimation print", imageUrl: "/products/mugs.jpg", isActive: true },
-    { id: "prod-3", name: "Tote Bags", subtitle: "Screen Print/DTG", imageUrl: "/products/totebags.jpg", isActive: true },
-    { id: "prod-4", name: "Hoodies", subtitle: "DTG/Screen/Print/Emb", imageUrl: "/products/hoodies.jpg", isActive: true },
-    { id: "prod-5", name: "Caps", subtitle: "Embroidery-print", imageUrl: "/products/caps.jpg", isActive: true },
-    { id: "prod-6", name: "Thermo Bottles", subtitle: "Sublimation-laser", imageUrl: "/products/bottles.jpg", isActive: true },
-    { id: "prod-7", name: "Cups", subtitle: "Custom branded cups", imageUrl: "/products/cups.jpg", isActive: true },
-    { id: "prod-8", name: "Stationery", subtitle: "Branded stationery sets", imageUrl: "/products/stationery.jpg", isActive: true },
-    { id: "prod-9", name: "Diary", subtitle: "Personalized diary/journal", imageUrl: "/products/diary.jpg", isActive: true },
+    { id: "prod-1", name: "Custom T-Shirts", subtitle: "DTF/DTG/Screen-print", imageUrl: "/products/tshirts.jpg", colors: ["Black", "White", "Navy"], sizes: ["S", "M", "L", "XL"], quantity: 100, isActive: true },
+    { id: "prod-2", name: "Ceramic Mugs", subtitle: "Sublimation print", imageUrl: "/products/mugs.jpg", colors: ["White"], sizes: ["11oz", "15oz"], quantity: 50, isActive: true },
+    { id: "prod-3", name: "Tote Bags", subtitle: "Screen Print/DTG", imageUrl: "/products/totebags.jpg", colors: ["Natural", "Black"], sizes: ["Standard"], quantity: 75, isActive: true },
+    { id: "prod-4", name: "Hoodies", subtitle: "DTG/Screen/Print/Emb", imageUrl: "/products/hoodies.jpg", colors: ["Black", "Grey", "Navy"], sizes: ["S", "M", "L", "XL", "XXL"], quantity: 60, isActive: true },
+    { id: "prod-5", name: "Caps", subtitle: "Embroidery-print", imageUrl: "/products/caps.jpg", colors: ["Black", "White", "Red"], sizes: ["One Size"], quantity: 120, isActive: true },
+    { id: "prod-6", name: "Thermo Bottles", subtitle: "Sublimation-laser", imageUrl: "/products/bottles.jpg", colors: ["Silver", "Black", "White"], sizes: ["500ml", "750ml"], quantity: 80, isActive: true },
+    { id: "prod-7", name: "Cups", subtitle: "Custom branded cups", imageUrl: "/products/cups.jpg", colors: ["White", "Black"], sizes: ["250ml", "350ml"], quantity: 90, isActive: true },
+    { id: "prod-8", name: "Stationery", subtitle: "Branded stationery sets", imageUrl: "/products/stationery.jpg", colors: [], sizes: [], quantity: 40, isActive: true },
+    { id: "prod-9", name: "Diary", subtitle: "Personalized diary/journal", imageUrl: "/products/diary.jpg", colors: ["Black", "Brown", "Blue"], sizes: ["A5", "A4"], quantity: 35, isActive: true },
   ]);
 
   // Printing Services
@@ -327,7 +335,9 @@ const HomePageEditor = () => {
       isActive: true,
     };
     setProducts(prev => [...prev, product]);
-    setNewProduct({ name: "", subtitle: "", imageUrl: "" });
+    setNewProduct({ name: "", subtitle: "", imageUrl: "", colors: [], sizes: [], quantity: 0 });
+    setNewColorInput("");
+    setNewSizeInput("");
     setAddProductDialogOpen(false);
     setHasChanges(true);
     toast.success("Product added successfully");
@@ -1008,14 +1018,14 @@ const HomePageEditor = () => {
 
       {/* Add Product Dialog */}
       <Dialog open={addProductDialogOpen} onOpenChange={setAddProductDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="space-y-4">
               <Label>Product Image</Label>
-              <div className="aspect-square bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
+              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
                 <div className="text-center p-4">
                   <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">Click to upload</p>
@@ -1041,6 +1051,114 @@ const HomePageEditor = () => {
               <Input 
                 value={newProduct.subtitle}
                 onChange={(e) => setNewProduct({ ...newProduct, subtitle: e.target.value })}
+              />
+            </div>
+
+            {/* Colors */}
+            <div className="space-y-2">
+              <Label>Colors</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Add a color (e.g., Black, White)"
+                  value={newColorInput}
+                  onChange={(e) => setNewColorInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newColorInput.trim()) {
+                      e.preventDefault();
+                      setNewProduct({ ...newProduct, colors: [...newProduct.colors, newColorInput.trim()] });
+                      setNewColorInput("");
+                    }
+                  }}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => {
+                    if (newColorInput.trim()) {
+                      setNewProduct({ ...newProduct, colors: [...newProduct.colors, newColorInput.trim()] });
+                      setNewColorInput("");
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {newProduct.colors.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newProduct.colors.map((color, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      {color}
+                      <button
+                        type="button"
+                        onClick={() => setNewProduct({ ...newProduct, colors: newProduct.colors.filter((_, i) => i !== index) })}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Sizes */}
+            <div className="space-y-2">
+              <Label>Sizes</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Add a size (e.g., S, M, L, XL)"
+                  value={newSizeInput}
+                  onChange={(e) => setNewSizeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newSizeInput.trim()) {
+                      e.preventDefault();
+                      setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
+                      setNewSizeInput("");
+                    }
+                  }}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => {
+                    if (newSizeInput.trim()) {
+                      setNewProduct({ ...newProduct, sizes: [...newProduct.sizes, newSizeInput.trim()] });
+                      setNewSizeInput("");
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {newProduct.sizes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newProduct.sizes.map((size, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      {size}
+                      <button
+                        type="button"
+                        onClick={() => setNewProduct({ ...newProduct, sizes: newProduct.sizes.filter((_, i) => i !== index) })}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quantity in Stock */}
+            <div className="space-y-2">
+              <Label>Quantity in Stock</Label>
+              <Input 
+                type="number"
+                min="0"
+                value={newProduct.quantity}
+                onChange={(e) => setNewProduct({ ...newProduct, quantity: parseInt(e.target.value) || 0 })}
+                placeholder="Enter stock quantity"
               />
             </div>
           </div>
