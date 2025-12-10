@@ -25,7 +25,9 @@ import {
   MapPin,
   CreditCard,
   Star,
-  Briefcase
+  Briefcase,
+  Upload,
+  X
 } from "lucide-react";
 import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 import { toast } from "@/hooks/use-toast";
@@ -75,6 +77,7 @@ const B2BCorporate = () => {
   const [showCustomManagerInput, setShowCustomManagerInput] = useState(false);
   const [customIndustryValue, setCustomIndustryValue] = useState("");
   const [customManagerValue, setCustomManagerValue] = useState("");
+  const [agreementFile, setAgreementFile] = useState<File | null>(null);
   const [corporateAccounts, setCorporateAccounts] = useState<CorporateAccount[]>([
     {
       id: "CA-001",
@@ -517,6 +520,52 @@ const B2BCorporate = () => {
                   </Select>
                 )}
               </div>
+            </div>
+
+            {/* Agreement Upload */}
+            <div className="grid gap-2">
+              <Label htmlFor="agreement" className="flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                Corporate Agreement
+              </Label>
+              {agreementFile ? (
+                <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <span className="text-sm flex-1 truncate">{agreementFile.name}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAgreementFile(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    id="agreement"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setAgreementFile(file);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start text-muted-foreground"
+                    onClick={() => document.getElementById('agreement')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Agreement (PDF, DOC, DOCX)
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Notes */}
