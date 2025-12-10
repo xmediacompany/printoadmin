@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, ShoppingCart, Users, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
+import { Package, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
 
 export default function Inventory() {
   const stats = [
@@ -20,20 +20,6 @@ export default function Inventory() {
       change: "-2 from yesterday",
       trend: "warning",
       icon: AlertTriangle,
-    },
-    {
-      label: "Active POs",
-      value: "15",
-      change: "+3 this week",
-      trend: "up",
-      icon: ShoppingCart,
-    },
-    {
-      label: "Vendors",
-      value: "42",
-      change: "+2 this month",
-      trend: "up",
-      icon: Users,
     },
   ];
 
@@ -168,7 +154,7 @@ export default function Inventory() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
