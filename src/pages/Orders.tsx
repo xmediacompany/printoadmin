@@ -116,14 +116,14 @@ const Orders = () => {
               
               <Select defaultValue="all">
                 <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Priority" />
+                  <SelectValue placeholder="Deadline" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Priority</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="all">All Deadlines</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="tomorrow">Tomorrow</SelectItem>
+                  <SelectItem value="this-week">This Week</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
                 </SelectContent>
               </Select>
 
