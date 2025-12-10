@@ -101,12 +101,12 @@ const Workstations = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Operators</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Workstations</CardTitle>
+            <Monitor className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">1 unassigned station</p>
+            <div className="text-2xl font-bold">4</div>
+            <p className="text-xs text-muted-foreground">1 not active, 1 maintenance</p>
           </CardContent>
         </Card>
       </div>
