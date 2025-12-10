@@ -1,12 +1,44 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Plus, Mail, Phone, MapPin, Calendar, Edit, Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Search, Filter, Plus, Mail, Phone, MapPin, Calendar, Edit, Trash2, User } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+
+const locations = ["Salmiya", "Hawally", "City", "Farwaniya", "Jahra", "Ahmadi", "Mubarak Al-Kabeer"];
+
+interface Customer {
+  id: string;
+  name: string;
+  location: string;
+  email: string;
+  phone: string;
+  orders: number;
+  lastOrder: string;
+  totalSpent: string;
+  status: string;
+}
 
 export default function Customers() {
+  const { toast } = useToast();
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    location: "",
+    company: "",
+    notes: "",
+    status: "Active",
+  });
   const stats = [
     { label: "Total Customers", value: "2,847", change: "+12.5%", changePositive: true },
     { label: "Active This Month", value: "1,923", change: "+8.2%", changePositive: true },
@@ -120,6 +152,24 @@ export default function Customers() {
     }
   };
 
+  const handleAddCustomer = () => {
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.location) {
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
+      return;
+    }
+    toast({ title: "Customer Added", description: `${formData.firstName} ${formData.lastName} has been added successfully` });
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      location: "",
+      company: "",
+      notes: "",
+      status: "Active",
+    });
+    setAddDialogOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -161,7 +211,7 @@ export default function Customers() {
             <Filter className="mr-2 h-4 w-4" />
             Filters
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Customer
           </Button>
@@ -294,6 +344,142 @@ export default function Customers() {
           </Card>
         </div>
       </div>
+
+      {/* Add Customer Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Add New Customer
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
+                <Input
+                  id="firstName"
+                  placeholder="Enter first name"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
+                <Input
+                  id="lastName"
+                  placeholder="Enter last name"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Contact Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="customer@email.com"
+                    className="pl-10"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    placeholder="+965 XXXX XXXX"
+                    className="pl-10"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Location and Status */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Location <span className="text-destructive">*</span></Label>
+                <Select
+                  value={formData.location}
+                  onValueChange={(value) => setFormData({ ...formData, location: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((loc) => (
+                      <SelectItem key={loc} value={loc}>
+                        {loc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="VIP">VIP</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Company */}
+            <div className="space-y-2">
+              <Label htmlFor="company">Company (Optional)</Label>
+              <Input
+                id="company"
+                placeholder="Company name"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              />
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Add any additional notes about this customer..."
+                rows={3}
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddCustomer}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Customer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
