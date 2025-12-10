@@ -16,17 +16,29 @@ import {
   MessageSquare,
   Truck,
   CreditCard,
-  X
+  X,
+  Pencil,
+  Mail,
+  Phone,
+  Camera
 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,8 +132,29 @@ export function AppHeader() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsList, setNotificationsList] = useState(notifications);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  
+  // Profile state
+  const [profileName, setProfileName] = useState("Admin User");
+  const [profileEmail, setProfileEmail] = useState("admin@printo.com");
+  const [profileMobile, setProfileMobile] = useState("+965 1234 5678");
+  const [profilePhoto, setProfilePhoto] = useState("");
+  
+  // Edit dialogs
+  const [editNameOpen, setEditNameOpen] = useState(false);
+  const [editEmailOpen, setEditEmailOpen] = useState(false);
+  const [editMobileOpen, setEditMobileOpen] = useState(false);
+  const [editPhotoOpen, setEditPhotoOpen] = useState(false);
+  
+  // Temp edit values
+  const [tempName, setTempName] = useState(profileName);
+  const [tempEmail, setTempEmail] = useState(profileEmail);
+  const [tempMobile, setTempMobile] = useState(profileMobile);
 
   const unreadCount = notificationsList.filter(n => !n.read).length;
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
 
   const handleLogout = () => {
     toast.success("Logged out successfully");
@@ -355,49 +388,103 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="" />
+                <AvatarImage src={profilePhoto} />
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                  AD
+                  {getInitials(profileName)}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-80" align="end" sideOffset={8}>
-            {/* Profile Header */}
+            {/* Profile Header with Edit Photo */}
             <div className="p-4 bg-gradient-to-br from-primary/10 to-primary/5">
               <div className="flex items-center gap-3">
-                <Avatar className="h-14 w-14 border-2 border-background shadow-md">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
-                    AD
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-14 w-14 border-2 border-background shadow-md">
+                    <AvatarImage src={profilePhoto} />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
+                      {getInitials(profileName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full shadow-md"
+                    onClick={() => setEditPhotoOpen(true)}
+                  >
+                    <Camera className="h-3 w-3" />
+                  </Button>
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Admin User</h3>
+                    <h3 className="font-semibold">{profileName}</h3>
                     <Badge variant="secondary" className="text-xs">Admin</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">admin@printo.com</p>
+                  <p className="text-sm text-muted-foreground">{profileEmail}</p>
                   <p className="text-xs text-muted-foreground mt-1">Last login: Today, 9:30 AM</p>
                 </div>
               </div>
             </div>
 
-
             <DropdownMenuSeparator />
 
-            {/* Menu Items */}
+            {/* Edit Profile Options */}
             <DropdownMenuGroup>
               <DropdownMenuItem 
                 className="py-3 cursor-pointer"
-                onClick={() => navigate("/settings")}
+                onClick={() => {
+                  setTempName(profileName);
+                  setEditNameOpen(true);
+                }}
               >
                 <User className="mr-3 h-4 w-4" />
                 <div className="flex-1">
-                  <p className="font-medium">My Profile</p>
-                  <p className="text-xs text-muted-foreground">View and edit profile</p>
+                  <p className="font-medium">Edit Name</p>
+                  <p className="text-xs text-muted-foreground">{profileName}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+              </DropdownMenuItem>
+
+              <DropdownMenuItem 
+                className="py-3 cursor-pointer"
+                onClick={() => {
+                  setTempEmail(profileEmail);
+                  setEditEmailOpen(true);
+                }}
+              >
+                <Mail className="mr-3 h-4 w-4" />
+                <div className="flex-1">
+                  <p className="font-medium">Edit Email</p>
+                  <p className="text-xs text-muted-foreground">{profileEmail}</p>
+                </div>
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+              </DropdownMenuItem>
+
+              <DropdownMenuItem 
+                className="py-3 cursor-pointer"
+                onClick={() => {
+                  setTempMobile(profileMobile);
+                  setEditMobileOpen(true);
+                }}
+              >
+                <Phone className="mr-3 h-4 w-4" />
+                <div className="flex-1">
+                  <p className="font-medium">Edit Mobile</p>
+                  <p className="text-xs text-muted-foreground">{profileMobile}</p>
+                </div>
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+              </DropdownMenuItem>
+
+              <DropdownMenuItem 
+                className="py-3 cursor-pointer"
+                onClick={() => setEditPhotoOpen(true)}
+              >
+                <Camera className="mr-3 h-4 w-4" />
+                <div className="flex-1">
+                  <p className="font-medium">Change Photo</p>
+                  <p className="text-xs text-muted-foreground">Upload a new profile picture</p>
+                </div>
+                <Pencil className="h-4 w-4 text-muted-foreground" />
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -413,6 +500,157 @@ export function AppHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Edit Name Dialog */}
+      <Dialog open={editNameOpen} onOpenChange={setEditNameOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Name</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                placeholder="Enter your full name"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditNameOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              setProfileName(tempName);
+              setEditNameOpen(false);
+              toast.success("Name updated successfully");
+            }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Email Dialog */}
+      <Dialog open={editEmailOpen} onOpenChange={setEditEmailOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={tempEmail}
+                onChange={(e) => setTempEmail(e.target.value)}
+                placeholder="Enter your email address"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditEmailOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              setProfileEmail(tempEmail);
+              setEditEmailOpen(false);
+              toast.success("Email updated successfully");
+            }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Mobile Dialog */}
+      <Dialog open={editMobileOpen} onOpenChange={setEditMobileOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Mobile Number</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="mobile">Mobile Number</Label>
+              <Input
+                id="mobile"
+                type="tel"
+                value={tempMobile}
+                onChange={(e) => setTempMobile(e.target.value)}
+                placeholder="Enter your mobile number"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditMobileOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              setProfileMobile(tempMobile);
+              setEditMobileOpen(false);
+              toast.success("Mobile number updated successfully");
+            }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Photo Dialog */}
+      <Dialog open={editPhotoOpen} onOpenChange={setEditPhotoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Profile Photo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-4">
+              <Avatar className="h-24 w-24 border-4 border-muted">
+                <AvatarImage src={profilePhoto} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                  {getInitials(profileName)}
+                </AvatarFallback>
+              </Avatar>
+              <div 
+                className="w-full border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => {
+                  // Simulate file upload
+                  setProfilePhoto("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face");
+                  setEditPhotoOpen(false);
+                  toast.success("Profile photo updated!");
+                }}
+              >
+                <Camera className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Click to upload a new photo
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  JPG, PNG or GIF (max 5MB)
+                </p>
+              </div>
+              {profilePhoto && (
+                <Button 
+                  variant="outline" 
+                  className="text-destructive"
+                  onClick={() => {
+                    setProfilePhoto("");
+                    toast.success("Profile photo removed");
+                  }}
+                >
+                  Remove Current Photo
+                </Button>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditPhotoOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
