@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,13 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Download, MoreVertical } from "lucide-react";
+import { Search, Filter, Download, MoreVertical, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 
 const orders = [
   { 
@@ -82,6 +84,13 @@ const getStatusColor = (status: string) => {
 };
 
 const Orders = () => {
+  const [newOrderOpen, setNewOrderOpen] = useState(false);
+  const [ordersList, setOrdersList] = useState(orders);
+
+  const handleOrderCreated = (newOrder: any) => {
+    setOrdersList([newOrder, ...ordersList]);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -89,10 +98,17 @@ const Orders = () => {
           <h1 className="text-3xl font-bold">Orders & Production Queue</h1>
           <p className="text-muted-foreground">Manage and track all production orders</p>
         </div>
-        <Button>
+        <Button onClick={() => setNewOrderOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
           New Order
         </Button>
       </div>
+
+      <NewOrderDialog 
+        open={newOrderOpen} 
+        onOpenChange={setNewOrderOpen}
+        onOrderCreated={handleOrderCreated}
+      />
 
       <Card>
         <CardHeader className="border-b">
@@ -155,7 +171,7 @@ const Orders = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {ordersList.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-muted/30 transition-colors">
                     <td className="p-4">
                       <span className="font-medium">{order.id}</span>
