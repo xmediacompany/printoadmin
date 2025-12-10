@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Download, CreditCard, Banknote, Smartphone, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, RotateCcw, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
 export default function Finance() {
+  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [refundStatusFilter, setRefundStatusFilter] = useState("all");
   const invoices = [
@@ -210,7 +211,33 @@ export default function Finance() {
           <TabsTrigger value="refunds">Refunds</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="invoices">
+        <TabsContent value="invoices" className="space-y-6">
+          {/* Search and Filters */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Search invoices..." className="pl-9" />
+            </div>
+            <div className="flex gap-2">
+              <Select value={invoiceStatusFilter} onValueChange={setInvoiceStatusFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+            </div>
+          </div>
+
           <Card>
             <CardContent className="p-0">
               <Table>
@@ -225,7 +252,9 @@ export default function Finance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {invoices.map((invoice) => (
+                  {invoices
+                    .filter((invoice) => invoiceStatusFilter === "all" || invoice.status === invoiceStatusFilter)
+                    .map((invoice) => (
                     <TableRow key={invoice.id}>
                       <TableCell className="font-medium">{invoice.id}</TableCell>
                       <TableCell>{invoice.customer}</TableCell>
