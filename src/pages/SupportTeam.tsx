@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, HelpCircle, Users, CheckCircle } from "lucide-react";
-import LiveChatDashboard from "@/components/support/LiveChatDashboard";
+import { useNavigate } from "react-router-dom";
 
 export default function SupportTeam() {
-  const [chatDashboardOpen, setChatDashboardOpen] = useState(false);
+  const navigate = useNavigate();
   const stats = [
     {
       label: "Active Tickets",
@@ -82,7 +81,7 @@ export default function SupportTeam() {
             <CardContent>
               <Button 
                 className="w-full"
-                onClick={() => feature.title === "Live Chat" && setChatDashboardOpen(true)}
+                onClick={() => feature.title === "Live Chat" && navigate("/customer-service/live-chat")}
               >
                 {feature.buttonText}
               </Button>
@@ -141,8 +140,6 @@ export default function SupportTeam() {
           </div>
         </CardContent>
       </Card>
-
-      <LiveChatDashboard open={chatDashboardOpen} onOpenChange={setChatDashboardOpen} />
     </div>
   );
 }
