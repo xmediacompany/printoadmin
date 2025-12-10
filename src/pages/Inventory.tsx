@@ -25,12 +25,19 @@ interface StockItem {
 }
 
 const initialCategories = [
-  "Paper",
-  "Consumables",
-  "Binding",
-  "Ink & Toner",
-  "Packaging",
-  "Equipment Parts",
+  "Custom T-Shirts",
+  "Ceramic Mugs",
+  "Tote Bags",
+  "Hoodies",
+  "Caps",
+  "Thermo Bottles",
+  "Cups",
+  "Stationery",
+  "Stickers",
+  "Papers",
+  "Cards",
+  "Notebooks",
+  "Diary",
 ];
 
 
