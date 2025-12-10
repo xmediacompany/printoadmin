@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Truck, Navigation, Package, CheckCircle2, Plus, CalendarIcon, MapPin, UserPlus, X } from "lucide-react";
+import { Truck, Package, CheckCircle2, Plus, CalendarIcon, MapPin, UserPlus, X, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -57,13 +59,27 @@ const Fulfillment = () => {
   ]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [drivers, setDrivers] = useState(initialDrivers);
   const [areas, setAreas] = useState(initialAreas);
   const [showCustomDriverInput, setShowCustomDriverInput] = useState(false);
   const [showCustomAreaInput, setShowCustomAreaInput] = useState(false);
+  const [showEditCustomDriverInput, setShowEditCustomDriverInput] = useState(false);
+  const [showEditCustomAreaInput, setShowEditCustomAreaInput] = useState(false);
   const [customDriverName, setCustomDriverName] = useState("");
   const [customAreaName, setCustomAreaName] = useState("");
   const [newRoute, setNewRoute] = useState({
+    driver: "",
+    stops: "",
+    invoiceAmount: "",
+    status: "pending",
+    date: undefined as Date | undefined,
+    selectedAreas: [] as string[],
+  });
+  const [editRoute, setEditRoute] = useState({
+    id: "",
     driver: "",
     stops: "",
     invoiceAmount: "",
@@ -138,6 +154,68 @@ const Fulfillment = () => {
     });
   };
 
+  const handleEditClick = (route: Route) => {
+    setSelectedRoute(route);
+    setEditRoute({
+      id: route.id,
+      driver: route.driver,
+      stops: route.stops.toString(),
+      invoiceAmount: route.cod,
+      status: route.status,
+      date: route.date,
+      selectedAreas: route.areas || [],
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditRoute = () => {
+    if (!editRoute.driver || !editRoute.stops) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRoutes(routes.map((route) =>
+      route.id === editRoute.id
+        ? {
+            ...route,
+            driver: editRoute.driver,
+            stops: parseInt(editRoute.stops),
+            status: editRoute.status,
+            cod: editRoute.invoiceAmount || "0.00",
+            date: editRoute.date,
+            areas: editRoute.selectedAreas,
+          }
+        : route
+    ));
+    setEditDialogOpen(false);
+    setShowEditCustomDriverInput(false);
+    setShowEditCustomAreaInput(false);
+    toast({
+      title: "Route Updated",
+      description: `Route ${editRoute.id} has been updated successfully.`,
+    });
+  };
+
+  const handleDeleteClick = (route: Route) => {
+    setSelectedRoute(route);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteRoute = () => {
+    if (selectedRoute) {
+      setRoutes(routes.filter((route) => route.id !== selectedRoute.id));
+      setDeleteDialogOpen(false);
+      toast({
+        title: "Route Deleted",
+        description: `Route ${selectedRoute.id} has been deleted.`,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -167,6 +245,7 @@ const Fulfillment = () => {
                 <TableHead>Stops</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Invoice Amount</TableHead>
+                <TableHead className="w-[50px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -181,6 +260,28 @@ const Fulfillment = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">KD {route.cod}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(route)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteClick(route)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -486,6 +587,256 @@ const Fulfillment = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Route Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Route {editRoute.id}</DialogTitle>
+            <DialogDescription>
+              Update the route details below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Driver *</Label>
+              {showEditCustomDriverInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter driver name"
+                    value={customDriverName}
+                    onChange={(e) => setCustomDriverName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customDriverName.trim()) {
+                        setDrivers([...drivers, customDriverName.trim()]);
+                        setEditRoute({ ...editRoute, driver: customDriverName.trim() });
+                        setCustomDriverName("");
+                        setShowEditCustomDriverInput(false);
+                        toast({
+                          title: "Driver Added",
+                          description: `${customDriverName.trim()} has been added.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowEditCustomDriverInput(false);
+                      setCustomDriverName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={editRoute.driver}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom__") {
+                      setShowEditCustomDriverInput(true);
+                    } else {
+                      setEditRoute({ ...editRoute, driver: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {drivers.map((driver) => (
+                      <SelectItem key={driver} value={driver}>
+                        {driver}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom__">
+                      <div className="flex items-center gap-2 text-primary">
+                        <UserPlus className="h-4 w-4" />
+                        Add Custom Driver
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Delivery Areas ({editRoute.selectedAreas.length} selected)</Label>
+              <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
+                {areas.map((area) => (
+                  <div key={area} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`edit-area-${area}`}
+                      checked={editRoute.selectedAreas.includes(area)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setEditRoute({
+                            ...editRoute,
+                            selectedAreas: [...editRoute.selectedAreas, area],
+                          });
+                        } else {
+                          setEditRoute({
+                            ...editRoute,
+                            selectedAreas: editRoute.selectedAreas.filter((a) => a !== area),
+                          });
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor={`edit-area-${area}`}
+                      className="flex items-center gap-2 text-sm cursor-pointer"
+                    >
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      {area}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {showEditCustomAreaInput ? (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Enter area name"
+                    value={customAreaName}
+                    onChange={(e) => setCustomAreaName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customAreaName.trim()) {
+                        const newArea = customAreaName.trim();
+                        setAreas([...areas, newArea]);
+                        setEditRoute({
+                          ...editRoute,
+                          selectedAreas: [...editRoute.selectedAreas, newArea],
+                        });
+                        setCustomAreaName("");
+                        setShowEditCustomAreaInput(false);
+                        toast({
+                          title: "Area Added",
+                          description: `${newArea} has been added and selected.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowEditCustomAreaInput(false);
+                      setCustomAreaName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowEditCustomAreaInput(true)}
+                  className="w-fit"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Custom Area
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Number of Stops *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={editRoute.stops}
+                  onChange={(e) => setEditRoute({ ...editRoute, stops: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Invoice Amount (KD)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={editRoute.invoiceAmount}
+                  onChange={(e) => setEditRoute({ ...editRoute, invoiceAmount: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <Select
+                value={editRoute.status}
+                onValueChange={(value) => setEditRoute({ ...editRoute, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+                      Pending
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="in-progress">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                      In Progress
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="completed">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-600" />
+                      Completed
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditRoute}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Route</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete route {selectedRoute?.id}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteRoute} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
