@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Filter, Plus, Mail, Phone, MapPin, Calendar, Star } from "lucide-react";
+import { Search, Filter, Plus, Mail, Phone, MapPin, Calendar, Edit, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function Customers() {
@@ -120,23 +120,6 @@ export default function Customers() {
     }
   };
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`h-3.5 w-3.5 ${
-              star <= Math.floor(rating)
-                ? "fill-yellow-400 text-yellow-400"
-                : "fill-muted text-muted"
-            }`}
-          />
-        ))}
-        <span className="ml-1 text-sm text-muted-foreground">{rating}</span>
-      </div>
-    );
-  };
 
   return (
     <div className="space-y-6">
@@ -199,7 +182,6 @@ export default function Customers() {
                 <TableHead>Orders</TableHead>
                 <TableHead>Total Spent</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Rating</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -242,11 +224,15 @@ export default function Customers() {
                   </TableCell>
                   <TableCell className="font-medium">{customer.totalSpent}</TableCell>
                   <TableCell>{getStatusBadge(customer.status)}</TableCell>
-                  <TableCell>{renderStars(customer.rating)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
-                      View
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
