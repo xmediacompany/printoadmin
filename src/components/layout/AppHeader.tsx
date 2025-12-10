@@ -383,25 +383,6 @@ export function AppHeader() {
               </div>
             </div>
 
-            <DropdownMenuSeparator />
-
-            {/* Quick Stats */}
-            <div className="px-4 py-3">
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-2 rounded-lg bg-muted/50">
-                  <p className="text-lg font-bold text-primary">156</p>
-                  <p className="text-xs text-muted-foreground">Orders</p>
-                </div>
-                <div className="p-2 rounded-lg bg-muted/50">
-                  <p className="text-lg font-bold text-primary">23</p>
-                  <p className="text-xs text-muted-foreground">Pending</p>
-                </div>
-                <div className="p-2 rounded-lg bg-muted/50">
-                  <p className="text-lg font-bold text-primary">98%</p>
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                </div>
-              </div>
-            </div>
 
             <DropdownMenuSeparator />
 
