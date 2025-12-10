@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,12 +88,6 @@ const B2BCorporate = () => {
   const [customIndustryValue, setCustomIndustryValue] = useState("");
   const [customManagerValue, setCustomManagerValue] = useState("");
   const [agreementFile, setAgreementFile] = useState<File | null>(null);
-  const [viewAllAccountsOpen, setViewAllAccountsOpen] = useState(false);
-  const [viewAllOrdersOpen, setViewAllOrdersOpen] = useState(false);
-  const [accountSearchQuery, setAccountSearchQuery] = useState("");
-  const [orderSearchQuery, setOrderSearchQuery] = useState("");
-  const [accountStatusFilter, setAccountStatusFilter] = useState("all");
-  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
   const bulkOrders = [
     {
@@ -324,21 +319,6 @@ const B2BCorporate = () => {
     }
   };
 
-  const filteredAccounts = corporateAccounts.filter((account) => {
-    const matchesSearch = account.companyName.toLowerCase().includes(accountSearchQuery.toLowerCase()) ||
-      account.contactName.toLowerCase().includes(accountSearchQuery.toLowerCase()) ||
-      account.contactEmail.toLowerCase().includes(accountSearchQuery.toLowerCase());
-    const matchesStatus = accountStatusFilter === "all" || account.status === accountStatusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const filteredOrders = bulkOrders.filter((order) => {
-    const matchesSearch = order.product.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
-      order.company.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
-      order.id.toLowerCase().includes(orderSearchQuery.toLowerCase());
-    const matchesStatus = orderStatusFilter === "all" || order.status === orderStatusFilter;
-    return matchesSearch && matchesStatus;
-  });
 
   return (
     <div className="space-y-6">
@@ -761,9 +741,11 @@ const B2BCorporate = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Corporate Accounts</CardTitle>
-              <Button size="sm" variant="outline" onClick={() => setViewAllAccountsOpen(true)}>
-                View All
-              </Button>
+              <Link to="/b2b-corporate/accounts">
+                <Button size="sm" variant="outline">
+                  View All
+                </Button>
+              </Link>
             </div>
             <CardDescription>Manage enterprise clients and agreements</CardDescription>
           </CardHeader>
@@ -794,9 +776,11 @@ const B2BCorporate = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Recent Bulk Orders</CardTitle>
-              <Button size="sm" variant="outline" onClick={() => setViewAllOrdersOpen(true)}>
-                View All
-              </Button>
+              <Link to="/b2b-corporate/orders">
+                <Button size="sm" variant="outline">
+                  View All
+                </Button>
+              </Link>
             </div>
             <CardDescription>High-volume corporate orders</CardDescription>
           </CardHeader>
@@ -1016,255 +1000,6 @@ const B2BCorporate = () => {
         </CardContent>
       </Card>
 
-      {/* View All Corporate Accounts Dialog */}
-      <Dialog open={viewAllAccountsOpen} onOpenChange={setViewAllAccountsOpen}>
-        <DialogContent className="sm:max-w-[900px] max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              All Corporate Accounts
-            </DialogTitle>
-            <DialogDescription>
-              View and manage all corporate accounts
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Search and Filter */}
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by company, contact name, or email..."
-                  value={accountSearchQuery}
-                  onChange={(e) => setAccountSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={accountStatusFilter} onValueChange={setAccountStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Pending Review">Pending Review</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Accounts Table */}
-            <ScrollArea className="h-[400px] rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Payment Terms</TableHead>
-                    <TableHead>Credit Limit</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAccounts.length > 0 ? (
-                    filteredAccounts.map((account) => (
-                      <TableRow key={account.id}>
-                        <TableCell className="font-medium">{account.id}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-primary" />
-                            <div>
-                              <div className="font-medium">{account.companyName}</div>
-                              <div className="text-xs text-muted-foreground">{account.website}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{account.contactName}</div>
-                            <div className="text-xs text-muted-foreground">{account.contactEmail}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{account.industry}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {account.paymentTerms === "prepaid" ? "Prepaid" : 
-                             account.paymentTerms === "net15" ? "Net 15" :
-                             account.paymentTerms === "net30" ? "Net 30" :
-                             account.paymentTerms === "net45" ? "Net 45" : "Net 60"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{account.creditLimit ? `${parseInt(account.creditLimit).toLocaleString()} KD` : "-"}</TableCell>
-                        <TableCell>
-                          <Badge variant={account.status === "Active" ? "default" : "secondary"}>
-                            {account.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        No accounts found matching your search criteria
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Showing {filteredAccounts.length} of {corporateAccounts.length} accounts</span>
-              <Button variant="outline" size="sm" onClick={() => setAddAccountOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add New Account
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* View All Bulk Orders Dialog */}
-      <Dialog open={viewAllOrdersOpen} onOpenChange={setViewAllOrdersOpen}>
-        <DialogContent className="sm:max-w-[950px] max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              All Bulk Orders
-            </DialogTitle>
-            <DialogDescription>
-              View and manage all corporate bulk orders
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Search and Filter */}
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by order ID, product, or company..."
-                  value={orderSearchQuery}
-                  onChange={(e) => setOrderSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={orderStatusFilter} onValueChange={setOrderStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="In Production">In Production</SelectItem>
-                  <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-                  <SelectItem value="Quote Sent">Quote Sent</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Orders Table */}
-            <ScrollArea className="h-[400px] rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Order Date</TableHead>
-                    <TableHead>Delivery Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredOrders.length > 0 ? (
-                    filteredOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{order.product}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{order.quantity}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Building2 className="h-3 w-3 text-muted-foreground" />
-                            {order.company}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-semibold">{order.amount}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {order.date}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            {order.deliveryDate}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getOrderStatusVariant(order.status) as any} className="flex items-center gap-1 w-fit">
-                            {getOrderStatusIcon(order.status)}
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                        No orders found matching your search criteria
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Showing {filteredOrders.length} of {bulkOrders.length} orders</span>
-              <Button variant="outline" size="sm" onClick={() => setNewOrderOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" />
-                Create New Order
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
