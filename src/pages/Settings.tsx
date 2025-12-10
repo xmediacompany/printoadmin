@@ -289,9 +289,24 @@ export default function Settings() {
                       <TableCell className="text-sm">{user.ipAddress}</TableCell>
                       <TableCell className="text-sm">{user.deviceType}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => toast.info(`Edit user: ${user.name}`)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => toast.success(`User ${user.name} deleted`)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
