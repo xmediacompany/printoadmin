@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Truck, Navigation, Package, CheckCircle2, Plus, CalendarIcon, MapPin } from "lucide-react";
+import { Truck, Navigation, Package, CheckCircle2, Plus, CalendarIcon, MapPin, UserPlus, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -25,7 +25,7 @@ interface Route {
   area?: string;
 }
 
-const drivers = [
+const initialDrivers = [
   "Ahmed Ali",
   "Sarah Hassan",
   "Mohammed Khalid",
@@ -34,7 +34,7 @@ const drivers = [
   "Layla Ibrahim",
 ];
 
-const kuwaitAreas = [
+const initialAreas = [
   "Shuwaikh Industrial",
   "Sharq District",
   "Hawally Area",
@@ -56,6 +56,12 @@ const Fulfillment = () => {
   ]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [drivers, setDrivers] = useState(initialDrivers);
+  const [areas, setAreas] = useState(initialAreas);
+  const [showCustomDriverInput, setShowCustomDriverInput] = useState(false);
+  const [showCustomAreaInput, setShowCustomAreaInput] = useState(false);
+  const [customDriverName, setCustomDriverName] = useState("");
+  const [customAreaName, setCustomAreaName] = useState("");
   const [newRoute, setNewRoute] = useState({
     driver: "",
     stops: "",
@@ -120,6 +126,10 @@ const Fulfillment = () => {
       date: undefined,
       area: "",
     });
+    setShowCustomDriverInput(false);
+    setShowCustomAreaInput(false);
+    setCustomDriverName("");
+    setCustomAreaName("");
 
     toast({
       title: "Route Created",
@@ -237,43 +247,145 @@ const Fulfillment = () => {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="driver">Driver *</Label>
-              <Select
-                value={newRoute.driver}
-                onValueChange={(value) => setNewRoute({ ...newRoute, driver: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a driver" />
-                </SelectTrigger>
-                <SelectContent>
-                  {drivers.map((driver) => (
-                    <SelectItem key={driver} value={driver}>
-                      {driver}
+              {showCustomDriverInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter driver name"
+                    value={customDriverName}
+                    onChange={(e) => setCustomDriverName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customDriverName.trim()) {
+                        setDrivers([...drivers, customDriverName.trim()]);
+                        setNewRoute({ ...newRoute, driver: customDriverName.trim() });
+                        setCustomDriverName("");
+                        setShowCustomDriverInput(false);
+                        toast({
+                          title: "Driver Added",
+                          description: `${customDriverName.trim()} has been added to the list.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCustomDriverInput(false);
+                      setCustomDriverName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={newRoute.driver}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom__") {
+                      setShowCustomDriverInput(true);
+                    } else {
+                      setNewRoute({ ...newRoute, driver: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a driver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {drivers.map((driver) => (
+                      <SelectItem key={driver} value={driver}>
+                        {driver}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom__">
+                      <div className="flex items-center gap-2 text-primary">
+                        <UserPlus className="h-4 w-4" />
+                        Add Custom Driver
+                      </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="area">Delivery Area *</Label>
-              <Select
-                value={newRoute.area}
-                onValueChange={(value) => setNewRoute({ ...newRoute, area: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select delivery area" />
-                </SelectTrigger>
-                <SelectContent>
-                  {kuwaitAreas.map((area) => (
-                    <SelectItem key={area} value={area}>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        {area}
+              {showCustomAreaInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter area name"
+                    value={customAreaName}
+                    onChange={(e) => setCustomAreaName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customAreaName.trim()) {
+                        setAreas([...areas, customAreaName.trim()]);
+                        setNewRoute({ ...newRoute, area: customAreaName.trim() });
+                        setCustomAreaName("");
+                        setShowCustomAreaInput(false);
+                        toast({
+                          title: "Area Added",
+                          description: `${customAreaName.trim()} has been added to the list.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCustomAreaInput(false);
+                      setCustomAreaName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={newRoute.area}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom__") {
+                      setShowCustomAreaInput(true);
+                    } else {
+                      setNewRoute({ ...newRoute, area: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select delivery area" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areas.map((area) => (
+                      <SelectItem key={area} value={area}>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          {area}
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom__">
+                      <div className="flex items-center gap-2 text-primary">
+                        <Plus className="h-4 w-4" />
+                        Add Custom Area
                       </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="grid gap-2">
