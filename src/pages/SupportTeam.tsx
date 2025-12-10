@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, HelpCircle, Plug, Clock, Users, CheckCircle } from "lucide-react";
+import { MessageSquare, HelpCircle, Users, CheckCircle } from "lucide-react";
 
 export default function SupportTeam() {
   const stats = [
@@ -9,12 +9,6 @@ export default function SupportTeam() {
       value: "24",
       icon: MessageSquare,
       color: "text-blue-600",
-    },
-    {
-      label: "Avg Response Time",
-      value: "12 min",
-      icon: Clock,
-      color: "text-emerald-600",
     },
     {
       label: "Team Members",
@@ -45,13 +39,6 @@ export default function SupportTeam() {
       buttonText: "Manage FAQs",
       color: "bg-emerald-500/10 text-emerald-700",
     },
-    {
-      title: "Integrations",
-      description: "Connect with third-party tools and platforms for seamless support",
-      icon: Plug,
-      buttonText: "View Integrations",
-      color: "bg-purple-500/10 text-purple-700",
-    },
   ];
 
   return (
@@ -62,7 +49,7 @@ export default function SupportTeam() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
