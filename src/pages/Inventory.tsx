@@ -8,8 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X } from "lucide-react";
+import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X, ShoppingCart, Zap, Clock, Truck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface StockItem {
   id: string;
@@ -86,6 +88,14 @@ export default function Inventory() {
   ]);
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [reorderDialogOpen, setReorderDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
+  const [reorderData, setReorderData] = useState({
+    quantity: "",
+    supplier: "",
+    urgency: "standard",
+    notes: "",
+  });
   const [categories, setCategories] = useState(initialCategories);
   const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
@@ -169,6 +179,42 @@ export default function Inventory() {
     toast({
       title: "Item Added",
       description: `${item.name} has been added to inventory.`,
+    });
+  };
+
+  const handleReorderClick = (item: StockItem) => {
+    setSelectedItem(item);
+    setReorderData({
+      quantity: String(item.reorderLevel),
+      supplier: item.supplier || "",
+      urgency: "standard",
+      notes: "",
+    });
+    setReorderDialogOpen(true);
+  };
+
+  const handleSubmitReorder = () => {
+    if (!reorderData.quantity || parseInt(reorderData.quantity) <= 0) {
+      toast({
+        title: "Invalid Quantity",
+        description: "Please enter a valid reorder quantity.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Reorder Placed",
+      description: `Reorder for ${selectedItem?.category} (${reorderData.quantity} units) has been submitted.`,
+    });
+
+    setReorderDialogOpen(false);
+    setSelectedItem(null);
+    setReorderData({
+      quantity: "",
+      supplier: "",
+      urgency: "standard",
+      notes: "",
     });
   };
 
@@ -262,7 +308,8 @@ export default function Inventory() {
                       <TableCell>{getStockStatusBadge(item.status)}</TableCell>
                       <TableCell>{item.lastRestocked}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleReorderClick(item)}>
+                          <ShoppingCart className="h-4 w-4 mr-1" />
                           Reorder
                         </Button>
                       </TableCell>
@@ -410,6 +457,131 @@ export default function Inventory() {
             <Button onClick={handleAddItem}>
               <Plus className="h-4 w-4 mr-2" />
               Add Item
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reorder Dialog */}
+      <Dialog open={reorderDialogOpen} onOpenChange={setReorderDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+              Reorder Inventory
+            </DialogTitle>
+            <DialogDescription>
+              Place a restock order for {selectedItem?.category}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedItem && (
+            <div className="space-y-4 py-4">
+              {/* Current Stock Info */}
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Item ID:</span>
+                  <span className="font-medium">{selectedItem.id}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Current Stock:</span>
+                  <span className="font-medium">{selectedItem.quantity.toLocaleString()} {selectedItem.unit}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Reorder Level:</span>
+                  <span className="font-medium">{selectedItem.reorderLevel.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Reorder Quantity */}
+              <div className="grid gap-2">
+                <Label htmlFor="reorderQty">Reorder Quantity *</Label>
+                <Input
+                  id="reorderQty"
+                  type="number"
+                  min="1"
+                  placeholder="Enter quantity to order"
+                  value={reorderData.quantity}
+                  onChange={(e) => setReorderData({ ...reorderData, quantity: e.target.value })}
+                />
+              </div>
+
+              {/* Supplier */}
+              <div className="grid gap-2">
+                <Label htmlFor="reorderSupplier">Supplier</Label>
+                <Input
+                  id="reorderSupplier"
+                  placeholder="e.g., Al-Wazzan Trading Co."
+                  value={reorderData.supplier}
+                  onChange={(e) => setReorderData({ ...reorderData, supplier: e.target.value })}
+                />
+              </div>
+
+              {/* Urgency Level */}
+              <div className="grid gap-3">
+                <Label>Urgency Level</Label>
+                <RadioGroup
+                  value={reorderData.urgency}
+                  onValueChange={(value) => setReorderData({ ...reorderData, urgency: value })}
+                  className="grid grid-cols-3 gap-3"
+                >
+                  <div>
+                    <RadioGroupItem value="standard" id="standard" className="peer sr-only" />
+                    <Label
+                      htmlFor="standard"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    >
+                      <Clock className="mb-2 h-5 w-5 text-muted-foreground" />
+                      <span className="text-xs font-medium">Standard</span>
+                      <span className="text-[10px] text-muted-foreground">5-7 days</span>
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="express" id="express" className="peer sr-only" />
+                    <Label
+                      htmlFor="express"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    >
+                      <Truck className="mb-2 h-5 w-5 text-blue-500" />
+                      <span className="text-xs font-medium">Express</span>
+                      <span className="text-[10px] text-muted-foreground">2-3 days</span>
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="urgent" id="urgent" className="peer sr-only" />
+                    <Label
+                      htmlFor="urgent"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                    >
+                      <Zap className="mb-2 h-5 w-5 text-yellow-500" />
+                      <span className="text-xs font-medium">Urgent</span>
+                      <span className="text-[10px] text-muted-foreground">Next day</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Notes */}
+              <div className="grid gap-2">
+                <Label htmlFor="reorderNotes">Notes (Optional)</Label>
+                <Textarea
+                  id="reorderNotes"
+                  placeholder="Add any special instructions or notes..."
+                  value={reorderData.notes}
+                  onChange={(e) => setReorderData({ ...reorderData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReorderDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitReorder}>
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Place Reorder
             </Button>
           </DialogFooter>
         </DialogContent>
