@@ -367,7 +367,6 @@ const AllCorporateAccounts = () => {
                 <TableHead>Industry</TableHead>
                 <TableHead>Payment Terms</TableHead>
                 <TableHead>Credit Limit</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -401,11 +400,6 @@ const AllCorporateAccounts = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{account.creditLimit ? `${parseInt(account.creditLimit).toLocaleString()} KD` : "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant={account.status === "Active" ? "default" : "secondary"}>
-                        {account.status}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button 
@@ -432,7 +426,7 @@ const AllCorporateAccounts = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No accounts found matching your search criteria
                   </TableCell>
                 </TableRow>
