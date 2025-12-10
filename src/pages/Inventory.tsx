@@ -235,7 +235,6 @@ export default function Inventory() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Item ID</TableHead>
-                    <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Reorder Level</TableHead>
@@ -248,7 +247,6 @@ export default function Inventory() {
                   {stockItems.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.id}</TableCell>
-                      <TableCell>{item.name}</TableCell>
                       <TableCell>{item.category}</TableCell>
                       <TableCell>
                         {item.quantity.toLocaleString()} {item.unit}
