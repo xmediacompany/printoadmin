@@ -115,6 +115,11 @@ const HomePageEditor = () => {
   const [newSizeInput, setNewSizeInput] = useState("");
   const [isCustomProductName, setIsCustomProductName] = useState(false);
   const [customProductName, setCustomProductName] = useState("");
+  // Edit product state
+  const [editColorInput, setEditColorInput] = useState("");
+  const [editSizeInput, setEditSizeInput] = useState("");
+  const [isEditCustomProductName, setIsEditCustomProductName] = useState(false);
+  const [editCustomProductName, setEditCustomProductName] = useState("");
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [newService, setNewService] = useState<Omit<ServiceItem, 'id' | 'isActive'>>({
     name: "",
@@ -296,8 +301,16 @@ const HomePageEditor = () => {
     toast.success("Section updated");
   };
 
+  const predefinedProducts = ["Custom T-Shirts", "Ceramic Mugs", "Tote Bags", "Hoodies", "Caps", "Thermo Bottles", "Cups", "Stationery", "Stickers", "Papers", "Cards", "Notebooks", "Diary"];
+
   const handleEditProduct = (product: ProductItem) => {
     setSelectedProduct({ ...product });
+    setEditColorInput("");
+    setEditSizeInput("");
+    // Check if product name is custom (not in predefined list)
+    const isCustom = !predefinedProducts.includes(product.name);
+    setIsEditCustomProductName(isCustom);
+    setEditCustomProductName(isCustom ? product.name : "");
     setEditProductDialogOpen(true);
   };
 
@@ -306,6 +319,10 @@ const HomePageEditor = () => {
     setProducts(prev => prev.map(p => p.id === selectedProduct.id ? selectedProduct : p));
     setEditProductDialogOpen(false);
     setSelectedProduct(null);
+    setEditColorInput("");
+    setEditSizeInput("");
+    setIsEditCustomProductName(false);
+    setEditCustomProductName("");
     setHasChanges(true);
     toast.success("Product updated");
   };
@@ -1282,7 +1299,7 @@ const HomePageEditor = () => {
 
       {/* Edit Product Dialog */}
       <Dialog open={editProductDialogOpen} onOpenChange={setEditProductDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
@@ -1290,7 +1307,7 @@ const HomePageEditor = () => {
             <div className="space-y-6 py-4">
               <div className="space-y-4">
                 <Label>Product Image</Label>
-                <div className="aspect-square bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-muted-foreground/20">
                   <div className="text-center p-4">
                     <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">Click to upload</p>
@@ -1305,10 +1322,57 @@ const HomePageEditor = () => {
 
               <div className="space-y-2">
                 <Label>Product Name</Label>
-                <Input 
-                  value={selectedProduct.name}
-                  onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
-                />
+                {!isEditCustomProductName ? (
+                  <Select
+                    value={selectedProduct.name}
+                    onValueChange={(value) => {
+                      if (value === "__other__") {
+                        setIsEditCustomProductName(true);
+                        setSelectedProduct({ ...selectedProduct, name: "" });
+                      } else {
+                        setSelectedProduct({ ...selectedProduct, name: value });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a product" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {predefinedProducts.map((product) => (
+                        <SelectItem key={product} value={product}>{product}</SelectItem>
+                      ))}
+                      <SelectItem value="__other__" className="text-primary font-medium">
+                        <span className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          Add Custom Product
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      value={editCustomProductName}
+                      onChange={(e) => {
+                        setEditCustomProductName(e.target.value);
+                        setSelectedProduct({ ...selectedProduct, name: e.target.value });
+                      }}
+                      placeholder="Enter custom product name"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        setIsEditCustomProductName(false);
+                        setEditCustomProductName("");
+                        setSelectedProduct({ ...selectedProduct, name: "" });
+                      }}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -1316,6 +1380,161 @@ const HomePageEditor = () => {
                 <Input 
                   value={selectedProduct.subtitle}
                   onChange={(e) => setSelectedProduct({ ...selectedProduct, subtitle: e.target.value })}
+                />
+              </div>
+
+              {/* Colors */}
+              <div className="space-y-2">
+                <Label>Colors</Label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="color"
+                    value={editColorInput || "#000000"}
+                    onChange={(e) => setEditColorInput(e.target.value)}
+                    className="w-12 h-10 rounded border border-input cursor-pointer"
+                  />
+                  <Input 
+                    placeholder="#000000"
+                    value={editColorInput}
+                    onChange={(e) => setEditColorInput(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => {
+                      if (editColorInput.trim()) {
+                        setSelectedProduct({ ...selectedProduct, colors: [...selectedProduct.colors, editColorInput.trim()] });
+                        setEditColorInput("");
+                      }
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {selectedProduct.colors.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedProduct.colors.map((color, index) => (
+                      <div
+                        key={index}
+                        className="relative group"
+                      >
+                        <div
+                          className="w-8 h-8 rounded-full border-2 border-muted-foreground/20 cursor-pointer"
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProduct({ ...selectedProduct, colors: selectedProduct.colors.filter((_, i) => i !== index) })}
+                          className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Sizes */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Sizes</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Show sizes</span>
+                    <Switch
+                      checked={selectedProduct.showSizes}
+                      onCheckedChange={(checked) => setSelectedProduct({ ...selectedProduct, showSizes: checked })}
+                    />
+                  </div>
+                </div>
+                
+                {selectedProduct.showSizes && (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => {
+                            if (selectedProduct.sizes.includes(size)) {
+                              setSelectedProduct({ ...selectedProduct, sizes: selectedProduct.sizes.filter(s => s !== size) });
+                            } else {
+                              setSelectedProduct({ ...selectedProduct, sizes: [...selectedProduct.sizes, size] });
+                            }
+                          }}
+                          className={`min-w-[48px] h-10 px-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+                            selectedProduct.sizes.includes(size)
+                              ? "bg-foreground text-background border-foreground"
+                              : "bg-background text-foreground border-input hover:border-foreground/50"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Custom size input */}
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Add custom size"
+                        value={editSizeInput}
+                        onChange={(e) => setEditSizeInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && editSizeInput.trim()) {
+                            e.preventDefault();
+                            if (!selectedProduct.sizes.includes(editSizeInput.trim())) {
+                              setSelectedProduct({ ...selectedProduct, sizes: [...selectedProduct.sizes, editSizeInput.trim()] });
+                            }
+                            setEditSizeInput("");
+                          }
+                        }}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="icon"
+                        onClick={() => {
+                          if (editSizeInput.trim() && !selectedProduct.sizes.includes(editSizeInput.trim())) {
+                            setSelectedProduct({ ...selectedProduct, sizes: [...selectedProduct.sizes, editSizeInput.trim()] });
+                            setEditSizeInput("");
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Show custom sizes that aren't in the predefined list */}
+                    {selectedProduct.sizes.filter(s => !["XS", "S", "M", "L", "XL", "XXL"].includes(s)).length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProduct.sizes.filter(s => !["XS", "S", "M", "L", "XL", "XXL"].includes(s)).map((size, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => setSelectedProduct({ ...selectedProduct, sizes: selectedProduct.sizes.filter(s => s !== size) })}
+                            className="min-w-[48px] h-10 px-3 rounded-lg border-2 bg-foreground text-background border-foreground text-sm font-medium transition-colors"
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Quantity in Stock */}
+              <div className="space-y-2">
+                <Label>Quantity in Stock</Label>
+                <Input 
+                  type="number"
+                  min="0"
+                  value={selectedProduct.quantity}
+                  onChange={(e) => setSelectedProduct({ ...selectedProduct, quantity: parseInt(e.target.value) || 0 })}
+                  placeholder="Enter stock quantity"
                 />
               </div>
             </div>
