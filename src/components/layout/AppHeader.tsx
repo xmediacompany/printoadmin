@@ -399,56 +399,7 @@ export function AppHeader() {
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </DropdownMenuItem>
-
-              <DropdownMenuItem 
-                className="py-3 cursor-pointer"
-                onClick={() => navigate("/settings")}
-              >
-                <Settings className="mr-3 h-4 w-4" />
-                <div className="flex-1">
-                  <p className="font-medium">Settings</p>
-                  <p className="text-xs text-muted-foreground">Account preferences</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </DropdownMenuItem>
-
-              <DropdownMenuItem 
-                className="py-3 cursor-pointer"
-                onClick={() => navigate("/settings")}
-              >
-                <Shield className="mr-3 h-4 w-4" />
-                <div className="flex-1">
-                  <p className="font-medium">Security</p>
-                  <p className="text-xs text-muted-foreground">Password & 2FA</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </DropdownMenuItem>
             </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
-            {/* Theme Toggle */}
-            <div className="px-2 py-2">
-              <div 
-                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-muted/50 cursor-pointer"
-                onClick={toggleDarkMode}
-              >
-                <div className="flex items-center gap-3">
-                  {isDarkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                  <span className="font-medium text-sm">Dark Mode</span>
-                </div>
-                <Switch checked={isDarkMode} onCheckedChange={toggleDarkMode} />
-              </div>
-            </div>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem className="py-3 cursor-pointer">
-              <HelpCircle className="mr-3 h-4 w-4" />
-              <div className="flex-1">
-                <p className="font-medium">Help & Support</p>
-              </div>
-            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
