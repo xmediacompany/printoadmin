@@ -14,8 +14,25 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2 } from "lucide-react";
+import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2, Settings, Send, Clock, Globe, Palette, Bell, FileText } from "lucide-react";
 import { toast } from "sonner";
+
+interface NewsletterSettings {
+  senderName: string;
+  senderEmail: string;
+  replyToEmail: string;
+  defaultSubjectPrefix: string;
+  frequency: "daily" | "weekly" | "monthly" | "manual";
+  sendTime: string;
+  timezone: string;
+  templateStyle: "minimal" | "modern" | "classic";
+  brandColor: string;
+  includeUnsubscribeLink: boolean;
+  enableTracking: boolean;
+  doubleOptIn: boolean;
+  welcomeEmailEnabled: boolean;
+  welcomeEmailSubject: string;
+}
 
 interface Coupon {
   id: string;
@@ -152,6 +169,23 @@ export default function Marketing() {
   const [couponEndDate, setCouponEndDate] = useState<Date>();
   const [editCouponStartDate, setEditCouponStartDate] = useState<Date>();
   const [editCouponEndDate, setEditCouponEndDate] = useState<Date>();
+  const [newsletterSettingsOpen, setNewsletterSettingsOpen] = useState(false);
+  const [newsletterSettings, setNewsletterSettings] = useState<NewsletterSettings>({
+    senderName: "PRINTO",
+    senderEmail: "newsletter@printo.com",
+    replyToEmail: "support@printo.com",
+    defaultSubjectPrefix: "[PRINTO]",
+    frequency: "weekly",
+    sendTime: "09:00",
+    timezone: "Asia/Kuwait",
+    templateStyle: "modern",
+    brandColor: "#778DA9",
+    includeUnsubscribeLink: true,
+    enableTracking: true,
+    doubleOptIn: true,
+    welcomeEmailEnabled: true,
+    welcomeEmailSubject: "Welcome to PRINTO Newsletter!",
+  });
 
   const generateCouponCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -484,7 +518,8 @@ export default function Marketing() {
                   </CardTitle>
                   <CardDescription>Email subscription management</CardDescription>
                 </div>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={() => setNewsletterSettingsOpen(true)}>
+                  <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </Button>
               </div>
@@ -1241,6 +1276,253 @@ export default function Marketing() {
             </Button>
             <Button onClick={handleUpdateCoupon}>
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Newsletter Settings Dialog */}
+      <Dialog open={newsletterSettingsOpen} onOpenChange={setNewsletterSettingsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5 text-primary" />
+              Newsletter Settings
+            </DialogTitle>
+            <DialogDescription>Configure your email newsletter preferences and delivery options</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Sender Information */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Send className="h-4 w-4" />
+                Sender Information
+              </h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Sender Name</Label>
+                  <Input 
+                    placeholder="Your Brand Name"
+                    value={newsletterSettings.senderName}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, senderName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sender Email</Label>
+                  <Input 
+                    type="email"
+                    placeholder="newsletter@example.com"
+                    value={newsletterSettings.senderEmail}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, senderEmail: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Reply-To Email</Label>
+                  <Input 
+                    type="email"
+                    placeholder="support@example.com"
+                    value={newsletterSettings.replyToEmail}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, replyToEmail: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Subject Prefix</Label>
+                  <Input 
+                    placeholder="[PRINTO]"
+                    value={newsletterSettings.defaultSubjectPrefix}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, defaultSubjectPrefix: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Scheduling */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Scheduling
+              </h4>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Send Frequency</Label>
+                  <Select 
+                    value={newsletterSettings.frequency} 
+                    onValueChange={(value: "daily" | "weekly" | "monthly" | "manual") => 
+                      setNewsletterSettings({ ...newsletterSettings, frequency: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Send Time</Label>
+                  <Input 
+                    type="time"
+                    value={newsletterSettings.sendTime}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, sendTime: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Timezone</Label>
+                  <Select 
+                    value={newsletterSettings.timezone} 
+                    onValueChange={(value) => setNewsletterSettings({ ...newsletterSettings, timezone: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Asia/Kuwait">Kuwait (GMT+3)</SelectItem>
+                      <SelectItem value="Asia/Dubai">Dubai (GMT+4)</SelectItem>
+                      <SelectItem value="Asia/Riyadh">Riyadh (GMT+3)</SelectItem>
+                      <SelectItem value="Europe/London">London (GMT)</SelectItem>
+                      <SelectItem value="America/New_York">New York (EST)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Template & Branding */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Palette className="h-4 w-4" />
+                Template & Branding
+              </h4>
+              <div className="space-y-3">
+                <Label>Template Style</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {(["minimal", "modern", "classic"] as const).map((style) => (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => setNewsletterSettings({ ...newsletterSettings, templateStyle: style })}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all",
+                        newsletterSettings.templateStyle === style 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border hover:border-muted-foreground/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-full h-12 rounded flex items-center justify-center text-xs",
+                        style === "minimal" && "bg-background border",
+                        style === "modern" && "bg-gradient-to-r from-primary/20 to-primary/10",
+                        style === "classic" && "bg-muted border-2 border-double"
+                      )}>
+                        {style === "minimal" && <FileText className="h-4 w-4 text-muted-foreground" />}
+                        {style === "modern" && <Sparkles className="h-4 w-4 text-primary" />}
+                        {style === "classic" && <Mail className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                      <span className="font-medium capitalize">{style}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Brand Color</Label>
+                <div className="flex items-center gap-3">
+                  <Input 
+                    type="color"
+                    value={newsletterSettings.brandColor}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, brandColor: e.target.value })}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input 
+                    value={newsletterSettings.brandColor}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, brandColor: e.target.value })}
+                    className="flex-1 font-mono"
+                    placeholder="#778DA9"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription Options */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                Subscription Options
+              </h4>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Include Unsubscribe Link</div>
+                    <div className="text-sm text-muted-foreground">Required by law in most countries</div>
+                  </div>
+                  <Switch 
+                    checked={newsletterSettings.includeUnsubscribeLink}
+                    onCheckedChange={(checked) => setNewsletterSettings({ ...newsletterSettings, includeUnsubscribeLink: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Enable Open & Click Tracking</div>
+                    <div className="text-sm text-muted-foreground">Track email engagement metrics</div>
+                  </div>
+                  <Switch 
+                    checked={newsletterSettings.enableTracking}
+                    onCheckedChange={(checked) => setNewsletterSettings({ ...newsletterSettings, enableTracking: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Double Opt-In</div>
+                    <div className="text-sm text-muted-foreground">Require email confirmation to subscribe</div>
+                  </div>
+                  <Switch 
+                    checked={newsletterSettings.doubleOptIn}
+                    onCheckedChange={(checked) => setNewsletterSettings({ ...newsletterSettings, doubleOptIn: checked })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Welcome Email */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Gift className="h-4 w-4" />
+                  Welcome Email
+                </h4>
+                <Switch 
+                  checked={newsletterSettings.welcomeEmailEnabled}
+                  onCheckedChange={(checked) => setNewsletterSettings({ ...newsletterSettings, welcomeEmailEnabled: checked })}
+                />
+              </div>
+              {newsletterSettings.welcomeEmailEnabled && (
+                <div className="space-y-2">
+                  <Label>Welcome Email Subject</Label>
+                  <Input 
+                    placeholder="Welcome to our newsletter!"
+                    value={newsletterSettings.welcomeEmailSubject}
+                    onChange={(e) => setNewsletterSettings({ ...newsletterSettings, welcomeEmailSubject: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewsletterSettingsOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              setNewsletterSettingsOpen(false);
+              toast.success("Newsletter settings saved successfully!");
+            }}>
+              Save Settings
             </Button>
           </DialogFooter>
         </DialogContent>
