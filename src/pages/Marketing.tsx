@@ -117,7 +117,9 @@ export default function Marketing() {
   const [addCampaignOpen, setAddCampaignOpen] = useState(false);
   const [editCampaignOpen, setEditCampaignOpen] = useState(false);
   const [addCouponOpen, setAddCouponOpen] = useState(false);
+  const [editCouponOpen, setEditCouponOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [campaignTypes, setCampaignTypes] = useState([
     "Christmas", "New Year's Day", "Kuwait National Day", "Isra' and Mi'raj",
     "Ramadan", "Eid al-Fitr", "Eid al-Adha", "Valentine's Day",
@@ -148,6 +150,8 @@ export default function Marketing() {
   const [editEndDate, setEditEndDate] = useState<Date>();
   const [couponStartDate, setCouponStartDate] = useState<Date>();
   const [couponEndDate, setCouponEndDate] = useState<Date>();
+  const [editCouponStartDate, setEditCouponStartDate] = useState<Date>();
+  const [editCouponEndDate, setEditCouponEndDate] = useState<Date>();
 
   const generateCouponCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -271,6 +275,33 @@ export default function Marketing() {
   const handleDeleteCampaign = (campaignId: string) => {
     setCampaigns(prev => prev.filter(c => c.id !== campaignId));
     toast.success("Campaign deleted");
+  };
+
+  const handleEditCoupon = (coupon: Coupon) => {
+    setSelectedCoupon({ ...coupon });
+    setEditCouponStartDate(new Date(coupon.validFrom));
+    setEditCouponEndDate(new Date(coupon.validUntil));
+    setEditCouponOpen(true);
+  };
+
+  const handleUpdateCoupon = () => {
+    if (!selectedCoupon) return;
+    
+    const updatedCoupon = {
+      ...selectedCoupon,
+      validFrom: editCouponStartDate ? format(editCouponStartDate, "yyyy-MM-dd") : selectedCoupon.validFrom,
+      validUntil: editCouponEndDate ? format(editCouponEndDate, "yyyy-MM-dd") : selectedCoupon.validUntil,
+    };
+    
+    setCoupons(prev => prev.map(c => c.id === selectedCoupon.id ? updatedCoupon : c));
+    setEditCouponOpen(false);
+    setSelectedCoupon(null);
+    toast.success("Coupon updated successfully");
+  };
+
+  const handleDeleteCoupon = (couponId: string) => {
+    setCoupons(prev => prev.filter(c => c.id !== couponId));
+    toast.success("Coupon deleted");
   };
 
   const getStatusBadge = (status: string) => {
@@ -421,9 +452,18 @@ export default function Marketing() {
                         <>{coupon.discountValue} KD off</>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mb-3">
                       Used {coupon.usedCount}{coupon.maxUses ? ` / ${coupon.maxUses}` : ""} times
                     </p>
+                    <div className="flex gap-1 mt-auto">
+                      <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleEditCoupon(coupon)}>
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDeleteCoupon(coupon.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1032,6 +1072,175 @@ export default function Marketing() {
             <Button onClick={handleAddCoupon}>
               <Tag className="mr-2 h-4 w-4" />
               Create Coupon
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Coupon Dialog */}
+      <Dialog open={editCouponOpen} onOpenChange={setEditCouponOpen}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-primary" />
+              Edit Coupon
+            </DialogTitle>
+            <DialogDescription>Modify coupon settings</DialogDescription>
+          </DialogHeader>
+          
+          {selectedCoupon && (
+            <div className="space-y-6 py-4">
+              {/* Coupon Code */}
+              <div className="space-y-2">
+                <Label>Coupon Code</Label>
+                <Input 
+                  value={selectedCoupon.code}
+                  onChange={(e) => setSelectedCoupon({ ...selectedCoupon, code: e.target.value.toUpperCase() })}
+                  className="font-mono uppercase"
+                />
+              </div>
+
+              {/* Discount Type */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Discount Type</Label>
+                  <Select 
+                    value={selectedCoupon.discountType} 
+                    onValueChange={(value: "percentage" | "fixed") => setSelectedCoupon({ ...selectedCoupon, discountType: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount (KD)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Discount Value</Label>
+                  <div className="relative">
+                    <Input 
+                      type="number"
+                      value={selectedCoupon.discountValue}
+                      onChange={(e) => setSelectedCoupon({ ...selectedCoupon, discountValue: parseFloat(e.target.value) || 0 })}
+                      className="pr-12"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      {selectedCoupon.discountType === "percentage" ? "%" : "KD"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select 
+                  value={selectedCoupon.status} 
+                  onValueChange={(value: "Active" | "Expired" | "Paused") => setSelectedCoupon({ ...selectedCoupon, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Paused">Paused</SelectItem>
+                    <SelectItem value="Expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Conditions */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Minimum Order Value</Label>
+                  <div className="relative">
+                    <Input 
+                      type="number"
+                      placeholder="Optional"
+                      value={selectedCoupon.minOrderValue || ""}
+                      onChange={(e) => setSelectedCoupon({ ...selectedCoupon, minOrderValue: e.target.value ? parseFloat(e.target.value) : undefined })}
+                      className="pr-10"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">KD</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Maximum Uses</Label>
+                  <Input 
+                    type="number"
+                    placeholder="Unlimited"
+                    value={selectedCoupon.maxUses || ""}
+                    onChange={(e) => setSelectedCoupon({ ...selectedCoupon, maxUses: e.target.value ? parseInt(e.target.value) : undefined })}
+                  />
+                </div>
+              </div>
+
+              {/* Validity Period */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Valid From</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !editCouponStartDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editCouponStartDate ? format(editCouponStartDate, "PPP") : "Select date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={editCouponStartDate}
+                        onSelect={setEditCouponStartDate}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Valid Until</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !editCouponEndDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editCouponEndDate ? format(editCouponEndDate, "PPP") : "Select date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={editCouponEndDate}
+                        onSelect={setEditCouponEndDate}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditCouponOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateCoupon}>
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
