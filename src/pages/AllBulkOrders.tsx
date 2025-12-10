@@ -11,7 +11,8 @@ import {
   Building2,
   Search, 
   Filter, 
-  Eye, 
+  Eye,
+  Trash2,
   Edit,
   Plus,
   ArrowLeft,
@@ -247,6 +248,13 @@ const AllBulkOrders = () => {
                         </Button>
                         <Button variant="ghost" size="sm">
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setBulkOrders(bulkOrders.filter(o => o.id !== order.id))}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
