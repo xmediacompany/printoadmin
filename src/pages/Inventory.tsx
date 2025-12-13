@@ -102,11 +102,15 @@ export default function Inventory() {
   const [customCategoryName, setCustomCategoryName] = useState("");
   const [newItem, setNewItem] = useState({
     category: "",
+    merchandise: "",
+    paperType: "",
     quantity: "",
     reorderLevel: "",
     costPerUnit: "",
     supplier: "",
   });
+
+  const paperTypes = ["A4", "A5", "A3", "Stickers", "Cards"];
 
   const stats = [
     {
@@ -169,6 +173,8 @@ export default function Inventory() {
     setAddDialogOpen(false);
     setNewItem({
       category: "",
+      merchandise: "",
+      paperType: "",
       quantity: "",
       reorderLevel: "",
       costPerUnit: "",
@@ -373,6 +379,44 @@ export default function Inventory() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+
+            <div className="grid gap-2">
+              <Label>Merchandise *</Label>
+              <Select
+                value={newItem.merchandise}
+                onValueChange={(value) => setNewItem({ ...newItem, merchandise: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select merchandise" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Paper Types</Label>
+              <Select
+                value={newItem.paperType}
+                onValueChange={(value) => setNewItem({ ...newItem, paperType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select paper type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {paperTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="grid gap-2">
               <Label>Category *</Label>
