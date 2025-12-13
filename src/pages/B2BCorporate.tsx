@@ -161,6 +161,7 @@ const B2BCorporate = () => {
   });
 
   const [newCompanyInput, setNewCompanyInput] = useState("");
+  const [editCompanyInput, setEditCompanyInput] = useState("");
 
   const handleAddMember = () => {
     if (!newMember.name || !newMember.email) {
@@ -1639,6 +1640,64 @@ const B2BCorporate = () => {
                     <SelectItem value="holiday">On Holiday</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Assigned Companies</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter company name"
+                    value={editCompanyInput}
+                    onChange={(e) => setEditCompanyInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (editCompanyInput.trim() && !selectedMember.assignedCompanies.includes(editCompanyInput.trim())) {
+                          setSelectedMember({
+                            ...selectedMember,
+                            assignedCompanies: [...selectedMember.assignedCompanies, editCompanyInput.trim()],
+                          });
+                          setEditCompanyInput("");
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      if (editCompanyInput.trim() && !selectedMember.assignedCompanies.includes(editCompanyInput.trim())) {
+                        setSelectedMember({
+                          ...selectedMember,
+                          assignedCompanies: [...selectedMember.assignedCompanies, editCompanyInput.trim()],
+                        });
+                        setEditCompanyInput("");
+                      }
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {selectedMember.assignedCompanies.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedMember.assignedCompanies.map((company) => (
+                      <Badge key={company} variant="secondary" className="flex items-center gap-1">
+                        {company}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedMember({
+                            ...selectedMember,
+                            assignedCompanies: selectedMember.assignedCompanies.filter((c) => c !== company),
+                          })}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
