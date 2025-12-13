@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X, ShoppingCart, Zap, Clock, Truck, Mail } from "lucide-react";
+import { Package, AlertTriangle, TrendingUp, TrendingDown, Plus, X, ShoppingCart, Zap, Clock, Truck, Mail, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -230,6 +230,28 @@ export default function Inventory() {
     });
   };
 
+  const handleMarkReceived = (itemId: string) => {
+    setStockItems(prevItems =>
+      prevItems.map(item => {
+        if (item.id === itemId) {
+          const newQuantity = item.quantity + item.reorderLevel;
+          return {
+            ...item,
+            quantity: newQuantity,
+            status: "In Stock",
+            lastRestocked: new Date().toISOString().split("T")[0],
+          };
+        }
+        return item;
+      })
+    );
+
+    toast({
+      title: "Stock Received",
+      description: "Item has been marked as received and status updated to In Stock.",
+    });
+  };
+
   const getStockStatusBadge = (status: string) => {
     switch (status) {
       case "In Stock":
@@ -315,10 +337,23 @@ export default function Inventory() {
                     <TableCell>{getStockStatusBadge(item.status)}</TableCell>
                     <TableCell>{item.lastRestocked}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => handleReorderClick(item)}>
-                        <ShoppingCart className="h-4 w-4 mr-1" />
-                        Reorder
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" onClick={() => handleReorderClick(item)}>
+                          <ShoppingCart className="h-4 w-4 mr-1" />
+                          Reorder
+                        </Button>
+                        {(item.status === "Low Stock" || item.status === "Out of Stock") && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                            onClick={() => handleMarkReceived(item.id)}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Received
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
