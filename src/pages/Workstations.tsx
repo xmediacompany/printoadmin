@@ -102,7 +102,7 @@ const initialWorkstationTypes = [
   "Embossing Station"
 ];
 
-const kuwaitLocations = [
+const initialKuwaitLocations = [
   "Shuwaikh",
   "Mishref",
   "Salwa",
@@ -127,6 +127,7 @@ const getStatusColor = (status: string) => {
 const Workstations = () => {
   const [workstations, setWorkstations] = useState(initialWorkstations);
   const [workstationTypes, setWorkstationTypes] = useState(initialWorkstationTypes);
+  const [kuwaitLocations, setKuwaitLocations] = useState(initialKuwaitLocations);
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -136,6 +137,8 @@ const Workstations = () => {
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined);
   const [customTypeInput, setCustomTypeInput] = useState("");
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
+  const [customLocationInput, setCustomLocationInput] = useState("");
+  const [showCustomLocationInput, setShowCustomLocationInput] = useState(false);
   const [newWorkstation, setNewWorkstation] = useState({
     type: "",
     status: "Active",
@@ -386,7 +389,13 @@ const Workstations = () => {
               </Label>
               <Select 
                 value={newWorkstation.location} 
-                onValueChange={(value) => setNewWorkstation({ ...newWorkstation, location: value })}
+                onValueChange={(value) => {
+                  if (value === "__add_custom_location__") {
+                    setShowCustomLocationInput(true);
+                  } else {
+                    setNewWorkstation({ ...newWorkstation, location: value });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select location in Kuwait" />
@@ -395,8 +404,48 @@ const Workstations = () => {
                   {kuwaitLocations.map((location) => (
                     <SelectItem key={location} value={location}>{location}</SelectItem>
                   ))}
+                  <SelectItem value="__add_custom_location__" className="text-primary font-medium">
+                    <span className="flex items-center gap-2">
+                      <Plus className="h-3 w-3" />
+                      Add Custom Location
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
+              {showCustomLocationInput && (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Enter custom location..."
+                    value={customLocationInput}
+                    onChange={(e) => setCustomLocationInput(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      if (customLocationInput.trim()) {
+                        setKuwaitLocations(prev => [...prev, customLocationInput.trim()]);
+                        setNewWorkstation({ ...newWorkstation, location: customLocationInput.trim() });
+                        setCustomLocationInput("");
+                        setShowCustomLocationInput(false);
+                        toast.success("Custom location added!");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      setCustomLocationInput("");
+                      setShowCustomLocationInput(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
