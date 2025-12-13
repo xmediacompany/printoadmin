@@ -80,7 +80,7 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Production Alerts</CardTitle>
+            <CardTitle>Notifications Alerts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
