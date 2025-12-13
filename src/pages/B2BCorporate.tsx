@@ -1561,23 +1561,6 @@ const B2BCorporate = () => {
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label>Role</Label>
-                <Select
-                  value={selectedMember.role}
-                  onValueChange={(value) => setSelectedMember({ ...selectedMember, role: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Account Manager">Account Manager</SelectItem>
-                    <SelectItem value="Senior Account Manager">Senior Account Manager</SelectItem>
-                    <SelectItem value="Key Account Manager">Key Account Manager</SelectItem>
-                    <SelectItem value="Team Lead">Team Lead</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="grid gap-2">
                 <Label>Status</Label>
