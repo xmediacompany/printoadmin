@@ -46,6 +46,7 @@ interface CorporateAccount {
   status: string;
   tier?: string;
   notes?: string;
+  assignedManager?: string;
 }
 
 const industries = [
@@ -95,6 +96,7 @@ const AllCorporateAccounts = () => {
       paymentTerms: "net30",
       creditLimit: "50000",
       status: "Active",
+      assignedManager: "John Davis",
     },
     {
       id: "CA-002",
@@ -106,6 +108,7 @@ const AllCorporateAccounts = () => {
       paymentTerms: "net45",
       creditLimit: "100000",
       status: "Active",
+      assignedManager: "Sarah Mitchell",
     },
     {
       id: "CA-003",
@@ -117,6 +120,7 @@ const AllCorporateAccounts = () => {
       paymentTerms: "net15",
       creditLimit: "20000",
       status: "Pending Review",
+      assignedManager: "Robert Chen",
     },
   ]);
 
@@ -367,6 +371,7 @@ const AllCorporateAccounts = () => {
                 <TableHead>Company</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Industry</TableHead>
+                <TableHead>Assigned Manager</TableHead>
                 <TableHead>Payment Terms</TableHead>
                 <TableHead>Credit Limit</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -393,6 +398,12 @@ const AllCorporateAccounts = () => {
                       </div>
                     </TableCell>
                     <TableCell>{account.industry}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{account.assignedManager || "-"}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">
                         {account.paymentTerms === "prepaid" ? "Prepaid" : 
@@ -438,7 +449,7 @@ const AllCorporateAccounts = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No accounts found matching your search criteria
                   </TableCell>
                 </TableRow>
