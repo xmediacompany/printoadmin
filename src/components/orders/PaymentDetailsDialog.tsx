@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,6 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   CreditCard,
   CheckCircle2,
@@ -16,12 +19,13 @@ import {
   Banknote,
   Building,
   Calendar,
-  ArrowUpRight,
-  Percent,
+  Send,
   FileText,
   Wallet,
-  CircleDollarSign
+  Mail,
+  Phone
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface PaymentDetailsDialogProps {
   open: boolean;
@@ -38,12 +42,23 @@ export function PaymentDetailsDialog({
   amount, 
   company 
 }: PaymentDetailsDialogProps) {
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+
   // Parse amount for calculations
   const numericAmount = parseFloat(amount.replace(/[^0-9.]/g, ''));
-  const subtotal = (numericAmount * 0.85).toFixed(2);
-  const vat = (numericAmount * 0.15).toFixed(2);
   const paidAmount = (numericAmount * 0.5).toFixed(2);
   const remainingAmount = (numericAmount * 0.5).toFixed(2);
+
+  const handleSendPaymentLink = () => {
+    if (!email && !mobile) {
+      toast.error("Please enter an email or mobile number");
+      return;
+    }
+    toast.success("Payment link sent successfully!");
+    setEmail("");
+    setMobile("");
+  };
 
   const paymentHistory = [
     { 
@@ -112,14 +127,7 @@ export function PaymentDetailsDialog({
             <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">{subtotal} KD</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Percent className="h-3 w-3" />
-                  VAT (15%)
-                </span>
-                <span className="font-medium">{vat} KD</span>
+                <span className="font-medium">{amount}</span>
               </div>
               <Separator />
               <div className="flex justify-between">
@@ -219,6 +227,42 @@ export function PaymentDetailsDialog({
 
           <Separator />
 
+          {/* Send Payment Link */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Send className="h-4 w-4" />
+              Send Payment Link
+            </h4>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2 text-sm">
+                  <Mail className="h-3.5 w-3.5" />
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="customer@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mobile" className="flex items-center gap-2 text-sm">
+                  <Phone className="h-3.5 w-3.5" />
+                  Mobile Number
+                </Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  placeholder="+965 1234 5678"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Actions */}
           <div className="grid grid-cols-2 gap-3">
             <Button variant="outline" className="h-12">
@@ -230,10 +274,12 @@ export function PaymentDetailsDialog({
               Download Receipt
             </Button>
           </div>
-          <Button className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
-            <CircleDollarSign className="h-4 w-4 mr-2" />
-            Make Payment
-            <ArrowUpRight className="h-4 w-4 ml-2" />
+          <Button 
+            className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
+            onClick={handleSendPaymentLink}
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Send Payment Link
           </Button>
         </div>
       </DialogContent>
