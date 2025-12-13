@@ -46,10 +46,19 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+interface OrderData {
+  customer?: string;
+  product?: string;
+  quantity?: number;
+  deadline?: Date;
+}
+
 interface NewOrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderCreated: (order: any) => void;
+  editMode?: boolean;
+  orderData?: OrderData;
 }
 
 const customers = [
@@ -124,14 +133,27 @@ const steps = [
   { id: 4, name: "Confirm", icon: CheckCircle2 },
 ];
 
-export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderDialogProps) {
+export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = false, orderData }: NewOrderDialogProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [customerSearch, setCustomerSearch] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof customers[0] | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<typeof customers[0] | null>(() => {
+    if (orderData?.customer) {
+      return customers.find(c => c.name === orderData.customer) || null;
+    }
+    return null;
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [quantity, setQuantity] = useState(100);
-  const [deadline, setDeadline] = useState<Date | undefined>(undefined);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(() => {
+    if (orderData?.product) {
+      for (const cat of productCategories) {
+        const found = cat.products.find(p => p.name === orderData.product);
+        if (found) return found;
+      }
+    }
+    return null;
+  });
+  const [quantity, setQuantity] = useState(orderData?.quantity || 100);
+  const [deadline, setDeadline] = useState<Date | undefined>(orderData?.deadline);
   const [priority, setPriority] = useState("Normal");
   const [size, setSize] = useState("");
   const [paperType, setPaperType] = useState("");
@@ -216,7 +238,7 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
     }}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">Create New Order</DialogTitle>
+          <DialogTitle className="text-xl">{editMode ? "Edit Order" : "Create New Order"}</DialogTitle>
         </DialogHeader>
 
         {/* Step Indicator */}
