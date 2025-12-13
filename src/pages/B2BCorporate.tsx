@@ -1354,15 +1354,6 @@ const B2BCorporate = () => {
               </div>
               <p className="text-2xl font-bold">{teamMembers.reduce((sum, m) => sum + m.accounts, 0)}</p>
             </div>
-            <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Award className="h-4 w-4 text-amber-600" />
-                <span className="text-sm font-medium text-muted-foreground">Avg Performance</span>
-              </div>
-              <p className="text-2xl font-bold">
-                {Math.round(teamMembers.reduce((sum, m) => sum + m.performance, 0) / teamMembers.length)}%
-              </p>
-            </div>
           </div>
 
           {/* Team Members List */}
