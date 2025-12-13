@@ -6,7 +6,8 @@ import {
   ShoppingCart, 
   Clock, 
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Users
 } from "lucide-react";
 
 const recentOrders = [
@@ -25,7 +26,7 @@ const Dashboard = () => {
         <p className="text-muted-foreground">Welcome back! Here's your business overview.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           title="Total Revenue"
           value="KD 8,425"
@@ -39,6 +40,13 @@ const Dashboard = () => {
           change="23 urgent priority"
           changeType="neutral"
           icon={ShoppingCart}
+        />
+        <StatCard
+          title="Total Customers"
+          value="1,248"
+          change="+8.3% from last month"
+          changeType="positive"
+          icon={Users}
         />
       </div>
 
