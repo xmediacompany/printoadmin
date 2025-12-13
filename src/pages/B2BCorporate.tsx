@@ -41,7 +41,10 @@ import {
   Video,
   UserCircle,
   Send,
-  Bell
+  Bell,
+  Trash2,
+  Award,
+  Target
 } from "lucide-react";
 import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
 import { toast } from "@/hooks/use-toast";
@@ -60,6 +63,18 @@ interface CorporateAccount {
   creditLimit: string;
   notes: string;
   status: string;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  accounts: number;
+  performance: number;
+  status: "active" | "away" | "offline";
+  joinDate: string;
 }
 
 const industries = [
@@ -85,6 +100,10 @@ const accountManagers = [
 const B2BCorporate = () => {
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
+  const [manageTeamOpen, setManageTeamOpen] = useState(false);
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [editMemberOpen, setEditMemberOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [customIndustries, setCustomIndustries] = useState<string[]>([]);
   const [customManagers, setCustomManagers] = useState<string[]>([]);
   const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
@@ -92,6 +111,117 @@ const B2BCorporate = () => {
   const [customIndustryValue, setCustomIndustryValue] = useState("");
   const [customManagerValue, setCustomManagerValue] = useState("");
   const [agreementFile, setAgreementFile] = useState<File | null>(null);
+
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+    {
+      id: "TM-001",
+      name: "John Davis",
+      email: "john.davis@printo.com",
+      phone: "+965 1234 5678",
+      role: "Senior Account Manager",
+      accounts: 12,
+      performance: 94,
+      status: "active",
+      joinDate: "2022-03-15",
+    },
+    {
+      id: "TM-002",
+      name: "Sarah Mitchell",
+      email: "sarah.mitchell@printo.com",
+      phone: "+965 2345 6789",
+      role: "Account Manager",
+      accounts: 18,
+      performance: 98,
+      status: "active",
+      joinDate: "2021-08-20",
+    },
+    {
+      id: "TM-003",
+      name: "Robert Chen",
+      email: "robert.chen@printo.com",
+      phone: "+965 3456 7890",
+      role: "Account Manager",
+      accounts: 15,
+      performance: 87,
+      status: "away",
+      joinDate: "2023-01-10",
+    },
+  ]);
+
+  const [newMember, setNewMember] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "Account Manager",
+  });
+
+  const handleAddMember = () => {
+    if (!newMember.name || !newMember.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in name and email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const member: TeamMember = {
+      id: `TM-${String(teamMembers.length + 1).padStart(3, "0")}`,
+      name: newMember.name,
+      email: newMember.email,
+      phone: newMember.phone,
+      role: newMember.role,
+      accounts: 0,
+      performance: 0,
+      status: "active",
+      joinDate: new Date().toISOString().split("T")[0],
+    };
+
+    setTeamMembers([...teamMembers, member]);
+    setNewMember({ name: "", email: "", phone: "", role: "Account Manager" });
+    setAddMemberOpen(false);
+    toast({
+      title: "Team Member Added",
+      description: `${member.name} has been added to the team.`,
+    });
+  };
+
+  const handleUpdateMember = () => {
+    if (!selectedMember) return;
+
+    setTeamMembers(teamMembers.map(m => 
+      m.id === selectedMember.id ? selectedMember : m
+    ));
+    setEditMemberOpen(false);
+    setSelectedMember(null);
+    toast({
+      title: "Member Updated",
+      description: "Team member details have been updated.",
+    });
+  };
+
+  const handleRemoveMember = (id: string) => {
+    setTeamMembers(teamMembers.filter(m => m.id !== id));
+    toast({
+      title: "Member Removed",
+      description: "Team member has been removed from the team.",
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active": return "bg-emerald-500";
+      case "away": return "bg-amber-500";
+      case "offline": return "bg-gray-400";
+      default: return "bg-gray-400";
+    }
+  };
+
+  const getPerformanceColor = (performance: number) => {
+    if (performance >= 90) return "text-emerald-600";
+    if (performance >= 70) return "text-amber-600";
+    return "text-red-600";
+  };
   
   // Schedule Meeting state
   const [meeting, setMeeting] = useState({
@@ -882,7 +1012,7 @@ const B2BCorporate = () => {
                   Account Managers
                 </div>
               </CardTitle>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" onClick={() => setManageTeamOpen(true)}>
                 Manage Team
               </Button>
             </div>
@@ -890,65 +1020,32 @@ const B2BCorporate = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-semibold">JD</span>
+              {teamMembers.slice(0, 3).map((member) => (
+                <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-primary font-semibold">
+                          {member.name.split(" ").map(n => n[0]).join("")}
+                        </span>
+                      </div>
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background ${getStatusColor(member.status)}`} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">{member.name}</h4>
+                      <p className="text-sm text-muted-foreground">{member.accounts} accounts</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold">John Davis</h4>
-                    <p className="text-sm text-muted-foreground">12 accounts</p>
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-semibold">SM</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">Sarah Mitchell</h4>
-                    <p className="text-sm text-muted-foreground">18 accounts</p>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm">
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Phone className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-semibold">RC</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">Robert Chen</h4>
-                    <p className="text-sm text-muted-foreground">15 accounts</p>
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -1227,6 +1324,307 @@ const B2BCorporate = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Manage Team Dialog */}
+      <Dialog open={manageTeamOpen} onOpenChange={setManageTeamOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Manage Account Managers
+            </DialogTitle>
+            <DialogDescription>
+              View, add, edit, and manage your B2B account managers team
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Team Stats */}
+          <div className="grid grid-cols-3 gap-4 py-4">
+            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-muted-foreground">Total Members</span>
+              </div>
+              <p className="text-2xl font-bold">{teamMembers.length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-medium text-muted-foreground">Total Accounts</span>
+              </div>
+              <p className="text-2xl font-bold">{teamMembers.reduce((sum, m) => sum + m.accounts, 0)}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Award className="h-4 w-4 text-amber-600" />
+                <span className="text-sm font-medium text-muted-foreground">Avg Performance</span>
+              </div>
+              <p className="text-2xl font-bold">
+                {Math.round(teamMembers.reduce((sum, m) => sum + m.performance, 0) / teamMembers.length)}%
+              </p>
+            </div>
+          </div>
+
+          {/* Team Members List */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Team Members</h3>
+              <Button size="sm" onClick={() => setAddMemberOpen(true)}>
+                <Plus className="h-4 w-4 mr-1" />
+                Add Member
+              </Button>
+            </div>
+
+            <ScrollArea className="h-[350px] pr-4">
+              <div className="space-y-3">
+                {teamMembers.map((member) => (
+                  <div key={member.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                            <span className="text-primary font-bold text-lg">
+                              {member.name.split(" ").map(n => n[0]).join("")}
+                            </span>
+                          </div>
+                          <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-background ${getStatusColor(member.status)}`} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold">{member.name}</h4>
+                            <Badge variant="outline" className="text-xs capitalize">{member.status}</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{member.role}</p>
+                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {member.email}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {member.phone}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="text-right mr-4">
+                          <div className="flex items-center gap-2">
+                            <Target className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-semibold">{member.accounts}</span>
+                            <span className="text-sm text-muted-foreground">accounts</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Award className="h-4 w-4 text-muted-foreground" />
+                            <span className={`font-semibold ${getPerformanceColor(member.performance)}`}>
+                              {member.performance}%
+                            </span>
+                            <span className="text-sm text-muted-foreground">performance</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setEditMemberOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleRemoveMember(member.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageTeamOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Member Dialog */}
+      <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-primary" />
+              Add Team Member
+            </DialogTitle>
+            <DialogDescription>
+              Add a new account manager to your B2B team
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="memberName">Full Name *</Label>
+              <Input
+                id="memberName"
+                placeholder="e.g., Ahmed Al-Salem"
+                value={newMember.name}
+                onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="memberEmail">Email *</Label>
+              <Input
+                id="memberEmail"
+                type="email"
+                placeholder="e.g., ahmed@printo.com"
+                value={newMember.email}
+                onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="memberPhone">Phone</Label>
+              <Input
+                id="memberPhone"
+                placeholder="e.g., +965 1234 5678"
+                value={newMember.phone}
+                onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Role</Label>
+              <Select
+                value={newMember.role}
+                onValueChange={(value) => setNewMember({ ...newMember, role: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Account Manager">Account Manager</SelectItem>
+                  <SelectItem value="Senior Account Manager">Senior Account Manager</SelectItem>
+                  <SelectItem value="Key Account Manager">Key Account Manager</SelectItem>
+                  <SelectItem value="Team Lead">Team Lead</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddMemberOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddMember}>
+              <Plus className="h-4 w-4 mr-1" />
+              Add Member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Member Dialog */}
+      <Dialog open={editMemberOpen} onOpenChange={setEditMemberOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5 text-primary" />
+              Edit Team Member
+            </DialogTitle>
+            <DialogDescription>
+              Update account manager details
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedMember && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="editMemberName">Full Name *</Label>
+                <Input
+                  id="editMemberName"
+                  value={selectedMember.name}
+                  onChange={(e) => setSelectedMember({ ...selectedMember, name: e.target.value })}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="editMemberEmail">Email *</Label>
+                <Input
+                  id="editMemberEmail"
+                  type="email"
+                  value={selectedMember.email}
+                  onChange={(e) => setSelectedMember({ ...selectedMember, email: e.target.value })}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="editMemberPhone">Phone</Label>
+                <Input
+                  id="editMemberPhone"
+                  value={selectedMember.phone}
+                  onChange={(e) => setSelectedMember({ ...selectedMember, phone: e.target.value })}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Role</Label>
+                <Select
+                  value={selectedMember.role}
+                  onValueChange={(value) => setSelectedMember({ ...selectedMember, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Account Manager">Account Manager</SelectItem>
+                    <SelectItem value="Senior Account Manager">Senior Account Manager</SelectItem>
+                    <SelectItem value="Key Account Manager">Key Account Manager</SelectItem>
+                    <SelectItem value="Team Lead">Team Lead</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Status</Label>
+                <Select
+                  value={selectedMember.status}
+                  onValueChange={(value) => setSelectedMember({ ...selectedMember, status: value as "active" | "away" | "offline" })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="away">Away</SelectItem>
+                    <SelectItem value="offline">Offline</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditMemberOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateMember}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
