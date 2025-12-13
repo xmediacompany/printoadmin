@@ -288,10 +288,36 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
                 ))}
               </div>
 
-              <Button variant="outline" className="w-full" onClick={() => toast.info("Add corporate account feature coming soon")}>
-                <Building2 className="h-4 w-4 mr-2" />
-                Add Corporate Account
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Add Corporate Account
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0 bg-popover" align="start">
+                  <div className="p-2 border-b">
+                    <p className="text-sm font-medium">Select Corporate Account</p>
+                  </div>
+                  <div className="max-h-[200px] overflow-y-auto">
+                    {customers.filter(c => c.type === "B2B").map((account) => (
+                      <div
+                        key={account.id}
+                        onClick={() => setSelectedCustomer(account)}
+                        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Building2 className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{account.name}</p>
+                          <p className="text-xs text-muted-foreground">{account.email}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
