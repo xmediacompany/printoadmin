@@ -73,7 +73,7 @@ interface TeamMember {
   role: string;
   accounts: number;
   performance: number;
-  status: "active" | "away" | "offline";
+  status: "active" | "inactive" | "holiday";
   joinDate: string;
 }
 
@@ -143,7 +143,7 @@ const B2BCorporate = () => {
       role: "Account Manager",
       accounts: 15,
       performance: 87,
-      status: "away",
+      status: "holiday",
       joinDate: "2023-01-10",
     },
   ]);
@@ -152,7 +152,7 @@ const B2BCorporate = () => {
     name: "",
     email: "",
     phone: "",
-    role: "Account Manager",
+    status: "active",
   });
 
   const handleAddMember = () => {
@@ -170,15 +170,15 @@ const B2BCorporate = () => {
       name: newMember.name,
       email: newMember.email,
       phone: newMember.phone,
-      role: newMember.role,
+      role: "Account Manager",
       accounts: 0,
       performance: 0,
-      status: "active",
+      status: newMember.status as "active" | "inactive" | "holiday",
       joinDate: new Date().toISOString().split("T")[0],
     };
 
     setTeamMembers([...teamMembers, member]);
-    setNewMember({ name: "", email: "", phone: "", role: "Account Manager" });
+    setNewMember({ name: "", email: "", phone: "", status: "active" });
     setAddMemberOpen(false);
     toast({
       title: "Team Member Added",
@@ -211,8 +211,8 @@ const B2BCorporate = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active": return "bg-emerald-500";
-      case "away": return "bg-amber-500";
-      case "offline": return "bg-gray-400";
+      case "inactive": return "bg-gray-400";
+      case "holiday": return "bg-amber-500";
       default: return "bg-gray-400";
     }
   };
@@ -1489,19 +1489,18 @@ const B2BCorporate = () => {
             </div>
 
             <div className="grid gap-2">
-              <Label>Role</Label>
+              <Label>Status</Label>
               <Select
-                value={newMember.role}
-                onValueChange={(value) => setNewMember({ ...newMember, role: value })}
+                value={newMember.status}
+                onValueChange={(value) => setNewMember({ ...newMember, status: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Account Manager">Account Manager</SelectItem>
-                  <SelectItem value="Senior Account Manager">Senior Account Manager</SelectItem>
-                  <SelectItem value="Key Account Manager">Key Account Manager</SelectItem>
-                  <SelectItem value="Team Lead">Team Lead</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Not Active</SelectItem>
+                  <SelectItem value="holiday">On Holiday</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1584,15 +1583,15 @@ const B2BCorporate = () => {
                 <Label>Status</Label>
                 <Select
                   value={selectedMember.status}
-                  onValueChange={(value) => setSelectedMember({ ...selectedMember, status: value as "active" | "away" | "offline" })}
+                  onValueChange={(value) => setSelectedMember({ ...selectedMember, status: value as "active" | "inactive" | "holiday" })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="away">Away</SelectItem>
-                    <SelectItem value="offline">Offline</SelectItem>
+                    <SelectItem value="inactive">Not Active</SelectItem>
+                    <SelectItem value="holiday">On Holiday</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
