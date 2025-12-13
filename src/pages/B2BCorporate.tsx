@@ -47,6 +47,7 @@ import {
   Target
 } from "lucide-react";
 import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
+import { QuoteManagement } from "@/components/b2b/QuoteManagement";
 import { toast } from "@/hooks/use-toast";
 
 interface CorporateAccount {
@@ -1069,6 +1070,9 @@ const B2BCorporate = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quote Management Section */}
+      <QuoteManagement />
 
       {/* Schedule Meeting */}
       <Card>
