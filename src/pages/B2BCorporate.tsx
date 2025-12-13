@@ -75,6 +75,7 @@ interface TeamMember {
   performance: number;
   status: "active" | "inactive" | "holiday";
   joinDate: string;
+  assignedCompanies: string[];
 }
 
 const industries = [
@@ -123,6 +124,7 @@ const B2BCorporate = () => {
       performance: 94,
       status: "active",
       joinDate: "2022-03-15",
+      assignedCompanies: ["Tech Corp", "Marketing Pro"],
     },
     {
       id: "TM-002",
@@ -134,6 +136,7 @@ const B2BCorporate = () => {
       performance: 98,
       status: "active",
       joinDate: "2021-08-20",
+      assignedCompanies: ["Global Industries", "Retail Plus"],
     },
     {
       id: "TM-003",
@@ -145,6 +148,7 @@ const B2BCorporate = () => {
       performance: 87,
       status: "holiday",
       joinDate: "2023-01-10",
+      assignedCompanies: ["Finance Hub"],
     },
   ]);
 
@@ -153,7 +157,10 @@ const B2BCorporate = () => {
     email: "",
     phone: "",
     status: "active",
+    assignedCompanies: [] as string[],
   });
+
+  const [newCompanyInput, setNewCompanyInput] = useState("");
 
   const handleAddMember = () => {
     if (!newMember.name || !newMember.email) {
@@ -175,14 +182,33 @@ const B2BCorporate = () => {
       performance: 0,
       status: newMember.status as "active" | "inactive" | "holiday",
       joinDate: new Date().toISOString().split("T")[0],
+      assignedCompanies: newMember.assignedCompanies,
     };
 
     setTeamMembers([...teamMembers, member]);
-    setNewMember({ name: "", email: "", phone: "", status: "active" });
+    setNewMember({ name: "", email: "", phone: "", status: "active", assignedCompanies: [] });
+    setNewCompanyInput("");
     setAddMemberOpen(false);
     toast({
       title: "Team Member Added",
       description: `${member.name} has been added to the team.`,
+    });
+  };
+
+  const handleAddCompany = () => {
+    if (newCompanyInput.trim() && !newMember.assignedCompanies.includes(newCompanyInput.trim())) {
+      setNewMember({
+        ...newMember,
+        assignedCompanies: [...newMember.assignedCompanies, newCompanyInput.trim()],
+      });
+      setNewCompanyInput("");
+    }
+  };
+
+  const handleRemoveCompany = (company: string) => {
+    setNewMember({
+      ...newMember,
+      assignedCompanies: newMember.assignedCompanies.filter((c) => c !== company),
     });
   };
 
@@ -1503,6 +1529,42 @@ const B2BCorporate = () => {
                   <SelectItem value="holiday">On Holiday</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Assigned Companies</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter company name"
+                  value={newCompanyInput}
+                  onChange={(e) => setNewCompanyInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCompany();
+                    }
+                  }}
+                />
+                <Button type="button" variant="outline" size="icon" onClick={handleAddCompany}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {newMember.assignedCompanies.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newMember.assignedCompanies.map((company) => (
+                    <Badge key={company} variant="secondary" className="flex items-center gap-1">
+                      {company}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCompany(company)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
