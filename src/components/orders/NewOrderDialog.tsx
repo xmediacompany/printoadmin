@@ -101,6 +101,21 @@ const productCategories = [
 const sizes = ["A5", "A4", "A3", "A2", "A1", "Custom"];
 const paperTypes = ["Matte", "Glossy", "Silk", "Recycled", "Premium"];
 const finishings = ["None", "Lamination", "UV Coating", "Embossing", "Foil Stamping"];
+const categories = [
+  "Custom T-Shirts",
+  "Ceramic Mugs",
+  "Tote Bags",
+  "Hoodies",
+  "Caps",
+  "Thermo Bottles",
+  "Cups",
+  "Stationery",
+  "Stickers",
+  "Papers",
+  "Cards",
+  "Notebooks",
+  "Diary"
+];
 
 const steps = [
   { id: 1, name: "Customer", icon: User },
@@ -122,6 +137,7 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
   const [paperType, setPaperType] = useState("");
   const [finishing, setFinishing] = useState("None");
   const [notes, setNotes] = useState("");
+  const [category, setCategory] = useState("");
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   const filteredCustomers = customers.filter(c => 
@@ -190,6 +206,7 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
     setNotes("");
     setUploadedFile(null);
     setCustomerSearch("");
+    setCategory("");
   };
 
   return (
@@ -410,6 +427,20 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(c => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
