@@ -1,9 +1,11 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PaymentDetailsDialog } from "./PaymentDetailsDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -53,6 +55,8 @@ const orderTimeline = [
 ];
 
 export function ViewOrderDialog({ open, onOpenChange, order }: ViewOrderDialogProps) {
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
   if (!order) return null;
 
   const getStatusProgress = (status: string) => {
@@ -255,13 +259,21 @@ export function ViewOrderDialog({ open, onOpenChange, order }: ViewOrderDialogPr
               <MapPin className="h-4 w-4 mr-2" />
               Track Shipment
             </Button>
-            <Button className="flex-1">
+            <Button className="flex-1" onClick={() => setPaymentOpen(true)}>
               <CreditCard className="h-4 w-4 mr-2" />
               Payment Details
             </Button>
           </div>
         </div>
       </DialogContent>
+
+      <PaymentDetailsDialog
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        orderId={order.id}
+        amount={order.amount}
+        company={order.company}
+      />
     </Dialog>
   );
 }
