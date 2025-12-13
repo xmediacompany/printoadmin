@@ -98,8 +98,10 @@ export default function Inventory() {
     notes: "",
   });
   const [categories, setCategories] = useState(initialCategories);
-  const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
-  const [customCategoryName, setCustomCategoryName] = useState("");
+  const [showCustomMerchandiseInput, setShowCustomMerchandiseInput] = useState(false);
+  const [customMerchandiseName, setCustomMerchandiseName] = useState("");
+  const [showCustomPaperTypeInput, setShowCustomPaperTypeInput] = useState(false);
+  const [customPaperTypeName, setCustomPaperTypeName] = useState("");
   const [newItem, setNewItem] = useState({
     category: "",
     merchandise: "",
@@ -110,7 +112,7 @@ export default function Inventory() {
     supplier: "",
   });
 
-  const paperTypes = ["A4", "A5", "A3", "Stickers", "Cards"];
+  const [paperTypes, setPaperTypes] = useState(["A4", "A5", "A3", "Stickers", "Cards"]);
 
   const stats = [
     {
@@ -180,8 +182,10 @@ export default function Inventory() {
       costPerUnit: "",
       supplier: "",
     });
-    setShowCustomCategoryInput(false);
-    setCustomCategoryName("");
+    setShowCustomMerchandiseInput(false);
+    setCustomMerchandiseName("");
+    setShowCustomPaperTypeInput(false);
+    setCustomPaperTypeName("");
 
     toast({
       title: "Item Added",
@@ -382,40 +386,142 @@ export default function Inventory() {
 
             <div className="grid gap-2">
               <Label>Merchandise *</Label>
-              <Select
-                value={newItem.merchandise}
-                onValueChange={(value) => setNewItem({ ...newItem, merchandise: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select merchandise" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+              {showCustomMerchandiseInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter merchandise name"
+                    value={customMerchandiseName}
+                    onChange={(e) => setCustomMerchandiseName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customMerchandiseName.trim()) {
+                        setCategories([...categories, customMerchandiseName.trim()]);
+                        setNewItem({ ...newItem, merchandise: customMerchandiseName.trim() });
+                        setCustomMerchandiseName("");
+                        setShowCustomMerchandiseInput(false);
+                        toast({
+                          title: "Merchandise Added",
+                          description: `${customMerchandiseName.trim()} has been added.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCustomMerchandiseInput(false);
+                      setCustomMerchandiseName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={newItem.merchandise}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom_merchandise__") {
+                      setShowCustomMerchandiseInput(true);
+                    } else {
+                      setNewItem({ ...newItem, merchandise: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select merchandise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom_merchandise__">
+                      <div className="flex items-center gap-2 text-primary">
+                        <Plus className="h-4 w-4" />
+                        Add Extra Merchandise
+                      </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="grid gap-2">
               <Label>Paper Types</Label>
-              <Select
-                value={newItem.paperType}
-                onValueChange={(value) => setNewItem({ ...newItem, paperType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select paper type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {paperTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+              {showCustomPaperTypeInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter paper type"
+                    value={customPaperTypeName}
+                    onChange={(e) => setCustomPaperTypeName(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customPaperTypeName.trim()) {
+                        setPaperTypes([...paperTypes, customPaperTypeName.trim()]);
+                        setNewItem({ ...newItem, paperType: customPaperTypeName.trim() });
+                        setCustomPaperTypeName("");
+                        setShowCustomPaperTypeInput(false);
+                        toast({
+                          title: "Paper Type Added",
+                          description: `${customPaperTypeName.trim()} has been added.`,
+                        });
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCustomPaperTypeInput(false);
+                      setCustomPaperTypeName("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select
+                  value={newItem.paperType}
+                  onValueChange={(value) => {
+                    if (value === "__add_custom_paper_type__") {
+                      setShowCustomPaperTypeInput(true);
+                    } else {
+                      setNewItem({ ...newItem, paperType: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select paper type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paperTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom_paper_type__">
+                      <div className="flex items-center gap-2 text-primary">
+                        <Plus className="h-4 w-4" />
+                        Add Extra Type
+                      </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="quantity">Initial Quantity *</Label>
