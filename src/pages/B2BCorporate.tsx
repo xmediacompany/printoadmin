@@ -1406,13 +1406,6 @@ const B2BCorporate = () => {
                             <span className="font-semibold">{member.accounts}</span>
                             <span className="text-sm text-muted-foreground">accounts</span>
                           </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Award className="h-4 w-4 text-muted-foreground" />
-                            <span className={`font-semibold ${getPerformanceColor(member.performance)}`}>
-                              {member.performance}%
-                            </span>
-                            <span className="text-sm text-muted-foreground">performance</span>
-                          </div>
                         </div>
                         <div className="flex flex-col gap-1">
                           <Button 
