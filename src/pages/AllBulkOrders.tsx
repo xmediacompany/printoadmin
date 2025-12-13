@@ -39,6 +39,13 @@ const AllBulkOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [newOrderOpen, setNewOrderOpen] = useState(false);
+  const [editOrderOpen, setEditOrderOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<BulkOrder | null>(null);
+
+  const handleEditOrder = (order: BulkOrder) => {
+    setSelectedOrder(order);
+    setEditOrderOpen(true);
+  };
 
   const [bulkOrders, setBulkOrders] = useState<BulkOrder[]>([
     {
@@ -161,6 +168,19 @@ const AllBulkOrders = () => {
         onOrderCreated={() => {}}
       />
 
+      <NewOrderDialog 
+        open={editOrderOpen} 
+        onOpenChange={setEditOrderOpen}
+        onOrderCreated={() => {}}
+        editMode
+        orderData={selectedOrder ? {
+          customer: selectedOrder.company,
+          product: selectedOrder.product,
+          quantity: parseInt(selectedOrder.quantity.replace(/[^0-9]/g, '')),
+          deadline: new Date(selectedOrder.deliveryDate),
+        } : undefined}
+      />
+
       {/* Search and Filter */}
       <div className="flex gap-3">
         <div className="relative flex-1">
@@ -246,7 +266,7 @@ const AllBulkOrders = () => {
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleEditOrder(order)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
