@@ -288,9 +288,9 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
                 ))}
               </div>
 
-              <Button variant="outline" className="w-full" onClick={() => toast.info("Add new customer feature coming soon")}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Customer
+              <Button variant="outline" className="w-full" onClick={() => toast.info("Add corporate account feature coming soon")}>
+                <Building2 className="h-4 w-4 mr-2" />
+                Add Corporate Account
               </Button>
             </div>
           )}
