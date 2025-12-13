@@ -386,50 +386,33 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
           {/* Step 3: Order Details */}
           {currentStep === 3 && (
             <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => setQuantity(Math.max(1, quantity - 50))}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Input 
-                      type="number" 
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
-                      className="text-center"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      onClick={() => setQuantity(quantity + 50)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Priority</Label>
-                  <Select value={priority} onValueChange={setPriority}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Normal">Normal</SelectItem>
-                      <SelectItem value="High">High (+10%)</SelectItem>
-                      <SelectItem value="Urgent">Urgent (+25%)</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 50))}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input 
+                    type="number" 
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className="text-center w-24"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => setQuantity(quantity + 50)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Size</Label>
                   <Select value={size} onValueChange={setSize}>
@@ -453,20 +436,6 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated }: NewOrderD
                     <SelectContent>
                       {paperTypes.map(p => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Finishing</Label>
-                  <Select value={finishing} onValueChange={setFinishing}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {finishings.map(f => (
-                        <SelectItem key={f} value={f}>{f}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
