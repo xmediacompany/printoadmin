@@ -37,8 +37,8 @@ const Dashboard = () => {
         <StatCard
           title="Active Orders"
           value="156"
-          change="23 urgent priority"
-          changeType="neutral"
+          change="+15.2% from last month"
+          changeType="positive"
           icon={ShoppingCart}
         />
         <StatCard
