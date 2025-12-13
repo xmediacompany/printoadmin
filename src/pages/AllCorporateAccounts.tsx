@@ -1088,6 +1088,16 @@ const AllCorporateAccounts = () => {
 
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  Assigned Manager
+                </h4>
+                <div className="pl-6">
+                  <p className="font-medium">{selectedAccount.assignedManager || "-"}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                   <CreditCard className="h-4 w-4" />
                   Payment Information
                 </h4>
