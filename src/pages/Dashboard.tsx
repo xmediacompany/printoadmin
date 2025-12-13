@@ -5,7 +5,6 @@ import {
   DollarSign, 
   ShoppingCart, 
   Clock, 
-  TrendingUp,
   AlertCircle,
   CheckCircle2
 } from "lucide-react";
@@ -26,7 +25,7 @@ const Dashboard = () => {
         <p className="text-muted-foreground">Welcome back! Here's your business overview.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <StatCard
           title="Today's Revenue"
           value="KD 8,425"
@@ -40,20 +39,6 @@ const Dashboard = () => {
           change="23 urgent priority"
           changeType="neutral"
           icon={ShoppingCart}
-        />
-        <StatCard
-          title="Avg. Turnaround"
-          value="2.4 days"
-          change="-0.3 days this week"
-          changeType="positive"
-          icon={Clock}
-        />
-        <StatCard
-          title="Production Utilization"
-          value="87%"
-          change="+5% from last week"
-          changeType="positive"
-          icon={TrendingUp}
         />
       </div>
 
