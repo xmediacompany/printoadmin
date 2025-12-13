@@ -31,7 +31,12 @@ import {
   AlertCircle,
   Mail,
   Phone,
-  Trash2
+  Trash2,
+  Upload,
+  Paperclip,
+  X,
+  File,
+  Image
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -147,6 +152,7 @@ export function QuoteManagement() {
   const [customProducts, setCustomProducts] = useState<string[]>([]);
   const [showCustomProductInput, setShowCustomProductInput] = useState(false);
   const [customProductValue, setCustomProductValue] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const [newQuote, setNewQuote] = useState({
     company: "",
@@ -253,9 +259,10 @@ export function QuoteManagement() {
       expiryDays: "30",
       notes: "",
     });
+    setAttachments([]);
     toast({
       title: "Quote Created",
-      description: `Quote ${quote.id} has been created successfully.`,
+      description: `Quote ${quote.id} has been created successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}.`,
     });
   };
 
@@ -654,6 +661,84 @@ export function QuoteManagement() {
                 onChange={(e) => setNewQuote({ ...newQuote, notes: e.target.value })}
                 rows={3}
               />
+            </div>
+
+            <Separator />
+
+            {/* Attachments Section */}
+            <div className="grid gap-2">
+              <Label className="flex items-center gap-2">
+                <Paperclip className="h-4 w-4" />
+                Attachments
+              </Label>
+              <div className="border-2 border-dashed rounded-lg p-4 transition-colors hover:border-primary/50">
+                <input
+                  type="file"
+                  id="quote-attachment"
+                  className="hidden"
+                  multiple
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.xls,.xlsx"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setAttachments([...attachments, ...Array.from(e.target.files)]);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <label 
+                  htmlFor="quote-attachment"
+                  className="flex flex-col items-center justify-center cursor-pointer gap-2 text-center"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Upload className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Click to upload files</p>
+                    <p className="text-xs text-muted-foreground">PDF, DOC, Images, Excel (max 10MB each)</p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Attached Files List */}
+              {attachments.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  {attachments.map((file, index) => {
+                    const isImage = file.type.startsWith('image/');
+                    const isPdf = file.type === 'application/pdf';
+                    return (
+                      <div 
+                        key={index} 
+                        className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 border"
+                      >
+                        <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                          {isImage ? (
+                            <Image className="h-4 w-4 text-primary" />
+                          ) : isPdf ? (
+                            <FileText className="h-4 w-4 text-red-500" />
+                          ) : (
+                            <File className="h-4 w-4 text-blue-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
