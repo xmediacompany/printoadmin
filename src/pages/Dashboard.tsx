@@ -27,9 +27,9 @@ const Dashboard = () => {
 
       <div className="grid gap-4 md:grid-cols-2">
         <StatCard
-          title="Today's Revenue"
+          title="Total Revenue"
           value="KD 8,425"
-          change="+12.5% from yesterday"
+          change="+12.5% from last month"
           changeType="positive"
           icon={DollarSign}
         />
