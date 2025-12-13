@@ -144,6 +144,9 @@ export function QuoteManagement() {
   const [viewQuoteOpen, setViewQuoteOpen] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [customProducts, setCustomProducts] = useState<string[]>([]);
+  const [showCustomProductInput, setShowCustomProductInput] = useState(false);
+  const [customProductValue, setCustomProductValue] = useState("");
 
   const [newQuote, setNewQuote] = useState({
     company: "",
@@ -547,16 +550,65 @@ export function QuoteManagement() {
 
             <div className="grid gap-2">
               <Label>Product *</Label>
-              <Select value={newQuote.product} onValueChange={(value) => setNewQuote({ ...newQuote, product: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select product" />
-                </SelectTrigger>
-                <SelectContent>
-                  {products.map((product) => (
-                    <SelectItem key={product} value={product}>{product}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {showCustomProductInput ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter product name"
+                    value={customProductValue}
+                    onChange={(e) => setCustomProductValue(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (customProductValue.trim()) {
+                        setCustomProducts([...customProducts, customProductValue.trim()]);
+                        setNewQuote({ ...newQuote, product: customProductValue.trim() });
+                        setCustomProductValue("");
+                        setShowCustomProductInput(false);
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCustomProductInput(false);
+                      setCustomProductValue("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Select 
+                  value={newQuote.product} 
+                  onValueChange={(value) => {
+                    if (value === "__add_custom__") {
+                      setShowCustomProductInput(true);
+                    } else {
+                      setNewQuote({ ...newQuote, product: value });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[...products, ...customProducts].map((product) => (
+                      <SelectItem key={product} value={product}>{product}</SelectItem>
+                    ))}
+                    <SelectItem value="__add_custom__" className="text-primary">
+                      <span className="flex items-center gap-1">
+                        <Plus className="h-3 w-3" /> Add Extra Product
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
