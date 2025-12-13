@@ -220,7 +220,7 @@ const AllCorporateAccounts = () => {
       tier: account.tier || "standard",
       paymentTerms: account.paymentTerms,
       creditLimit: account.creditLimit,
-      accountManager: "",
+      accountManager: account.assignedManager || "",
       notes: account.notes || "",
     });
     setEditAccountOpen(true);
@@ -262,6 +262,7 @@ const AllCorporateAccounts = () => {
             tier: newAccount.tier,
             paymentTerms: newAccount.paymentTerms,
             creditLimit: newAccount.creditLimit,
+            assignedManager: newAccount.accountManager,
             notes: newAccount.notes,
           }
         : acc
@@ -963,6 +964,32 @@ const AllCorporateAccounts = () => {
                     onChange={(e) => setNewAccount({ ...newAccount, creditLimit: e.target.value })}
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Assigned Manager */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                Assigned Manager
+              </h3>
+              <div className="grid gap-2">
+                <Label>Account Manager</Label>
+                <Select
+                  value={newAccount.accountManager}
+                  onValueChange={(value) => setNewAccount({ ...newAccount, accountManager: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select manager" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[...accountManagers, ...customManagers].map((manager) => (
+                      <SelectItem key={manager} value={manager}>
+                        {manager}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
