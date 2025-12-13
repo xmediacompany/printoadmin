@@ -255,10 +255,6 @@ export function ViewOrderDialog({ open, onOpenChange, order }: ViewOrderDialogPr
               <FileText className="h-4 w-4 mr-2" />
               Download Invoice
             </Button>
-            <Button variant="outline" className="flex-1">
-              <MapPin className="h-4 w-4 mr-2" />
-              Track Shipment
-            </Button>
             <Button className="flex-1" onClick={() => setPaymentOpen(true)}>
               <CreditCard className="h-4 w-4 mr-2" />
               Payment Details
