@@ -23,6 +23,7 @@ import {
   FileCheck
 } from "lucide-react";
 import { NewOrderDialog } from "@/components/orders/NewOrderDialog";
+import { ViewOrderDialog } from "@/components/orders/ViewOrderDialog";
 
 interface BulkOrder {
   id: string;
@@ -40,11 +41,17 @@ const AllBulkOrders = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [editOrderOpen, setEditOrderOpen] = useState(false);
+  const [viewOrderOpen, setViewOrderOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<BulkOrder | null>(null);
 
   const handleEditOrder = (order: BulkOrder) => {
     setSelectedOrder(order);
     setEditOrderOpen(true);
+  };
+
+  const handleViewOrder = (order: BulkOrder) => {
+    setSelectedOrder(order);
+    setViewOrderOpen(true);
   };
 
   const [bulkOrders, setBulkOrders] = useState<BulkOrder[]>([
@@ -168,6 +175,12 @@ const AllBulkOrders = () => {
         onOrderCreated={() => {}}
       />
 
+      <ViewOrderDialog 
+        open={viewOrderOpen} 
+        onOpenChange={setViewOrderOpen}
+        order={selectedOrder}
+      />
+
       <NewOrderDialog 
         open={editOrderOpen} 
         onOpenChange={setEditOrderOpen}
@@ -263,7 +276,7 @@ const AllBulkOrders = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleViewOrder(order)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleEditOrder(order)}>
