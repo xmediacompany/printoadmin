@@ -42,7 +42,8 @@ import {
   Plus,
   Minus,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Palette
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -107,9 +108,21 @@ const productCategories = [
   },
 ];
 
-const sizes = ["A5", "A4", "A3", "A2", "A1", "Custom"];
+const sizes = ["XS", "S", "M", "L", "XL", "XXL", "A5", "A4", "A3", "A2", "A1", "Custom"];
 const paperTypes = ["Matte", "Glossy", "Silk", "Recycled", "Premium"];
 const finishings = ["None", "Lamination", "UV Coating", "Embossing", "Foil Stamping"];
+const presetColors = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#EF4444" },
+  { name: "Blue", hex: "#3B82F6" },
+  { name: "Green", hex: "#22C55E" },
+  { name: "Yellow", hex: "#EAB308" },
+  { name: "Purple", hex: "#A855F7" },
+  { name: "Orange", hex: "#F97316" },
+  { name: "Pink", hex: "#EC4899" },
+  { name: "Navy", hex: "#1E3A8A" },
+];
 const categories = [
   "Custom T-Shirts",
   "Ceramic Mugs",
@@ -161,6 +174,9 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
   const [notes, setNotes] = useState("");
   const [category, setCategory] = useState("");
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [color, setColor] = useState("");
+  const [customHexInput, setCustomHexInput] = useState("");
+  const [showCustomColorInput, setShowCustomColorInput] = useState(false);
 
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
@@ -229,6 +245,22 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
     setUploadedFile(null);
     setCustomerSearch("");
     setCategory("");
+    setColor("");
+    setCustomHexInput("");
+    setShowCustomColorInput(false);
+  };
+
+  const handleAddCustomColor = () => {
+    const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    let hex = customHexInput.trim();
+    if (!hex.startsWith("#")) hex = "#" + hex;
+    if (hexRegex.test(hex)) {
+      setColor(hex.toUpperCase());
+      setShowCustomColorInput(false);
+      setCustomHexInput("");
+    } else {
+      toast.error("Please enter a valid hex code (e.g., #FF5733)");
+    }
   };
 
   return (
@@ -451,6 +483,96 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
                 </div>
               </div>
 
+              {/* Size Selection */}
+              <div className="space-y-2">
+                <Label>Size</Label>
+                <Select value={size} onValueChange={setSize}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizes.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Color Selection */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Palette className="h-4 w-4" />
+                  Color
+                </Label>
+                {showCustomColorInput ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter hex code (e.g., #FF5733)"
+                      value={customHexInput}
+                      onChange={(e) => setCustomHexInput(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button type="button" size="sm" onClick={handleAddCustomColor}>
+                      Add
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowCustomColorInput(false);
+                        setCustomHexInput("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {presetColors.map((c) => (
+                        <button
+                          key={c.hex}
+                          type="button"
+                          onClick={() => setColor(c.hex)}
+                          className={cn(
+                            "w-8 h-8 rounded-full border-2 transition-all hover:scale-110",
+                            color === c.hex ? "border-primary ring-2 ring-primary/30" : "border-border"
+                          )}
+                          style={{ backgroundColor: c.hex }}
+                          title={`${c.name} (${c.hex})`}
+                        />
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomColorInput(true)}
+                        className="w-8 h-8 rounded-full border-2 border-dashed border-muted-foreground/50 flex items-center justify-center hover:border-primary transition-colors"
+                        title="Add custom color"
+                      >
+                        <Plus className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                    {color && (
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                        <div
+                          className="w-6 h-6 rounded border"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="text-sm font-mono">{color}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-auto h-6 px-2"
+                          onClick={() => setColor("")}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <Label>Deadline *</Label>
@@ -547,6 +669,18 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
                     <div>
                       <p className="text-muted-foreground">Size</p>
                       <p className="font-medium">{size}</p>
+                    </div>
+                  )}
+                  {color && (
+                    <div>
+                      <p className="text-muted-foreground">Color</p>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-4 h-4 rounded border"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="font-medium font-mono text-xs">{color}</span>
+                      </div>
                     </div>
                   )}
                   {paperType && (

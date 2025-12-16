@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Filter, Download, MoreVertical, Truck, User, UserPlus, X, Phone, MapPin, Clock, CheckCircle2, Pencil, Trash2 } from "lucide-react";
+import { Search, Filter, Download, MoreVertical, Truck, User, UserPlus, X, Phone, MapPin, Clock, CheckCircle2, Pencil, Trash2, Palette, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,7 +43,23 @@ interface Order {
   driver?: string;
   driverPhone?: string;
   deliveryAddress?: string;
+  size?: string;
+  color?: string;
 }
+
+const sizes = ["XS", "S", "M", "L", "XL", "XXL", "A5", "A4", "A3", "A2", "A1", "Custom"];
+const presetColors = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#EF4444" },
+  { name: "Blue", hex: "#3B82F6" },
+  { name: "Green", hex: "#22C55E" },
+  { name: "Yellow", hex: "#EAB308" },
+  { name: "Purple", hex: "#A855F7" },
+  { name: "Orange", hex: "#F97316" },
+  { name: "Pink", hex: "#EC4899" },
+  { name: "Navy", hex: "#1E3A8A" },
+];
 
 const initialOrders: Order[] = [
   { 
@@ -140,6 +156,25 @@ const Orders = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [editCustomHexInput, setEditCustomHexInput] = useState("");
+  const [showEditCustomColorInput, setShowEditCustomColorInput] = useState(false);
+
+  const handleAddEditCustomColor = () => {
+    const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    let hex = editCustomHexInput.trim();
+    if (!hex.startsWith("#")) hex = "#" + hex;
+    if (hexRegex.test(hex) && editingOrder) {
+      setEditingOrder({ ...editingOrder, color: hex.toUpperCase() });
+      setShowEditCustomColorInput(false);
+      setEditCustomHexInput("");
+    } else {
+      toast({
+        title: "Invalid Hex Code",
+        description: "Please enter a valid hex code (e.g., #FF5733)",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAssignDriver = (order: Order) => {
     setSelectedOrder(order);
@@ -681,6 +716,88 @@ const Orders = () => {
                       <SelectItem value="Urgent">Urgent</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Size</Label>
+                  <Select
+                    value={editingOrder.size || ""}
+                    onValueChange={(value) => setEditingOrder({ ...editingOrder, size: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sizes.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Color
+                  </Label>
+                  {showEditCustomColorInput ? (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="#FF5733"
+                        value={editCustomHexInput}
+                        onChange={(e) => setEditCustomHexInput(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button type="button" size="sm" onClick={handleAddEditCustomColor}>
+                        Add
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setShowEditCustomColorInput(false);
+                          setEditCustomHexInput("");
+                        }}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        {presetColors.slice(0, 5).map((c) => (
+                          <button
+                            key={c.hex}
+                            type="button"
+                            onClick={() => setEditingOrder({ ...editingOrder, color: c.hex })}
+                            className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${
+                              editingOrder.color === c.hex ? "border-primary ring-2 ring-primary/30" : "border-border"
+                            }`}
+                            style={{ backgroundColor: c.hex }}
+                            title={`${c.name} (${c.hex})`}
+                          />
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setShowEditCustomColorInput(true)}
+                          className="w-6 h-6 rounded-full border-2 border-dashed border-muted-foreground/50 flex items-center justify-center hover:border-primary transition-colors"
+                          title="Add custom hex"
+                        >
+                          <Plus className="h-3 w-3 text-muted-foreground" />
+                        </button>
+                      </div>
+                      {editingOrder.color && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div
+                            className="w-4 h-4 rounded border"
+                            style={{ backgroundColor: editingOrder.color }}
+                          />
+                          <span className="font-mono">{editingOrder.color}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
