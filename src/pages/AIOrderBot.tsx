@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Eye, Trash2, Bot, Key, Save } from "lucide-react";
+import { Upload, Eye, Trash2, Bot, Key, Save, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface TrainingDataItem {
@@ -269,6 +269,9 @@ export default function AIOrderBot() {
                       <div className="flex justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleView(item)}>
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => toast.success(`Downloaded ${item.title}`)}>
+                          <Download className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)} className="text-destructive hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
