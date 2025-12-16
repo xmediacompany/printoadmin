@@ -146,25 +146,11 @@ export default function Finance() {
       icon: DollarSign,
     },
     {
-      title: "Today's Payments",
-      value: "KD 1,245.750",
-      change: "+8.2%",
-      trend: "up",
-      icon: TrendingUp,
-    },
-    {
       title: "Pending Payments",
       value: "KD 2,340.000",
       change: "-3.1%",
       trend: "down",
       icon: TrendingDown,
-    },
-    {
-      title: "Failed Transactions",
-      value: "3",
-      change: "-25%",
-      trend: "down",
-      icon: CreditCard,
     },
   ];
 
@@ -283,7 +269,7 @@ export default function Finance() {
 
         <TabsContent value="payments" className="space-y-6">
           {/* Payment Stats */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {paymentStats.map((stat) => (
               <Card key={stat.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
