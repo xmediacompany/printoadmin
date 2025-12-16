@@ -90,6 +90,7 @@ export default function Customers() {
   };
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [totalSpentFilter, setTotalSpentFilter] = useState<string>("all");
 
   const stats = [
     { label: "Total Customers", value: "2,847", change: "+12.5%", changePositive: true },
@@ -267,6 +268,17 @@ export default function Customers() {
               <SelectItem value="Inactive">Inactive</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={totalSpentFilter} onValueChange={setTotalSpentFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Total Spent" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Spent</SelectItem>
+              <SelectItem value="under500">Under KD 500</SelectItem>
+              <SelectItem value="500to1000">KD 500 - 1,000</SelectItem>
+              <SelectItem value="over1000">Over KD 1,000</SelectItem>
+            </SelectContent>
+          </Select>
           <Button size="sm" onClick={() => { resetForm(); setAddDialogOpen(true); }}>
             <Plus className="mr-2 h-4 w-4" />
             Add Customer
@@ -292,8 +304,16 @@ export default function Customers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customers
-                .filter((customer) => statusFilter === "all" || customer.status === statusFilter)
+            {customers
+                .filter((customer) => {
+                  const statusMatch = statusFilter === "all" || customer.status === statusFilter;
+                  const spentValue = parseFloat(customer.totalSpent.replace(/[^0-9.]/g, ''));
+                  let spentMatch = true;
+                  if (totalSpentFilter === "under500") spentMatch = spentValue < 500;
+                  else if (totalSpentFilter === "500to1000") spentMatch = spentValue >= 500 && spentValue <= 1000;
+                  else if (totalSpentFilter === "over1000") spentMatch = spentValue > 1000;
+                  return statusMatch && spentMatch;
+                })
                 .map((customer) => (
                 <TableRow key={customer.id}>
                   <TableCell>
@@ -348,60 +368,6 @@ export default function Customers() {
           </Table>
         </CardContent>
       </Card>
-
-      {/* Customer Insights */}
-      <div>
-        <h2 className="text-xl font-bold mb-4">Customer Insights</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Top Customers by Spend */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Top Customers by Spend</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {topCustomers.map((customer, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm">{customer.name}</span>
-                  <span className="text-sm font-medium">{customer.amount}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Recent Customers */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Recent Customers</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {recentCustomers.map((customer, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm">{customer.name}</span>
-                  <span className="text-sm text-muted-foreground">{customer.date}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Customer Segments */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Customer Segments</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {segments.map((segment, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{segment.date}</span>
-                    {getStatusBadge(segment.status)}
-                  </div>
-                  <span className="text-sm font-medium">{segment.count}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
 
       {/* Add Customer Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
