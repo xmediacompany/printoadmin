@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Eye, Edit, Trash2, Bot, Key, Save } from "lucide-react";
+import { Upload, Eye, Trash2, Bot, Key, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface TrainingDataItem {
@@ -254,7 +254,6 @@ export default function AIOrderBot() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Last Updated</TableHead>
                   <TableHead className="text-right">Action</TableHead>
@@ -264,16 +263,12 @@ export default function AIOrderBot() {
                 {trainingData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell>{item.type}</TableCell>
                     <TableCell>{getStatusBadge(item.status)}</TableCell>
                     <TableCell>{item.lastUpdated}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleView(item)}>
                           <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
-                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)} className="text-destructive hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
