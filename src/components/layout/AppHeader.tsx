@@ -377,7 +377,10 @@ export function AppHeader() {
 
             {/* Footer */}
             <div className="p-3 border-t">
-              <Button variant="outline" className="w-full" onClick={() => setNotificationsOpen(false)}>
+              <Button variant="outline" className="w-full" onClick={() => {
+                setNotificationsOpen(false);
+                navigate("/notifications");
+              }}>
                 View All Notifications
               </Button>
             </div>

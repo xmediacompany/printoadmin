@@ -29,6 +29,7 @@ import B2BCorporate from "./pages/B2BCorporate";
 import AllCorporateAccounts from "./pages/AllCorporateAccounts";
 import AllBulkOrders from "./pages/AllBulkOrders";
 import ComingSoon from "./pages/ComingSoon";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
           <Route path="/finance" element={<AppLayout><Finance /></AppLayout>} />
           <Route path="/analytics" element={<AppLayout><SmartReports /></AppLayout>} />
           <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+          <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
