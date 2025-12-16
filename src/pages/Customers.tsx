@@ -274,6 +274,8 @@ export default function Customers() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Spent</SelectItem>
+              <SelectItem value="mostSpent">Most Spent</SelectItem>
+              <SelectItem value="lowestSpent">Lowest Spent</SelectItem>
               <SelectItem value="under500">Under KD 500</SelectItem>
               <SelectItem value="500to1000">KD 500 - 1,000</SelectItem>
               <SelectItem value="over1000">Over KD 1,000</SelectItem>
@@ -313,6 +315,14 @@ export default function Customers() {
                   else if (totalSpentFilter === "500to1000") spentMatch = spentValue >= 500 && spentValue <= 1000;
                   else if (totalSpentFilter === "over1000") spentMatch = spentValue > 1000;
                   return statusMatch && spentMatch;
+                })
+                .sort((a, b) => {
+                  if (totalSpentFilter === "mostSpent") {
+                    return parseFloat(b.totalSpent.replace(/[^0-9.]/g, '')) - parseFloat(a.totalSpent.replace(/[^0-9.]/g, ''));
+                  } else if (totalSpentFilter === "lowestSpent") {
+                    return parseFloat(a.totalSpent.replace(/[^0-9.]/g, '')) - parseFloat(b.totalSpent.replace(/[^0-9.]/g, ''));
+                  }
+                  return 0;
                 })
                 .map((customer) => (
                 <TableRow key={customer.id}>
