@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Filter, Download, MoreVertical, Truck, User, UserPlus, X, Phone, MapPin, Clock, CheckCircle2 } from "lucide-react";
+import { Search, Filter, Download, MoreVertical, Truck, User, UserPlus, X, Phone, MapPin, Clock, CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -136,6 +136,10 @@ const Orders = () => {
   const [showCustomDriverInput, setShowCustomDriverInput] = useState(false);
   const [customDriverName, setCustomDriverName] = useState("");
   const [customDriverPhone, setCustomDriverPhone] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
   const handleAssignDriver = (order: Order) => {
     setSelectedOrder(order);
@@ -208,6 +212,41 @@ const Orders = () => {
       title: "Driver Removed",
       description: "Driver has been unassigned from the order.",
     });
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setEditingOrder({ ...order });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingOrder) return;
+    setOrdersList(ordersList.map(order =>
+      order.id === editingOrder.id ? editingOrder : order
+    ));
+    setEditDialogOpen(false);
+    setEditingOrder(null);
+    toast({
+      title: "Order Updated",
+      description: `Order ${editingOrder.id} has been updated successfully.`,
+    });
+  };
+
+  const handleDeleteOrder = (order: Order) => {
+    setOrderToDelete(order);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!orderToDelete) return;
+    setOrdersList(ordersList.filter(order => order.id !== orderToDelete.id));
+    setDeleteDialogOpen(false);
+    toast({
+      title: "Order Deleted",
+      description: `Order ${orderToDelete.id} has been deleted.`,
+      variant: "destructive",
+    });
+    setOrderToDelete(null);
   };
 
   const assignedOrders = ordersList.filter(o => o.driver);
@@ -398,9 +437,10 @@ const Orders = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Update Status</DropdownMenuItem>
-                          <DropdownMenuItem>Change Priority</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditOrder(order)}>
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Order
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleAssignDriver(order)}>
                             <Truck className="h-4 w-4 mr-2" />
@@ -416,7 +456,13 @@ const Orders = () => {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>Print Label</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteOrder(order)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Order
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
@@ -566,6 +612,148 @@ const Orders = () => {
             <Button onClick={handleConfirmAssignment} disabled={!selectedDriver}>
               <Truck className="h-4 w-4 mr-2" />
               Assign Driver
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5" />
+              Edit Order
+            </DialogTitle>
+            <DialogDescription>
+              Modify order details for {editingOrder?.id}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingOrder && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Customer</Label>
+                <Input
+                  value={editingOrder.customer}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, customer: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Product</Label>
+                <Input
+                  value={editingOrder.product}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, product: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select
+                    value={editingOrder.status}
+                    onValueChange={(value) => setEditingOrder({ ...editingOrder, status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Prepress">Prepress</SelectItem>
+                      <SelectItem value="In Production">In Production</SelectItem>
+                      <SelectItem value="Quality Check">Quality Check</SelectItem>
+                      <SelectItem value="Ready to Ship">Ready to Ship</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select
+                    value={editingOrder.priority}
+                    onValueChange={(value) => setEditingOrder({ ...editingOrder, priority: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Normal">Normal</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Delivery Address</Label>
+                <Input
+                  value={editingOrder.deliveryAddress || ""}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, deliveryAddress: e.target.value })}
+                  placeholder="Enter delivery address"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Value</Label>
+                <Input
+                  value={editingOrder.value}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, value: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Order Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Delete Order
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete order <span className="font-semibold">{orderToDelete?.id}</span>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {orderToDelete && (
+            <Card className="bg-muted/50">
+              <CardContent className="pt-4">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Customer</span>
+                    <span className="font-medium">{orderToDelete.customer}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Product</span>
+                    <span className="font-medium">{orderToDelete.product}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Value</span>
+                    <span className="font-medium">{orderToDelete.value}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Order
             </Button>
           </DialogFooter>
         </DialogContent>
