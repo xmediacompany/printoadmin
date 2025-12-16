@@ -99,6 +99,20 @@ const accountManagers = [
   "Robert Chen",
 ];
 
+interface PricingAgreement {
+  id: string;
+  name: string;
+  company: string;
+  discountType: "percentage" | "fixed" | "custom";
+  discountValue: string;
+  minOrderThreshold: string;
+  startDate: string;
+  endDate: string;
+  products: string[];
+  status: "active" | "pending" | "expired";
+  notes: string;
+}
+
 const B2BCorporate = () => {
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [addAccountOpen, setAddAccountOpen] = useState(false);
@@ -113,6 +127,149 @@ const B2BCorporate = () => {
   const [customIndustryValue, setCustomIndustryValue] = useState("");
   const [customManagerValue, setCustomManagerValue] = useState("");
   const [agreementFile, setAgreementFile] = useState<File | null>(null);
+  
+  // Pricing Agreement state
+  const [newAgreementOpen, setNewAgreementOpen] = useState(false);
+  const [pricingAgreements, setPricingAgreements] = useState<PricingAgreement[]>([
+    {
+      id: "PA-001",
+      name: "Volume Discount Tier 1",
+      company: "All Accounts",
+      discountType: "percentage",
+      discountValue: "15",
+      minOrderThreshold: "10000",
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
+      products: ["All Products"],
+      status: "active",
+      notes: "Standard volume discount for orders above 10,000 KD",
+    },
+    {
+      id: "PA-002",
+      name: "Volume Discount Tier 2",
+      company: "All Accounts",
+      discountType: "percentage",
+      discountValue: "25",
+      minOrderThreshold: "50000",
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
+      products: ["All Products"],
+      status: "active",
+      notes: "Premium volume discount for orders above 50,000 KD",
+    },
+    {
+      id: "PA-003",
+      name: "Enterprise Custom Rate",
+      company: "Tech Solutions Inc.",
+      discountType: "custom",
+      discountValue: "Custom",
+      minOrderThreshold: "0",
+      startDate: "2024-01-01",
+      endDate: "2025-01-01",
+      products: ["Business Cards", "Brochures", "Stationery"],
+      status: "active",
+      notes: "Negotiated pricing for enterprise accounts",
+    },
+  ]);
+  const [newAgreement, setNewAgreement] = useState({
+    name: "",
+    company: "",
+    discountType: "percentage" as "percentage" | "fixed" | "custom",
+    discountValue: "",
+    minOrderThreshold: "",
+    startDate: "",
+    endDate: "",
+    products: [] as string[],
+    notes: "",
+  });
+  const [customProductInput, setCustomProductInput] = useState("");
+  
+  const availableProducts = [
+    "All Products",
+    "Business Cards",
+    "Brochures",
+    "Flyers",
+    "Posters",
+    "Stationery",
+    "Letterheads",
+    "Envelopes",
+    "Catalogs",
+    "Banners",
+  ];
+
+  const handleAddAgreement = () => {
+    if (!newAgreement.name || !newAgreement.company || !newAgreement.discountValue) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in agreement name, company, and discount value.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const agreement: PricingAgreement = {
+      id: `PA-${String(pricingAgreements.length + 1).padStart(3, "0")}`,
+      name: newAgreement.name,
+      company: newAgreement.company,
+      discountType: newAgreement.discountType,
+      discountValue: newAgreement.discountValue,
+      minOrderThreshold: newAgreement.minOrderThreshold || "0",
+      startDate: newAgreement.startDate,
+      endDate: newAgreement.endDate,
+      products: newAgreement.products.length > 0 ? newAgreement.products : ["All Products"],
+      status: "active",
+      notes: newAgreement.notes,
+    };
+
+    setPricingAgreements([...pricingAgreements, agreement]);
+    setNewAgreementOpen(false);
+    setNewAgreement({
+      name: "",
+      company: "",
+      discountType: "percentage",
+      discountValue: "",
+      minOrderThreshold: "",
+      startDate: "",
+      endDate: "",
+      products: [],
+      notes: "",
+    });
+
+    toast({
+      title: "Agreement Created",
+      description: `${agreement.name} has been created successfully.`,
+    });
+  };
+
+  const handleAddProduct = () => {
+    if (customProductInput.trim() && !newAgreement.products.includes(customProductInput.trim())) {
+      setNewAgreement({
+        ...newAgreement,
+        products: [...newAgreement.products, customProductInput.trim()],
+      });
+      setCustomProductInput("");
+    }
+  };
+
+  const handleRemoveProduct = (product: string) => {
+    setNewAgreement({
+      ...newAgreement,
+      products: newAgreement.products.filter((p) => p !== product),
+    });
+  };
+
+  const getDiscountLabel = (agreement: PricingAgreement) => {
+    switch (agreement.discountType) {
+      case "percentage":
+        return `${agreement.discountValue}% Off`;
+      case "fixed":
+        return `${agreement.discountValue} KD Off`;
+      case "custom":
+        return "Custom";
+      default:
+        return agreement.discountValue;
+    }
+  };
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
     {
@@ -994,7 +1151,7 @@ const B2BCorporate = () => {
                   Custom Pricing Agreements
                 </div>
               </CardTitle>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setNewAgreementOpen(true)}>
                 <Plus className="h-4 w-4 mr-1" />
                 New Agreement
               </Button>
@@ -1003,32 +1160,264 @@ const B2BCorporate = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">Volume Discount Tier 1</h4>
-                  <Badge variant="secondary">15% Off</Badge>
+              {pricingAgreements.slice(0, 3).map((agreement) => (
+                <div key={agreement.id} className="p-3 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold">{agreement.name}</h4>
+                    <Badge variant="secondary">{getDiscountLabel(agreement)}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {agreement.minOrderThreshold !== "0" ? `Orders above ${Number(agreement.minOrderThreshold).toLocaleString()} KD • ` : ""}
+                    {agreement.company}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">Orders above 10,000 KD • 8 accounts</p>
-              </div>
-
-              <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">Volume Discount Tier 2</h4>
-                  <Badge variant="secondary">25% Off</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">Orders above 50,000 KD • 3 accounts</p>
-              </div>
-
-              <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold">Enterprise Custom Rate</h4>
-                  <Badge variant="secondary">Custom</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">Negotiated pricing • 2 accounts</p>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
+
+        {/* New Pricing Agreement Dialog */}
+        <Dialog open={newAgreementOpen} onOpenChange={setNewAgreementOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                Create New Pricing Agreement
+              </DialogTitle>
+              <DialogDescription>
+                Set up custom pricing, volume discounts, or special rates for corporate accounts.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+              {/* Agreement Details */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  Agreement Details
+                </h3>
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="agreementName">Agreement Name *</Label>
+                    <Input
+                      id="agreementName"
+                      placeholder="e.g., Enterprise Volume Discount"
+                      value={newAgreement.name}
+                      onChange={(e) => setNewAgreement({ ...newAgreement, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Apply To *</Label>
+                    <Select
+                      value={newAgreement.company}
+                      onValueChange={(value) => setNewAgreement({ ...newAgreement, company: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select company or all accounts" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="All Accounts">
+                          <span className="flex items-center gap-2">
+                            <Globe className="h-4 w-4" />
+                            All Corporate Accounts
+                          </span>
+                        </SelectItem>
+                        {corporateAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.companyName}>
+                            <span className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4" />
+                              {account.companyName}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Discount Configuration */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                  Discount Configuration
+                </h3>
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Discount Type</Label>
+                  <RadioGroup
+                    value={newAgreement.discountType}
+                    onValueChange={(value) => setNewAgreement({ ...newAgreement, discountType: value as "percentage" | "fixed" | "custom" })}
+                    className="grid grid-cols-3 gap-3"
+                  >
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:border-primary/50 transition-colors">
+                      <RadioGroupItem value="percentage" id="percentage" />
+                      <Label htmlFor="percentage" className="cursor-pointer flex-1">
+                        <span className="font-medium">Percentage</span>
+                        <p className="text-xs text-muted-foreground">e.g., 15% off</p>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:border-primary/50 transition-colors">
+                      <RadioGroupItem value="fixed" id="fixed" />
+                      <Label htmlFor="fixed" className="cursor-pointer flex-1">
+                        <span className="font-medium">Fixed Amount</span>
+                        <p className="text-xs text-muted-foreground">e.g., 500 KD off</p>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg hover:border-primary/50 transition-colors">
+                      <RadioGroupItem value="custom" id="custom" />
+                      <Label htmlFor="custom" className="cursor-pointer flex-1">
+                        <span className="font-medium">Custom Rate</span>
+                        <p className="text-xs text-muted-foreground">Negotiated pricing</p>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="discountValue">
+                      {newAgreement.discountType === "percentage" ? "Discount %" : 
+                       newAgreement.discountType === "fixed" ? "Discount Amount (KD)" : "Custom Rate Description"} *
+                    </Label>
+                    <Input
+                      id="discountValue"
+                      type={newAgreement.discountType === "custom" ? "text" : "number"}
+                      placeholder={newAgreement.discountType === "percentage" ? "e.g., 15" : 
+                                   newAgreement.discountType === "fixed" ? "e.g., 500" : "e.g., Special wholesale pricing"}
+                      value={newAgreement.discountValue}
+                      onChange={(e) => setNewAgreement({ ...newAgreement, discountValue: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="minOrder">Minimum Order Threshold (KD)</Label>
+                    <Input
+                      id="minOrder"
+                      type="number"
+                      placeholder="e.g., 10000"
+                      value={newAgreement.minOrderThreshold}
+                      onChange={(e) => setNewAgreement({ ...newAgreement, minOrderThreshold: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Validity Period */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  Validity Period
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={newAgreement.startDate}
+                      onChange={(e) => setNewAgreement({ ...newAgreement, startDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="endDate">End Date</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={newAgreement.endDate}
+                      onChange={(e) => setNewAgreement({ ...newAgreement, endDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Products Covered */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <Package className="h-4 w-4" />
+                  Products Covered
+                </h3>
+                <div className="grid gap-3">
+                  <div className="flex gap-2">
+                    <Select
+                      value=""
+                      onValueChange={(value) => {
+                        if (value && !newAgreement.products.includes(value)) {
+                          setNewAgreement({
+                            ...newAgreement,
+                            products: [...newAgreement.products, value],
+                          });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select products to include" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableProducts.filter(p => !newAgreement.products.includes(p)).map((product) => (
+                          <SelectItem key={product} value={product}>
+                            {product}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-1">
+                      <Input
+                        placeholder="Custom product"
+                        value={customProductInput}
+                        onChange={(e) => setCustomProductInput(e.target.value)}
+                        className="w-32"
+                      />
+                      <Button type="button" size="icon" variant="outline" onClick={handleAddProduct}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  {newAgreement.products.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newAgreement.products.map((product) => (
+                        <Badge key={product} variant="secondary" className="flex items-center gap-1 px-3 py-1">
+                          {product}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-4 w-4 p-0 hover:bg-transparent"
+                            onClick={() => handleRemoveProduct(product)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  {newAgreement.products.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No products selected. Agreement will apply to all products.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="grid gap-2">
+                <Label htmlFor="agreementNotes">Additional Notes</Label>
+                <Textarea
+                  id="agreementNotes"
+                  placeholder="Any special terms or conditions for this agreement..."
+                  value={newAgreement.notes}
+                  onChange={(e) => setNewAgreement({ ...newAgreement, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNewAgreementOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddAgreement}>
+                <Award className="h-4 w-4 mr-2" />
+                Create Agreement
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Account Managers */}
         <Card>
