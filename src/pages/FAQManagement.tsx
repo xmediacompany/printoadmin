@@ -204,7 +204,7 @@ export default function FAQManagement() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total FAQs</CardTitle>
@@ -221,15 +221,6 @@ export default function FAQManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.published}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
@@ -280,10 +271,6 @@ export default function FAQManagement() {
                     </div>
                   </AccordionTrigger>
                   <div className="flex items-center gap-2 ml-4">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Eye className="h-3 w-3" />
-                      {faq.views}
-                    </span>
                     <Button variant="ghost" size="icon" onClick={() => handleView(faq)}>
                       <ExternalLink className="h-4 w-4" />
                     </Button>
@@ -398,10 +385,6 @@ export default function FAQManagement() {
                     {viewingFAQ.isPublished ? "Published" : "Draft"}
                   </Badge>
                   <Badge variant="outline">{viewingFAQ.category}</Badge>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
-                    <Eye className="h-3 w-3" />
-                    {viewingFAQ.views} views
-                  </span>
                 </div>
                 <h3 className="text-lg font-semibold mb-3">{viewingFAQ.question}</h3>
                 <p className="text-muted-foreground">{viewingFAQ.answer}</p>
