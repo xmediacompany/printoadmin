@@ -4,8 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Phone, Mail, Clock, Package, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Send, Phone, Mail, Clock, Package, ArrowLeft, UserCheck, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Conversation {
   id: string;
@@ -22,6 +27,22 @@ interface Message {
   text: string;
   time: string;
 }
+
+interface Employee {
+  id: string;
+  name: string;
+  role: string;
+  status: "available" | "busy" | "offline";
+  activeChats: number;
+}
+
+const employees: Employee[] = [
+  { id: "1", name: "Mohammad Al-Ahmed", role: "Senior Support Agent", status: "available", activeChats: 2 },
+  { id: "2", name: "Layla Hassan", role: "Support Agent", status: "available", activeChats: 1 },
+  { id: "3", name: "Yusuf Al-Rashid", role: "Technical Support", status: "busy", activeChats: 4 },
+  { id: "4", name: "Nora Al-Sabah", role: "Customer Success", status: "available", activeChats: 0 },
+  { id: "5", name: "Faisal Al-Mansour", role: "Support Team Lead", status: "offline", activeChats: 0 },
+];
 
 const conversations: Conversation[] = [
   { id: "1", customer: "Ahmed Al-Mansouri", lastMessage: "Where is my order?", time: "2 min", unread: 2, status: "active" },
@@ -41,9 +62,14 @@ const initialMessages: Message[] = [
 
 export default function LiveChatDashboard() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState<Conversation>(conversations[0]);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState("");
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [transferNote, setTransferNote] = useState("");
+  const [transferPriority, setTransferPriority] = useState<string>("normal");
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -65,6 +91,30 @@ export default function LiveChatDashboard() {
       case "waiting": return "bg-yellow-500";
       case "resolved": return "bg-muted";
     }
+  };
+
+  const getEmployeeStatusBadge = (status: Employee["status"]) => {
+    switch (status) {
+      case "available": return <Badge className="bg-emerald-500/10 text-emerald-700">Available</Badge>;
+      case "busy": return <Badge className="bg-amber-500/10 text-amber-700">Busy</Badge>;
+      case "offline": return <Badge variant="secondary">Offline</Badge>;
+    }
+  };
+
+  const handleTransfer = () => {
+    if (!selectedEmployee) {
+      toast({ title: "Error", description: "Please select an employee", variant: "destructive" });
+      return;
+    }
+    const employee = employees.find(e => e.id === selectedEmployee);
+    toast({
+      title: "Chat Transferred",
+      description: `Conversation with ${selectedConversation.customer} has been transferred to ${employee?.name}`,
+    });
+    setTransferDialogOpen(false);
+    setSelectedEmployee("");
+    setTransferNote("");
+    setTransferPriority("normal");
   };
 
   return (
@@ -144,8 +194,9 @@ export default function LiveChatDashboard() {
               <Button variant="outline" size="sm">
                 Mark Resolved
               </Button>
-              <Button variant="outline" size="sm">
-                Transfer
+              <Button variant="outline" size="sm" onClick={() => setTransferDialogOpen(true)}>
+                <UserCheck className="mr-2 h-4 w-4" />
+                Transfer to Human
               </Button>
             </div>
           </div>
@@ -256,6 +307,108 @@ export default function LiveChatDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Transfer to Human Dialog */}
+      <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Transfer to Human Agent
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-sm text-muted-foreground">Transferring conversation with:</p>
+              <p className="font-medium">{selectedConversation.customer}</p>
+              <p className="text-sm text-muted-foreground">Issue: {selectedConversation.lastMessage}</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Select Employee <span className="text-destructive">*</span></Label>
+              <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an employee to assign" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((employee) => (
+                    <SelectItem 
+                      key={employee.id} 
+                      value={employee.id}
+                      disabled={employee.status === "offline"}
+                    >
+                      <div className="flex items-center justify-between gap-4 w-full">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                              {employee.name.split(" ").map(n => n[0]).join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{employee.name}</p>
+                            <p className="text-xs text-muted-foreground">{employee.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedEmployee && (
+              <div className="p-3 border rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">
+                    {employees.find(e => e.id === selectedEmployee)?.name}
+                  </span>
+                  {getEmployeeStatusBadge(employees.find(e => e.id === selectedEmployee)?.status || "offline")}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {employees.find(e => e.id === selectedEmployee)?.role}
+                </p>
+                <p className="text-sm">
+                  Active Chats: <span className="font-medium">{employees.find(e => e.id === selectedEmployee)?.activeChats}</span>
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>Priority</Label>
+              <Select value={transferPriority} onValueChange={setTransferPriority}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low Priority</SelectItem>
+                  <SelectItem value="normal">Normal Priority</SelectItem>
+                  <SelectItem value="high">High Priority</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Notes for the Agent</Label>
+              <Textarea
+                placeholder="Add any relevant notes about the customer issue..."
+                value={transferNote}
+                onChange={(e) => setTransferNote(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTransfer}>
+              <UserCheck className="mr-2 h-4 w-4" />
+              Transfer Chat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
