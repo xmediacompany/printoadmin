@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Select,
   SelectContent,
@@ -10,15 +11,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Download, MoreVertical } from "lucide-react";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Search, Filter, Download, MoreVertical, Truck, User, UserPlus, X, Phone, MapPin, Clock, CheckCircle2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "@/hooks/use-toast";
 
-const orders = [
+interface Order {
+  id: string;
+  customer: string;
+  product: string;
+  status: string;
+  priority: string;
+  created: string;
+  deadline: string;
+  value: string;
+  driver?: string;
+  driverPhone?: string;
+  deliveryAddress?: string;
+}
+
+const initialOrders: Order[] = [
   { 
     id: "ORD-10234", 
     customer: "Acme Corp", 
@@ -27,7 +54,8 @@ const orders = [
     priority: "High", 
     created: "2 hours ago",
     deadline: "Tomorrow 3PM",
-    value: "KD 2,340" 
+    value: "KD 2,340",
+    deliveryAddress: "Shuwaikh Industrial Area, Block 4"
   },
   { 
     id: "ORD-10233", 
@@ -37,7 +65,8 @@ const orders = [
     priority: "Normal", 
     created: "5 hours ago",
     deadline: "Dec 18, 2PM",
-    value: "KD 890" 
+    value: "KD 890",
+    deliveryAddress: "Sharq District, Tower 12"
   },
   { 
     id: "ORD-10232", 
@@ -47,7 +76,10 @@ const orders = [
     priority: "Urgent", 
     created: "1 day ago",
     deadline: "Today 5PM",
-    value: "KD 1,560" 
+    value: "KD 1,560",
+    driver: "Ahmed Ali",
+    driverPhone: "+965 9876 5432",
+    deliveryAddress: "Hawally Area, Building 7"
   },
   { 
     id: "ORD-10231", 
@@ -57,7 +89,8 @@ const orders = [
     priority: "Normal", 
     created: "1 day ago",
     deadline: "Dec 19, 10AM",
-    value: "KD 420" 
+    value: "KD 420",
+    deliveryAddress: "Salmiya, Block 2"
   },
   { 
     id: "ORD-10230", 
@@ -67,8 +100,20 @@ const orders = [
     priority: "Low", 
     created: "2 days ago",
     deadline: "Completed",
-    value: "KD 3,200" 
+    value: "KD 3,200",
+    driver: "Sarah Hassan",
+    driverPhone: "+965 9123 4567",
+    deliveryAddress: "Farwaniya, Street 5"
   },
+];
+
+const initialDrivers = [
+  { name: "Ahmed Ali", phone: "+965 9876 5432", available: true, activeOrders: 3 },
+  { name: "Sarah Hassan", phone: "+965 9123 4567", available: true, activeOrders: 2 },
+  { name: "Mohammed Khalid", phone: "+965 9234 5678", available: false, activeOrders: 5 },
+  { name: "Fatima Rashid", phone: "+965 9345 6789", available: true, activeOrders: 1 },
+  { name: "Omar Abdullah", phone: "+965 9456 7890", available: true, activeOrders: 0 },
+  { name: "Layla Ibrahim", phone: "+965 9567 8901", available: false, activeOrders: 4 },
 ];
 
 const getStatusColor = (status: string) => {
@@ -83,13 +128,152 @@ const getStatusColor = (status: string) => {
 };
 
 const Orders = () => {
-  const [ordersList] = useState(orders);
+  const [ordersList, setOrdersList] = useState<Order[]>(initialOrders);
+  const [drivers, setDrivers] = useState(initialDrivers);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedDriver, setSelectedDriver] = useState("");
+  const [showCustomDriverInput, setShowCustomDriverInput] = useState(false);
+  const [customDriverName, setCustomDriverName] = useState("");
+  const [customDriverPhone, setCustomDriverPhone] = useState("");
+
+  const handleAssignDriver = (order: Order) => {
+    setSelectedOrder(order);
+    setSelectedDriver(order.driver || "");
+    setAssignDialogOpen(true);
+  };
+
+  const handleConfirmAssignment = () => {
+    if (!selectedOrder || !selectedDriver) {
+      toast({
+        title: "Select a Driver",
+        description: "Please select a driver to assign to this order.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const driver = drivers.find(d => d.name === selectedDriver);
+    
+    setOrdersList(ordersList.map(order => 
+      order.id === selectedOrder.id
+        ? { 
+            ...order, 
+            driver: selectedDriver,
+            driverPhone: driver?.phone || customDriverPhone,
+          }
+        : order
+    ));
+
+    setAssignDialogOpen(false);
+    setSelectedOrder(null);
+    setSelectedDriver("");
+    setShowCustomDriverInput(false);
+    setCustomDriverName("");
+    setCustomDriverPhone("");
+
+    toast({
+      title: "Driver Assigned",
+      description: `${selectedDriver} has been assigned to order ${selectedOrder.id}.`,
+    });
+  };
+
+  const handleAddCustomDriver = () => {
+    if (customDriverName.trim() && customDriverPhone.trim()) {
+      const newDriver = {
+        name: customDriverName.trim(),
+        phone: customDriverPhone.trim(),
+        available: true,
+        activeOrders: 0,
+      };
+      setDrivers([...drivers, newDriver]);
+      setSelectedDriver(newDriver.name);
+      setShowCustomDriverInput(false);
+      setCustomDriverName("");
+      setCustomDriverPhone("");
+      toast({
+        title: "Driver Added",
+        description: `${newDriver.name} has been added to the driver list.`,
+      });
+    }
+  };
+
+  const handleRemoveDriver = (orderId: string) => {
+    setOrdersList(ordersList.map(order =>
+      order.id === orderId
+        ? { ...order, driver: undefined, driverPhone: undefined }
+        : order
+    ));
+    toast({
+      title: "Driver Removed",
+      description: "Driver has been unassigned from the order.",
+    });
+  };
+
+  const assignedOrders = ordersList.filter(o => o.driver);
+  const unassignedReadyOrders = ordersList.filter(o => !o.driver && (o.status === "Ready to Ship" || o.status === "Completed"));
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Orders & Production Queue</h1>
         <p className="text-muted-foreground">Manage and track all production orders</p>
+      </div>
+
+      {/* Driver Assignment Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Orders</p>
+                <p className="text-2xl font-bold">{ordersList.length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <Truck className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Driver Assigned</p>
+                <p className="text-2xl font-bold">{assignedOrders.length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Needs Assignment</p>
+                <p className="text-2xl font-bold">{unassignedReadyOrders.length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Available Drivers</p>
+                <p className="text-2xl font-bold">{drivers.filter(d => d.available).length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <User className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -147,6 +331,7 @@ const Orders = () => {
                   <th className="text-left p-4 font-medium text-sm">Product</th>
                   <th className="text-left p-4 font-medium text-sm">Status</th>
                   <th className="text-left p-4 font-medium text-sm">Priority</th>
+                  <th className="text-left p-4 font-medium text-sm">Driver</th>
                   <th className="text-left p-4 font-medium text-sm">Deadline</th>
                   <th className="text-left p-4 font-medium text-sm">Value</th>
                   <th className="text-left p-4 font-medium text-sm"></th>
@@ -175,6 +360,31 @@ const Orders = () => {
                       </Badge>
                     </td>
                     <td className="p-4">
+                      {order.driver ? (
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-7 w-7">
+                            <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                              {order.driver.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">{order.driver}</p>
+                            <p className="text-xs text-muted-foreground">{order.driverPhone}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={() => handleAssignDriver(order)}
+                        >
+                          <UserPlus className="h-3 w-3 mr-1" />
+                          Assign
+                        </Button>
+                      )}
+                    </td>
+                    <td className="p-4">
                       <span className={order.deadline.includes("Today") || order.deadline.includes("Tomorrow") ? "text-warning font-medium" : ""}>
                         {order.deadline}
                       </span>
@@ -187,10 +397,25 @@ const Orders = () => {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-popover">
                           <DropdownMenuItem>View Details</DropdownMenuItem>
                           <DropdownMenuItem>Update Status</DropdownMenuItem>
                           <DropdownMenuItem>Change Priority</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleAssignDriver(order)}>
+                            <Truck className="h-4 w-4 mr-2" />
+                            {order.driver ? "Change Driver" : "Assign Driver"}
+                          </DropdownMenuItem>
+                          {order.driver && (
+                            <DropdownMenuItem 
+                              onClick={() => handleRemoveDriver(order.id)}
+                              className="text-destructive"
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              Remove Driver
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem>Print Label</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -202,6 +427,149 @@ const Orders = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Assign Driver Dialog */}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Assign Driver to Order
+            </DialogTitle>
+            <DialogDescription>
+              Select a driver to deliver order {selectedOrder?.id} to {selectedOrder?.customer}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-4">
+              {/* Order Summary */}
+              <Card className="bg-muted/50">
+                <CardContent className="pt-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Product</p>
+                      <p className="font-medium">{selectedOrder.product}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Value</p>
+                      <p className="font-medium">{selectedOrder.value}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> Delivery Address
+                      </p>
+                      <p className="font-medium">{selectedOrder.deliveryAddress || "Not specified"}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Driver Selection */}
+              <div className="space-y-3">
+                <Label>Select Driver</Label>
+                {showCustomDriverInput ? (
+                  <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                    <Input
+                      placeholder="Driver Name"
+                      value={customDriverName}
+                      onChange={(e) => setCustomDriverName(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Phone Number"
+                      value={customDriverPhone}
+                      onChange={(e) => setCustomDriverPhone(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleAddCustomDriver}>
+                        Add Driver
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setShowCustomDriverInput(false);
+                          setCustomDriverName("");
+                          setCustomDriverPhone("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-[250px] border rounded-lg">
+                    <div className="p-2 space-y-2">
+                      {drivers.map((driver) => (
+                        <div
+                          key={driver.name}
+                          onClick={() => driver.available && setSelectedDriver(driver.name)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedDriver === driver.name
+                              ? "border-primary bg-primary/10"
+                              : driver.available
+                              ? "hover:border-primary/50 hover:bg-muted/50"
+                              : "opacity-50 cursor-not-allowed"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className={`${driver.available ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                                  {driver.name.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{driver.name}</p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Phone className="h-3 w-3" />
+                                  {driver.phone}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <Badge variant={driver.available ? "default" : "secondary"}>
+                                {driver.available ? "Available" : "Busy"}
+                              </Badge>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {driver.activeOrders} active orders
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div
+                        onClick={() => setShowCustomDriverInput(true)}
+                        className="p-3 rounded-lg border border-dashed cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all"
+                      >
+                        <div className="flex items-center gap-3 text-muted-foreground">
+                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                            <UserPlus className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Add New Driver</p>
+                            <p className="text-xs">Add a driver not in the list</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollArea>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmAssignment} disabled={!selectedDriver}>
+              <Truck className="h-4 w-4 mr-2" />
+              Assign Driver
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

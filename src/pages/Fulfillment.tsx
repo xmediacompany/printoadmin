@@ -10,12 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Truck, Package, CheckCircle2, Plus, CalendarIcon, MapPin, UserPlus, X, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Truck, Package, CheckCircle2, Plus, CalendarIcon, MapPin, UserPlus, X, MoreVertical, Pencil, Trash2, Phone, ShoppingBag, Clock, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 interface Route {
   id: string;
@@ -26,6 +29,25 @@ interface Route {
   cod: string;
   date?: Date;
   areas?: string[];
+}
+
+interface DriverOrder {
+  orderId: string;
+  customer: string;
+  product: string;
+  status: string;
+  deliveryAddress: string;
+  deadline: string;
+  value: string;
+}
+
+interface DriverAssignment {
+  driverName: string;
+  phone: string;
+  totalOrders: number;
+  completedOrders: number;
+  status: "on-route" | "available" | "off-duty";
+  orders: DriverOrder[];
 }
 
 const initialDrivers = [
@@ -50,6 +72,59 @@ const initialAreas = [
   "Fahaheel",
 ];
 
+const initialDriverAssignments: DriverAssignment[] = [
+  {
+    driverName: "Ahmed Ali",
+    phone: "+965 9876 5432",
+    totalOrders: 4,
+    completedOrders: 2,
+    status: "on-route",
+    orders: [
+      { orderId: "ORD-10232", customer: "Design Studio", product: "Posters A3 (50pcs)", status: "In Transit", deliveryAddress: "Hawally Area, Building 7", deadline: "Today 5PM", value: "KD 1,560" },
+      { orderId: "ORD-10245", customer: "Quick Print", product: "Flyers (500pcs)", status: "Pending Pickup", deliveryAddress: "Salmiya, Block 3", deadline: "Today 6PM", value: "KD 320" },
+      { orderId: "ORD-10251", customer: "Media Corp", product: "Brochures (100pcs)", status: "Delivered", deliveryAddress: "Sharq, Tower 5", deadline: "Completed", value: "KD 450" },
+      { orderId: "ORD-10248", customer: "Event Pro", product: "Banners (3pcs)", status: "Delivered", deliveryAddress: "Hawally, Street 12", deadline: "Completed", value: "KD 780" },
+    ]
+  },
+  {
+    driverName: "Sarah Hassan",
+    phone: "+965 9123 4567",
+    totalOrders: 3,
+    completedOrders: 3,
+    status: "available",
+    orders: [
+      { orderId: "ORD-10230", customer: "Print Plus", product: "Banners (5x3ft)", status: "Delivered", deliveryAddress: "Farwaniya, Street 5", deadline: "Completed", value: "KD 3,200" },
+      { orderId: "ORD-10238", customer: "Tech Hub", product: "Business Cards (1000pcs)", status: "Delivered", deliveryAddress: "Shuwaikh, Block 2", deadline: "Completed", value: "KD 180" },
+      { orderId: "ORD-10241", customer: "Startup Inc", product: "Stickers (500pcs)", status: "Delivered", deliveryAddress: "Sharq District", deadline: "Completed", value: "KD 95" },
+    ]
+  },
+  {
+    driverName: "Mohammed Khalid",
+    phone: "+965 9234 5678",
+    totalOrders: 5,
+    completedOrders: 1,
+    status: "on-route",
+    orders: [
+      { orderId: "ORD-10255", customer: "Retail Store", product: "Price Tags (2000pcs)", status: "In Transit", deliveryAddress: "Jahra, Mall Area", deadline: "Today 4PM", value: "KD 120" },
+      { orderId: "ORD-10256", customer: "Office Corp", product: "Letterheads (500pcs)", status: "Pending Pickup", deliveryAddress: "Ahmadi, Industrial", deadline: "Today 5PM", value: "KD 210" },
+      { orderId: "ORD-10257", customer: "Design Lab", product: "Posters A2 (25pcs)", status: "Pending Pickup", deliveryAddress: "Mangaf, Block 1", deadline: "Today 6PM", value: "KD 375" },
+      { orderId: "ORD-10258", customer: "Marketing Agency", product: "Flyers A4 (1000pcs)", status: "Pending Pickup", deliveryAddress: "Fahaheel Center", deadline: "Tomorrow 10AM", value: "KD 290" },
+      { orderId: "ORD-10250", customer: "Local Shop", product: "Business Cards (250pcs)", status: "Delivered", deliveryAddress: "Salmiya, Complex A", deadline: "Completed", value: "KD 65" },
+    ]
+  },
+  {
+    driverName: "Fatima Rashid",
+    phone: "+965 9345 6789",
+    totalOrders: 2,
+    completedOrders: 0,
+    status: "on-route",
+    orders: [
+      { orderId: "ORD-10260", customer: "Cafe Central", product: "Menu Cards (50pcs)", status: "In Transit", deliveryAddress: "Sharq, Food Court", deadline: "Today 3PM", value: "KD 185" },
+      { orderId: "ORD-10261", customer: "Gym Plus", product: "Membership Cards (200pcs)", status: "Pending Pickup", deliveryAddress: "Salmiya, Sports Complex", deadline: "Today 5PM", value: "KD 240" },
+    ]
+  },
+];
+
 const Fulfillment = () => {
   const [routes, setRoutes] = useState<Route[]>([
     { id: "R-001", driver: "Ahmed Ali", stops: 12, completed: 8, status: "in-progress", cod: "125.50" },
@@ -70,6 +145,9 @@ const Fulfillment = () => {
   const [showEditCustomAreaInput, setShowEditCustomAreaInput] = useState(false);
   const [customDriverName, setCustomDriverName] = useState("");
   const [customAreaName, setCustomAreaName] = useState("");
+  const [driverAssignments] = useState<DriverAssignment[]>(initialDriverAssignments);
+  const [selectedDriverForView, setSelectedDriverForView] = useState<DriverAssignment | null>(null);
+  const [viewOrdersDialogOpen, setViewOrdersDialogOpen] = useState(false);
   const [newRoute, setNewRoute] = useState({
     driver: "",
     stops: "",
@@ -92,16 +170,33 @@ const Fulfillment = () => {
     switch (status) {
       case "completed":
       case "delivered":
+      case "Delivered":
         return "default";
       case "in-progress":
       case "in-transit":
+      case "In Transit":
         return "secondary";
       case "pending":
       case "pending-pickup":
+      case "Pending Pickup":
         return "outline";
       default:
         return "outline";
     }
+  };
+
+  const getDriverStatusColor = (status: string) => {
+    switch (status) {
+      case "on-route": return "bg-blue-500/20 text-blue-600 border-blue-500/30";
+      case "available": return "bg-green-500/20 text-green-600 border-green-500/30";
+      case "off-duty": return "bg-gray-500/20 text-gray-600 border-gray-500/30";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const handleViewDriverOrders = (driver: DriverAssignment) => {
+    setSelectedDriverForView(driver);
+    setViewOrdersDialogOpen(true);
   };
 
   const generateRouteId = () => {
@@ -325,7 +420,209 @@ const Fulfillment = () => {
         </Card>
       </div>
 
-      {/* Create Route Dialog */}
+      {/* Driver Order Assignments Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5 text-primary" />
+                Driver Order Assignments
+              </CardTitle>
+              <CardDescription>Track which driver is handling which orders</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {driverAssignments.map((driver) => (
+              <Card 
+                key={driver.driverName} 
+                className={`border-l-4 ${
+                  driver.status === "on-route" 
+                    ? "border-l-blue-500" 
+                    : driver.status === "available" 
+                    ? "border-l-green-500" 
+                    : "border-l-gray-400"
+                }`}
+              >
+                <CardContent className="pt-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                          {driver.driverName.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">{driver.driverName}</h3>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {driver.phone}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className={`${getDriverStatusColor(driver.status)} border`}>
+                      {driver.status === "on-route" ? "On Route" : driver.status === "available" ? "Available" : "Off Duty"}
+                    </Badge>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="grid grid-cols-3 gap-2 text-center mb-4">
+                    <div className="p-2 rounded-lg bg-muted/50">
+                      <p className="text-2xl font-bold text-primary">{driver.totalOrders}</p>
+                      <p className="text-xs text-muted-foreground">Total Orders</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <p className="text-2xl font-bold text-green-600">{driver.completedOrders}</p>
+                      <p className="text-xs text-muted-foreground">Completed</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-orange-500/10">
+                      <p className="text-2xl font-bold text-orange-600">{driver.totalOrders - driver.completedOrders}</p>
+                      <p className="text-xs text-muted-foreground">Pending</p>
+                    </div>
+                  </div>
+
+                  {/* Recent Orders Preview */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Recent Orders</p>
+                    {driver.orders.slice(0, 2).map((order) => (
+                      <div key={order.orderId} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{order.orderId}</span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-muted-foreground truncate max-w-[120px]">{order.customer}</span>
+                        </div>
+                        <Badge variant={getStatusColor(order.status)} className="text-xs">
+                          {order.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4"
+                    onClick={() => handleViewDriverOrders(driver)}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View All Orders ({driver.orders.length})
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* View Driver Orders Dialog */}
+      <Dialog open={viewOrdersDialogOpen} onOpenChange={setViewOrdersDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {selectedDriverForView && (
+                <>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/20 text-primary">
+                      {selectedDriverForView.driverName.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <span>{selectedDriverForView.driverName}'s Orders</span>
+                    <p className="text-sm font-normal text-muted-foreground">
+                      {selectedDriverForView.phone}
+                    </p>
+                  </div>
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              All orders assigned to this driver
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedDriverForView && (
+            <div className="space-y-4">
+              {/* Driver Stats */}
+              <div className="grid grid-cols-4 gap-3">
+                <div className="p-3 rounded-lg bg-primary/10 text-center">
+                  <p className="text-xl font-bold text-primary">{selectedDriverForView.totalOrders}</p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+                <div className="p-3 rounded-lg bg-green-500/10 text-center">
+                  <p className="text-xl font-bold text-green-600">{selectedDriverForView.completedOrders}</p>
+                  <p className="text-xs text-muted-foreground">Delivered</p>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-500/10 text-center">
+                  <p className="text-xl font-bold text-blue-600">
+                    {selectedDriverForView.orders.filter(o => o.status === "In Transit").length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">In Transit</p>
+                </div>
+                <div className="p-3 rounded-lg bg-orange-500/10 text-center">
+                  <p className="text-xl font-bold text-orange-600">
+                    {selectedDriverForView.orders.filter(o => o.status === "Pending Pickup").length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Pending</p>
+                </div>
+              </div>
+
+              {/* Orders List */}
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-3">
+                  {selectedDriverForView.orders.map((order) => (
+                    <Card key={order.orderId} className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{order.orderId}</span>
+                            <Badge variant={getStatusColor(order.status)}>
+                              {order.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">{order.customer}</p>
+                        </div>
+                        <span className="font-semibold text-primary">{order.value}</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-muted-foreground flex items-center gap-1">
+                            <Package className="h-3 w-3" /> Product
+                          </p>
+                          <p className="font-medium">{order.product}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> Deadline
+                          </p>
+                          <p className={`font-medium ${order.deadline.includes("Today") ? "text-orange-600" : ""}`}>
+                            {order.deadline}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-muted-foreground flex items-center gap-1">
+                            <MapPin className="h-3 w-3" /> Delivery Address
+                          </p>
+                          <p className="font-medium">{order.deliveryAddress}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewOrdersDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
