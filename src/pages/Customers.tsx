@@ -93,9 +93,8 @@ export default function Customers() {
 
   const stats = [
     { label: "Total Customers", value: "2,847", change: "+12.5%", changePositive: true },
-    { label: "Active This Month", value: "1,923", change: "+8.2%", changePositive: true },
-    { label: "New This Month", value: "156", change: "+15.3%", changePositive: true },
-    { label: "Avg Order Value", value: "KD 28.50", change: "+3.1%", changePositive: true },
+    { label: "Total Revenue", value: "KD 45,230", change: "+8.2%", changePositive: true },
+    { label: "Orders This Month", value: "342", change: "+15.3%", changePositive: true },
   ];
 
   const customers = [
