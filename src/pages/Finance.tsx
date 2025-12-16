@@ -7,13 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Search, Filter, Download, CreditCard, Banknote, Smartphone, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, RotateCcw, Clock, CheckCircle, XCircle, AlertCircle, Eye, MoreHorizontal } from "lucide-react";
+import { Search, Filter, Download, CreditCard, Banknote, Smartphone, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, RotateCcw, Clock, CheckCircle, XCircle, AlertCircle, Eye, MoreHorizontal, Building2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Finance() {
   const [invoiceStatusFilter, setInvoiceStatusFilter] = useState("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [refundStatusFilter, setRefundStatusFilter] = useState("all");
+  const [segmentFilter, setSegmentFilter] = useState<"all" | "b2b" | "customer">("all");
+
   const invoices = [
     {
       id: "INV-001",
@@ -22,14 +24,16 @@ export default function Finance() {
       status: "Paid",
       date: "2024-01-15",
       dueDate: "2024-01-30",
+      segment: "customer" as const,
     },
     {
       id: "INV-002",
-      customer: "Omar Hassan",
-      amount: "KD 32.750",
+      customer: "Gulf Trading Co.",
+      amount: "KD 1,250.000",
       status: "Pending",
       date: "2024-01-14",
       dueDate: "2024-01-29",
+      segment: "b2b" as const,
     },
     {
       id: "INV-003",
@@ -38,14 +42,16 @@ export default function Finance() {
       status: "Overdue",
       date: "2024-01-10",
       dueDate: "2024-01-25",
+      segment: "customer" as const,
     },
     {
       id: "INV-004",
-      customer: "Hasan Al-Rashid",
-      amount: "KD 28.500",
+      customer: "Kuwait Printing Services",
+      amount: "KD 3,450.000",
       status: "Paid",
       date: "2024-01-12",
       dueDate: "2024-01-27",
+      segment: "b2b" as const,
     },
     {
       id: "INV-005",
@@ -54,6 +60,16 @@ export default function Finance() {
       status: "Pending",
       date: "2024-01-13",
       dueDate: "2024-01-28",
+      segment: "customer" as const,
+    },
+    {
+      id: "INV-006",
+      customer: "Al-Salam Enterprises",
+      amount: "KD 2,890.500",
+      status: "Paid",
+      date: "2024-01-11",
+      dueDate: "2024-01-26",
+      segment: "b2b" as const,
     },
   ];
 
@@ -68,17 +84,19 @@ export default function Finance() {
       date: "2024-01-15",
       time: "14:32:05",
       orderId: "ORD-1234",
+      segment: "customer" as const,
     },
     {
       id: "PAY-002",
-      customer: "Hasan Al-Rashid",
-      amount: "KD 28.500",
-      method: "KNET",
-      cardLast4: "8821",
+      customer: "Gulf Trading Co.",
+      amount: "KD 1,250.000",
+      method: "Bank Transfer",
+      cardLast4: null,
       status: "Completed",
       date: "2024-01-15",
       time: "12:18:43",
       orderId: "ORD-1235",
+      segment: "b2b" as const,
     },
     {
       id: "PAY-003",
@@ -90,39 +108,43 @@ export default function Finance() {
       date: "2024-01-14",
       time: "16:45:22",
       orderId: "ORD-1236",
+      segment: "customer" as const,
     },
     {
       id: "PAY-004",
-      customer: "Layla Al-Ahmad",
-      amount: "KD 89.250",
-      method: "Credit Card",
-      cardLast4: "7654",
+      customer: "Kuwait Printing Services",
+      amount: "KD 3,450.000",
+      method: "Bank Transfer",
+      cardLast4: null,
       status: "Completed",
       date: "2024-01-14",
       time: "10:22:17",
       orderId: "ORD-1237",
+      segment: "b2b" as const,
     },
     {
       id: "PAY-005",
       customer: "Mohammed Al-Sabah",
       amount: "KD 156.000",
-      method: "Bank Transfer",
-      cardLast4: null,
+      method: "Credit Card",
+      cardLast4: "7654",
       status: "Processing",
       date: "2024-01-14",
       time: "09:15:33",
       orderId: "ORD-1238",
+      segment: "customer" as const,
     },
     {
       id: "PAY-006",
-      customer: "Sara Al-Mutairi",
-      amount: "KD 42.750",
-      method: "KNET",
-      cardLast4: "3345",
-      status: "Failed",
+      customer: "Al-Salam Enterprises",
+      amount: "KD 2,890.500",
+      method: "Bank Transfer",
+      cardLast4: null,
+      status: "Completed",
       date: "2024-01-13",
       time: "18:55:12",
       orderId: "ORD-1239",
+      segment: "b2b" as const,
     },
     {
       id: "PAY-007",
@@ -134,22 +156,110 @@ export default function Finance() {
       date: "2024-01-13",
       time: "15:30:45",
       orderId: "ORD-1240",
+      segment: "customer" as const,
     },
   ];
+
+  const refunds = [
+    {
+      id: "REF-001",
+      customer: "Sara Al-Mutairi",
+      orderId: "ORD-1239",
+      amount: "KD 42.750",
+      reason: "Payment Failed",
+      reasonIcon: AlertCircle,
+      reasonIconColor: "text-yellow-500",
+      status: "Pending",
+      date: "2024-01-15",
+      time: "10:45 AM",
+      segment: "customer" as const,
+    },
+    {
+      id: "REF-002",
+      customer: "Gulf Trading Co.",
+      orderId: "ORD-1225",
+      amount: "KD 890.000",
+      reason: "Order Cancelled",
+      reasonIcon: XCircle,
+      reasonIconColor: "text-red-500",
+      status: "Pending",
+      date: "2024-01-14",
+      time: "3:22 PM",
+      segment: "b2b" as const,
+    },
+    {
+      id: "REF-003",
+      customer: "Omar Hassan",
+      orderId: "ORD-1218",
+      amount: "KD 32.750",
+      reason: "Defective Product",
+      reasonIcon: XCircle,
+      reasonIconColor: "text-red-500",
+      status: "Approved",
+      date: "2024-01-13",
+      time: "11:30 AM",
+      segment: "customer" as const,
+    },
+    {
+      id: "REF-004",
+      customer: "Al-Salam Enterprises",
+      orderId: "ORD-1210",
+      amount: "KD 1,450.000",
+      reason: "Wrong Specifications",
+      reasonIcon: AlertCircle,
+      reasonIconColor: "text-yellow-500",
+      status: "Approved",
+      date: "2024-01-12",
+      time: "2:15 PM",
+      segment: "b2b" as const,
+    },
+  ];
+
+  // Filter data based on segment
+  const filteredInvoices = invoices.filter(inv => segmentFilter === "all" || inv.segment === segmentFilter);
+  const filteredPayments = payments.filter(pay => segmentFilter === "all" || pay.segment === segmentFilter);
+  const filteredRefunds = refunds.filter(ref => segmentFilter === "all" || ref.segment === segmentFilter);
+
+  // Calculate segment-specific stats
+  const getSegmentStats = () => {
+    if (segmentFilter === "b2b") {
+      return {
+        totalReceived: "KD 7,590.500",
+        totalReceivedChange: "+18.2%",
+        pendingPayments: "KD 1,250.000",
+        pendingChange: "-5.4%",
+      };
+    } else if (segmentFilter === "customer") {
+      return {
+        totalReceived: "KD 4,860.000",
+        totalReceivedChange: "+8.7%",
+        pendingPayments: "KD 1,090.000",
+        pendingChange: "-1.2%",
+      };
+    }
+    return {
+      totalReceived: "KD 12,450.500",
+      totalReceivedChange: "+12.5%",
+      pendingPayments: "KD 2,340.000",
+      pendingChange: "-3.1%",
+    };
+  };
+
+  const segmentStats = getSegmentStats();
 
   const paymentStats = [
     {
       title: "Total Received",
-      value: "KD 12,450.500",
-      change: "+12.5%",
-      trend: "up",
+      value: segmentStats.totalReceived,
+      change: segmentStats.totalReceivedChange,
+      trend: "up" as const,
       icon: DollarSign,
     },
     {
       title: "Pending Payments",
-      value: "KD 2,340.000",
-      change: "-3.1%",
-      trend: "down",
+      value: segmentStats.pendingPayments,
+      change: segmentStats.pendingChange,
+      trend: "down" as const,
       icon: TrendingDown,
     },
   ];
@@ -188,8 +298,38 @@ export default function Finance() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold">Finance</h1>
+        
+        {/* Segment Toggle */}
+        <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+          <Button
+            variant={segmentFilter === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setSegmentFilter("all")}
+            className="gap-2"
+          >
+            All
+          </Button>
+          <Button
+            variant={segmentFilter === "b2b" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setSegmentFilter("b2b")}
+            className="gap-2"
+          >
+            <Building2 className="h-4 w-4" />
+            B2B
+          </Button>
+          <Button
+            variant={segmentFilter === "customer" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setSegmentFilter("customer")}
+            className="gap-2"
+          >
+            <Users className="h-4 w-4" />
+            Customers
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="invoices" className="space-y-6">
@@ -240,7 +380,7 @@ export default function Finance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {invoices
+                  {filteredInvoices
                     .filter((invoice) => invoiceStatusFilter === "all" || invoice.status === invoiceStatusFilter)
                     .map((invoice) => (
                     <TableRow key={invoice.id}>
@@ -338,7 +478,7 @@ export default function Finance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {payments
+                  {filteredPayments
                     .filter((payment) => paymentStatusFilter === "all" || payment.status === paymentStatusFilter)
                     .map((payment) => (
                     <TableRow key={payment.id}>
@@ -480,226 +620,58 @@ export default function Finance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-001</TableCell>
-                    <TableCell>Sara Al-Mutairi</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1239</TableCell>
-                    <TableCell className="font-medium">KD 42.750</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 text-yellow-500" />
-                        <span>Payment Failed</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Pending</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-15</div>
-                        <div className="text-xs text-muted-foreground">10:45 AM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="text-emerald-600" onClick={() => toast.success("Refund REF-001 approved")}>
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600" onClick={() => toast.success("Refund REF-001 rejected")}>
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Reject
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-002</TableCell>
-                    <TableCell>Omar Hassan</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1225</TableCell>
-                    <TableCell className="font-medium">KD 89.000</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <XCircle className="h-4 w-4 text-red-500" />
-                        <span>Defective Product</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20">Pending</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-14</div>
-                        <div className="text-xs text-muted-foreground">3:22 PM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="text-emerald-600" onClick={() => toast.success("Refund REF-002 approved")}>
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600" onClick={() => toast.success("Refund REF-002 rejected")}>
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Reject
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-003</TableCell>
-                    <TableCell>Layla Al-Ahmad</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1210</TableCell>
-                    <TableCell className="font-medium">KD 156.500</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <RotateCcw className="h-4 w-4 text-blue-500" />
-                        <span>Changed Mind</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Approved</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-13</div>
-                        <div className="text-xs text-muted-foreground">11:15 AM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-004</TableCell>
-                    <TableCell>Mohammed Al-Sabah</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1198</TableCell>
-                    <TableCell className="font-medium">KD 67.250</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-500" />
-                        <span>Late Delivery</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-blue-500/10 text-blue-700 hover:bg-blue-500/20">Processing</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-12</div>
-                        <div className="text-xs text-muted-foreground">2:30 PM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-005</TableCell>
-                    <TableCell>Noura Al-Sabah</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1185</TableCell>
-                    <TableCell className="font-medium">KD 34.000</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <XCircle className="h-4 w-4 text-red-500" />
-                        <span>Wrong Item</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-red-500/10 text-red-700 hover:bg-red-500/20">Rejected</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-10</div>
-                        <div className="text-xs text-muted-foreground">9:45 AM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">REF-006</TableCell>
-                    <TableCell>Hasan Al-Rashid</TableCell>
-                    <TableCell className="text-muted-foreground">ORD-1172</TableCell>
-                    <TableCell className="font-medium">KD 245.000</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 text-yellow-500" />
-                        <span>Print Quality Issue</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20">Refunded</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">2024-01-08</div>
-                        <div className="text-xs text-muted-foreground">4:10 PM</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  {filteredRefunds
+                    .filter((refund) => refundStatusFilter === "all" || refund.status === refundStatusFilter)
+                    .map((refund) => (
+                    <TableRow key={refund.id}>
+                      <TableCell className="font-medium">{refund.id}</TableCell>
+                      <TableCell>{refund.customer}</TableCell>
+                      <TableCell className="text-muted-foreground">{refund.orderId}</TableCell>
+                      <TableCell className="font-medium">{refund.amount}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <refund.reasonIcon className={`h-4 w-4 ${refund.reasonIconColor}`} />
+                          <span>{refund.reason}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(refund.status)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm">{refund.date}</div>
+                          <div className="text-xs text-muted-foreground">{refund.time}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          {refund.status === "Pending" && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem className="text-emerald-600" onClick={() => toast.success(`Refund ${refund.id} approved`)}>
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600" onClick={() => toast.success(`Refund ${refund.id} rejected`)}>
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Reject
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </CardContent>
