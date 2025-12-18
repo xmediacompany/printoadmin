@@ -208,6 +208,11 @@ export default function Marketing() {
   const [customCouponServiceInput, setCustomCouponServiceInput] = useState("");
   const [showCustomCouponProductInput, setShowCustomCouponProductInput] = useState(false);
   const [showCustomCouponServiceInput, setShowCustomCouponServiceInput] = useState(false);
+  const [selectedEditCampaignProducts, setSelectedEditCampaignProducts] = useState<string[]>([]);
+  const [showEditCustomProductInput, setShowEditCustomProductInput] = useState(false);
+  const [showEditCustomServiceInput, setShowEditCustomServiceInput] = useState(false);
+  const [editCustomProductInput, setEditCustomProductInput] = useState("");
+  const [editCustomServiceInput, setEditCustomServiceInput] = useState("");
 
   const addCustomProduct = (name: string, category: "Products" | "Services", forCoupon: boolean = false) => {
     if (!name.trim()) return;
@@ -360,6 +365,7 @@ export default function Marketing() {
     setSelectedCampaign({ ...campaign });
     setEditStartDate(new Date(campaign.startDate));
     setEditEndDate(new Date(campaign.endDate));
+    setSelectedEditCampaignProducts(campaign.selectedProducts || []);
     setEditCampaignOpen(true);
   };
 
@@ -369,16 +375,23 @@ export default function Marketing() {
       toast.error("Please select start and end dates");
       return;
     }
+    if (selectedCampaign.targetScope === "specific" && selectedEditCampaignProducts.length === 0) {
+      toast.error("Please select at least one product or service");
+      return;
+    }
     
     const updatedCampaign = {
       ...selectedCampaign,
+      name: `${selectedCampaign.type} Campaign`,
       startDate: format(editStartDate, "yyyy-MM-dd"),
       endDate: format(editEndDate, "yyyy-MM-dd"),
+      selectedProducts: selectedCampaign.targetScope === "specific" ? selectedEditCampaignProducts : undefined,
     };
     
     setCampaigns(prev => prev.map(c => c.id === selectedCampaign.id ? updatedCampaign : c));
     setEditCampaignOpen(false);
     setSelectedCampaign(null);
+    setSelectedEditCampaignProducts([]);
     toast.success("Campaign updated successfully");
   };
 
@@ -1040,7 +1053,13 @@ export default function Marketing() {
                   <Label>Campaign Type</Label>
                   <Select 
                     value={selectedCampaign.type} 
-                    onValueChange={(value) => setSelectedCampaign({ ...selectedCampaign, type: value, name: `${value} Campaign` })}
+                    onValueChange={(value) => {
+                      if (value === "__add_custom__") {
+                        setShowCustomTypeInput(true);
+                      } else {
+                        setSelectedCampaign({ ...selectedCampaign, type: value, name: `${value} Campaign` });
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1049,8 +1068,48 @@ export default function Marketing() {
                       {campaignTypes.map((type) => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
+                      <SelectItem value="__add_custom__" className="text-primary font-medium">
+                        <span className="flex items-center gap-2">
+                          <Plus className="h-3 w-3" />
+                          Add Custom Type
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
+                  {showCustomTypeInput && (
+                    <div className="flex gap-2 mt-2">
+                      <Input
+                        placeholder="Enter custom type..."
+                        value={customTypeInput}
+                        onChange={(e) => setCustomTypeInput(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button 
+                        size="sm" 
+                        onClick={() => {
+                          if (customTypeInput.trim()) {
+                            setCampaignTypes(prev => [...prev, customTypeInput.trim()]);
+                            setSelectedCampaign({ ...selectedCampaign, type: customTypeInput.trim(), name: `${customTypeInput.trim()} Campaign` });
+                            setCustomTypeInput("");
+                            setShowCustomTypeInput(false);
+                            toast.success("Custom type added!");
+                          }
+                        }}
+                      >
+                        Add
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setCustomTypeInput("");
+                          setShowCustomTypeInput(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Status</Label>
@@ -1127,11 +1186,254 @@ export default function Marketing() {
                 </div>
               </div>
 
+              {/* Coupon Details */}
+              <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Tag className="h-4 w-4" />
+                  Coupon Details
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Coupon Code</Label>
+                    <Input 
+                      placeholder="e.g., SUMMER20"
+                      value={selectedCampaign.couponCode || ""}
+                      onChange={(e) => setSelectedCampaign({ ...selectedCampaign, couponCode: e.target.value.toUpperCase() })}
+                      className="font-mono uppercase"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Discount Value</Label>
+                    <Input 
+                      placeholder="e.g., 20% or 5 KD"
+                      value={selectedCampaign.discountValue || ""}
+                      onChange={(e) => setSelectedCampaign({ ...selectedCampaign, discountValue: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Target Products/Services */}
+              <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  Target Products/Services
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCampaign({ ...selectedCampaign, targetScope: "all" });
+                      setSelectedEditCampaignProducts([]);
+                    }}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                      selectedCampaign.targetScope === "all" 
+                        ? "border-primary bg-primary/5" 
+                        : "border-border hover:border-muted-foreground/50"
+                    )}
+                  >
+                    <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                    <div className="text-left">
+                      <div className="font-medium">All Products</div>
+                      <div className="text-xs text-muted-foreground">Apply to everything</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCampaign({ ...selectedCampaign, targetScope: "specific" })}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                      selectedCampaign.targetScope === "specific" 
+                        ? "border-primary bg-primary/5" 
+                        : "border-border hover:border-muted-foreground/50"
+                    )}
+                  >
+                    <Package className="h-5 w-5 text-muted-foreground" />
+                    <div className="text-left">
+                      <div className="font-medium">Specific Items</div>
+                      <div className="text-xs text-muted-foreground">Select products/services</div>
+                    </div>
+                  </button>
+                </div>
+                
+                {selectedCampaign.targetScope === "specific" && (
+                  <div className="space-y-3 mt-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Select Products & Services</Label>
+                      {selectedEditCampaignProducts.length > 0 && (
+                        <Badge variant="secondary">{selectedEditCampaignProducts.length} selected</Badge>
+                      )}
+                    </div>
+                    
+                    {/* Products */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Products</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {availableProducts.filter(p => p.category === "Products").map((product) => (
+                          <label
+                            key={product.id}
+                            className={cn(
+                              "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                              selectedEditCampaignProducts.includes(product.name)
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:bg-muted/50"
+                            )}
+                          >
+                            <Checkbox
+                              checked={selectedEditCampaignProducts.includes(product.name)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedEditCampaignProducts([...selectedEditCampaignProducts, product.name]);
+                                } else {
+                                  setSelectedEditCampaignProducts(selectedEditCampaignProducts.filter(p => p !== product.name));
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{product.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {!showEditCustomProductInput ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                          onClick={() => setShowEditCustomProductInput(true)}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Extra Product
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            placeholder="Enter product name..."
+                            value={editCustomProductInput}
+                            onChange={(e) => setEditCustomProductInput(e.target.value)}
+                            className="flex-1 h-8 text-sm"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="h-8"
+                            onClick={() => {
+                              if (editCustomProductInput.trim()) {
+                                const newId = String(availableProducts.length + 1);
+                                setAvailableProducts(prev => [...prev, { id: newId, name: editCustomProductInput.trim(), category: "Products" }]);
+                                setSelectedEditCampaignProducts(prev => [...prev, editCustomProductInput.trim()]);
+                                toast.success("Product added!");
+                              }
+                              setEditCustomProductInput("");
+                              setShowEditCustomProductInput(false);
+                            }}
+                          >
+                            <Check className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8"
+                            onClick={() => {
+                              setEditCustomProductInput("");
+                              setShowEditCustomProductInput(false);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Services */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Services</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {availableProducts.filter(p => p.category === "Services").map((product) => (
+                          <label
+                            key={product.id}
+                            className={cn(
+                              "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                              selectedEditCampaignProducts.includes(product.name)
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:bg-muted/50"
+                            )}
+                          >
+                            <Checkbox
+                              checked={selectedEditCampaignProducts.includes(product.name)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedEditCampaignProducts([...selectedEditCampaignProducts, product.name]);
+                                } else {
+                                  setSelectedEditCampaignProducts(selectedEditCampaignProducts.filter(p => p !== product.name));
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{product.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {!showEditCustomServiceInput ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                          onClick={() => setShowEditCustomServiceInput(true)}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Extra Service
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            placeholder="Enter service name..."
+                            value={editCustomServiceInput}
+                            onChange={(e) => setEditCustomServiceInput(e.target.value)}
+                            className="flex-1 h-8 text-sm"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="h-8"
+                            onClick={() => {
+                              if (editCustomServiceInput.trim()) {
+                                const newId = String(availableProducts.length + 1);
+                                setAvailableProducts(prev => [...prev, { id: newId, name: editCustomServiceInput.trim(), category: "Services" }]);
+                                setSelectedEditCampaignProducts(prev => [...prev, editCustomServiceInput.trim()]);
+                                toast.success("Service added!");
+                              }
+                              setEditCustomServiceInput("");
+                              setShowEditCustomServiceInput(false);
+                            }}
+                          >
+                            <Check className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8"
+                            onClick={() => {
+                              setEditCustomServiceInput("");
+                              setShowEditCustomServiceInput(false);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Description */}
               <div className="space-y-2">
-                <Label>Description</Label>
+                <Label>Campaign Description</Label>
                 <Textarea 
-                  placeholder="Campaign description..."
+                  placeholder="Describe your campaign objectives and target audience..."
                   value={selectedCampaign.description || ""}
                   onChange={(e) => setSelectedCampaign({ ...selectedCampaign, description: e.target.value })}
                   rows={3}
