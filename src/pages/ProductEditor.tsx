@@ -471,34 +471,33 @@ const ProductEditor = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
-                      <Select
-                        value={editingProduct.category}
-                        onValueChange={(value) =>
-                          setEditingProduct({ ...editingProduct, category: value })
+                    <Select
+                      value={editingProduct.category}
+                      onValueChange={(value) => {
+                        if (value === "__add_custom__") {
+                          setIsAddingCategory(true);
+                        } else {
+                          setEditingProduct({ ...editingProduct, category: value });
                         }
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {cat}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="outline"
-                        onClick={() => setIsAddingCategory(true)}
-                        title="Add new category"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="__add_custom__" className="text-primary font-medium">
+                          <span className="flex items-center gap-2">
+                            <Plus className="h-3 w-3" />
+                            Add Extra Category
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
               </div>
