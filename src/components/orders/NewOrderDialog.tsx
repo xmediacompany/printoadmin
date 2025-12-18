@@ -23,6 +23,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { 
@@ -43,9 +44,21 @@ import {
   Minus,
   ArrowRight,
   ArrowLeft,
-  Palette
+  Palette,
+  X,
+  Check
 } from "lucide-react";
 import { toast } from "sonner";
+
+interface ProductWithQuantity {
+  id: string;
+  name: string;
+  basePrice: number;
+  unit: string;
+  categoryId: string;
+  categoryName: string;
+  quantity: number;
+}
 
 interface OrderData {
   customer?: string;
@@ -155,16 +168,8 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
     }
     return null;
   });
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(() => {
-    if (orderData?.product) {
-      for (const cat of productCategories) {
-        const found = cat.products.find(p => p.name === orderData.product);
-        if (found) return found;
-      }
-    }
-    return null;
-  });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ProductWithQuantity[]>([]);
   const [quantity, setQuantity] = useState(orderData?.quantity || 100);
   const [deadline, setDeadline] = useState<Date | undefined>(orderData?.deadline);
   const [priority, setPriority] = useState("Normal");
@@ -178,14 +183,59 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
   const [customHexInput, setCustomHexInput] = useState("");
   const [showCustomColorInput, setShowCustomColorInput] = useState(false);
 
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const toggleProduct = (product: any, categoryId: string, categoryName: string) => {
+    setSelectedProducts(prev => {
+      const exists = prev.find(p => p.id === product.id);
+      if (exists) {
+        return prev.filter(p => p.id !== product.id);
+      }
+      return [...prev, { 
+        ...product, 
+        categoryId, 
+        categoryName,
+        quantity: 100 
+      }];
+    });
+  };
+
+  const updateProductQuantity = (productId: string, newQuantity: number) => {
+    setSelectedProducts(prev => 
+      prev.map(p => p.id === productId ? { ...p, quantity: Math.max(1, newQuantity) } : p)
+    );
+  };
+
+  const removeProduct = (productId: string) => {
+    setSelectedProducts(prev => prev.filter(p => p.id !== productId));
+  };
+
+  const getAvailableProducts = () => {
+    return productCategories
+      .filter(cat => selectedCategories.includes(cat.id))
+      .flatMap(cat => cat.products.map(p => ({ 
+        ...p, 
+        categoryId: cat.id, 
+        categoryName: cat.name 
+      })));
+  };
+
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
     c.email.toLowerCase().includes(customerSearch.toLowerCase())
   );
 
   const calculateTotal = () => {
-    if (!selectedProduct) return 0;
-    let total = selectedProduct.basePrice * (quantity / 100);
+    if (selectedProducts.length === 0) return "0.00";
+    let total = selectedProducts.reduce((sum, product) => {
+      return sum + (product.basePrice * (product.quantity / 100));
+    }, 0);
     if (finishing !== "None") total += total * 0.15;
     if (priority === "Urgent") total += total * 0.25;
     if (priority === "High") total += total * 0.1;
@@ -197,8 +247,8 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
       toast.error("Please select a customer");
       return;
     }
-    if (currentStep === 2 && !selectedProduct) {
-      toast.error("Please select a product");
+    if (currentStep === 2 && selectedProducts.length === 0) {
+      toast.error("Please select at least one product");
       return;
     }
     if (currentStep === 3 && !deadline) {
@@ -213,10 +263,11 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
   };
 
   const handleSubmit = () => {
+    const productSummary = selectedProducts.map(p => `${p.name} (${p.quantity})`).join(", ");
     const newOrder = {
       id: `ORD-${10235 + Math.floor(Math.random() * 100)}`,
       customer: selectedCustomer?.name,
-      product: `${selectedProduct?.name} (${quantity}${selectedProduct?.unit.includes("per") ? "pcs" : ""})`,
+      product: productSummary,
       status: "Prepress",
       priority,
       created: "Just now",
@@ -233,8 +284,8 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
   const resetForm = () => {
     setCurrentStep(1);
     setSelectedCustomer(null);
-    setSelectedCategory(null);
-    setSelectedProduct(null);
+    setSelectedCategories([]);
+    setSelectedProducts([]);
     setQuantity(100);
     setDeadline(undefined);
     setPriority("Normal");
@@ -392,62 +443,146 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
             </div>
           )}
 
-          {/* Step 2: Product Selection */}
+          {/* Step 2: Multi-Select Categories & Products */}
           {currentStep === 2 && (
-            <div className="space-y-4">
-              {!selectedCategory ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {productCategories.map((category) => (
-                    <div
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className="p-6 rounded-xl border-2 cursor-pointer transition-all hover:border-primary/50 hover:bg-primary/5 text-center"
-                    >
-                      <div className="w-14 h-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <category.icon className="h-7 w-7 text-primary" />
+            <div className="space-y-6">
+              {/* Category Selection */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Select Categories</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {productCategories.map((category) => {
+                    const isSelected = selectedCategories.includes(category.id);
+                    return (
+                      <div
+                        key={category.id}
+                        onClick={() => toggleCategory(category.id)}
+                        className={cn(
+                          "p-4 rounded-xl border-2 cursor-pointer transition-all hover:border-primary/50",
+                          isSelected ? "border-primary bg-primary/5" : "border-border"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center",
+                            isSelected ? "bg-primary text-primary-foreground" : "bg-primary/10"
+                          )}>
+                            {isSelected ? (
+                              <Check className="h-5 w-5" />
+                            ) : (
+                              <category.icon className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{category.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {category.products.length} products
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <p className="font-medium">{category.name}</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {category.products.length} products
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => {
-                      setSelectedCategory(null);
-                      setSelectedProduct(null);
-                    }}
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back to categories
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {productCategories
-                      .find(c => c.id === selectedCategory)
-                      ?.products.map((product) => (
+              </div>
+
+              {/* Product Selection */}
+              {selectedCategories.length > 0 && (
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Select Products</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[200px] overflow-y-auto pr-2">
+                    {getAvailableProducts().map((product) => {
+                      const isSelected = selectedProducts.some(p => p.id === product.id);
+                      return (
                         <div
                           key={product.id}
-                          onClick={() => setSelectedProduct(product)}
+                          onClick={() => toggleProduct(product, product.categoryId, product.categoryName)}
                           className={cn(
-                            "p-4 rounded-lg border-2 cursor-pointer transition-all hover:border-primary/50",
-                            selectedProduct?.id === product.id 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
+                            "p-3 rounded-lg border-2 cursor-pointer transition-all hover:border-primary/50 relative",
+                            isSelected ? "border-primary bg-primary/5" : "border-border"
                           )}
                         >
-                          <p className="font-medium text-sm">{product.name}</p>
-                          <p className="text-primary font-semibold mt-1">
+                          {isSelected && (
+                            <div className="absolute top-2 right-2">
+                              <Check className="h-4 w-4 text-primary" />
+                            </div>
+                          )}
+                          <p className="font-medium text-sm pr-6">{product.name}</p>
+                          <p className="text-primary font-semibold text-sm mt-1">
                             KD {product.basePrice}
                           </p>
                           <p className="text-xs text-muted-foreground">{product.unit}</p>
+                          <Badge variant="outline" className="mt-2 text-xs">
+                            {product.categoryName}
+                          </Badge>
                         </div>
-                      ))}
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Products Summary with Quantity Controls */}
+              {selectedProducts.length > 0 && (
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    Selected Products ({selectedProducts.length})
+                  </Label>
+                  <div className="space-y-2 max-h-[180px] overflow-y-auto pr-2">
+                    {selectedProducts.map((product) => (
+                      <div 
+                        key={product.id} 
+                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            KD {product.basePrice} {product.unit}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateProductQuantity(product.id, product.quantity - 50);
+                            }}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <Input
+                            type="number"
+                            value={product.quantity}
+                            onChange={(e) => updateProductQuantity(product.id, Number(e.target.value))}
+                            className="w-16 h-7 text-center text-sm"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateProductQuantity(product.id, product.quantity + 50);
+                            }}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeProduct(product.id);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -651,11 +786,6 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
                     <p className="text-xs text-muted-foreground">{selectedCustomer?.email}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Product</p>
-                    <p className="font-medium">{selectedProduct?.name}</p>
-                    <p className="text-xs text-muted-foreground">Qty: {quantity}</p>
-                  </div>
-                  <div>
                     <p className="text-muted-foreground">Priority</p>
                     <Badge variant={priority === "Urgent" ? "destructive" : "secondary"}>
                       {priority}
@@ -703,6 +833,32 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
                   )}
                 </div>
 
+                {/* Products Summary */}
+                <div className="pt-3 border-t">
+                  <p className="text-muted-foreground text-sm mb-2">
+                    Products ({selectedProducts.length})
+                  </p>
+                  <div className="space-y-2">
+                    {selectedProducts.map((product) => (
+                      <div 
+                        key={product.id}
+                        className="flex items-center justify-between p-2 rounded bg-background"
+                      >
+                        <div>
+                          <p className="font-medium text-sm">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">{product.categoryName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-sm">Qty: {product.quantity}</p>
+                          <p className="text-xs text-muted-foreground">
+                            KD {(product.basePrice * (product.quantity / 100)).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {notes && (
                   <div className="pt-2 border-t">
                     <p className="text-muted-foreground text-sm">Notes</p>
@@ -718,7 +874,7 @@ export function NewOrderDialog({ open, onOpenChange, onOrderCreated, editMode = 
                     <p className="text-3xl font-bold text-primary">KD {calculateTotal()}</p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>Base: KD {selectedProduct?.basePrice} {selectedProduct?.unit}</p>
+                    <p>{selectedProducts.length} product(s)</p>
                     {finishing !== "None" && <p>Finishing: +15%</p>}
                     {priority === "Urgent" && <p>Urgent: +25%</p>}
                     {priority === "High" && <p>High Priority: +10%</p>}
