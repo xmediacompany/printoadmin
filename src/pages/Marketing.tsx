@@ -184,7 +184,7 @@ export default function Marketing() {
   });
   
   // Products and services available for targeting
-  const [availableProducts] = useState<Product[]>([
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([
     { id: "1", name: "Business Cards", category: "Products" },
     { id: "2", name: "Flyers", category: "Products" },
     { id: "3", name: "Brochures", category: "Products" },
@@ -200,6 +200,26 @@ export default function Marketing() {
   ]);
   const [selectedCampaignProducts, setSelectedCampaignProducts] = useState<string[]>([]);
   const [selectedCouponProducts, setSelectedCouponProducts] = useState<string[]>([]);
+  const [customProductInput, setCustomProductInput] = useState("");
+  const [customServiceInput, setCustomServiceInput] = useState("");
+  const [showCustomProductInput, setShowCustomProductInput] = useState(false);
+  const [showCustomServiceInput, setShowCustomServiceInput] = useState(false);
+  const [customCouponProductInput, setCustomCouponProductInput] = useState("");
+  const [customCouponServiceInput, setCustomCouponServiceInput] = useState("");
+  const [showCustomCouponProductInput, setShowCustomCouponProductInput] = useState(false);
+  const [showCustomCouponServiceInput, setShowCustomCouponServiceInput] = useState(false);
+
+  const addCustomProduct = (name: string, category: "Products" | "Services", forCoupon: boolean = false) => {
+    if (!name.trim()) return;
+    const newId = String(availableProducts.length + 1);
+    setAvailableProducts(prev => [...prev, { id: newId, name: name.trim(), category }]);
+    if (forCoupon) {
+      setSelectedCouponProducts(prev => [...prev, name.trim()]);
+    } else {
+      setSelectedCampaignProducts(prev => [...prev, name.trim()]);
+    }
+    toast.success(`${category === "Products" ? "Product" : "Service"} added!`);
+  };
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [editStartDate, setEditStartDate] = useState<Date>();
@@ -856,6 +876,51 @@ export default function Marketing() {
                         </label>
                       ))}
                     </div>
+                    {!showCustomProductInput ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setShowCustomProductInput(true)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Extra Product
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Enter product name..."
+                          value={customProductInput}
+                          onChange={(e) => setCustomProductInput(e.target.value)}
+                          className="flex-1 h-8 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            addCustomProduct(customProductInput, "Products");
+                            setCustomProductInput("");
+                            setShowCustomProductInput(false);
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            setCustomProductInput("");
+                            setShowCustomProductInput(false);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Services */}
@@ -886,6 +951,51 @@ export default function Marketing() {
                         </label>
                       ))}
                     </div>
+                    {!showCustomServiceInput ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setShowCustomServiceInput(true)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Extra Service
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Enter service name..."
+                          value={customServiceInput}
+                          onChange={(e) => setCustomServiceInput(e.target.value)}
+                          className="flex-1 h-8 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            addCustomProduct(customServiceInput, "Services");
+                            setCustomServiceInput("");
+                            setShowCustomServiceInput(false);
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            setCustomServiceInput("");
+                            setShowCustomServiceInput(false);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1284,6 +1394,51 @@ export default function Marketing() {
                         </label>
                       ))}
                     </div>
+                    {!showCustomCouponProductInput ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setShowCustomCouponProductInput(true)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Extra Product
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Enter product name..."
+                          value={customCouponProductInput}
+                          onChange={(e) => setCustomCouponProductInput(e.target.value)}
+                          className="flex-1 h-8 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            addCustomProduct(customCouponProductInput, "Products", true);
+                            setCustomCouponProductInput("");
+                            setShowCustomCouponProductInput(false);
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            setCustomCouponProductInput("");
+                            setShowCustomCouponProductInput(false);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Services */}
@@ -1314,6 +1469,51 @@ export default function Marketing() {
                         </label>
                       ))}
                     </div>
+                    {!showCustomCouponServiceInput ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => setShowCustomCouponServiceInput(true)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Extra Service
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Enter service name..."
+                          value={customCouponServiceInput}
+                          onChange={(e) => setCustomCouponServiceInput(e.target.value)}
+                          className="flex-1 h-8 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            addCustomProduct(customCouponServiceInput, "Services", true);
+                            setCustomCouponServiceInput("");
+                            setShowCustomCouponServiceInput(false);
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => {
+                            setCustomCouponServiceInput("");
+                            setShowCustomCouponServiceInput(false);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
