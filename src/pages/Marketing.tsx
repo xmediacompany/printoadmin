@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2, Settings, Send, Clock, Globe, Palette, Bell, FileText, Package, X, Check } from "lucide-react";
+import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2, Settings, Send, Clock, Globe, Palette, Bell, FileText, Package, X, Check, Phone, AtSign } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
@@ -49,6 +49,7 @@ interface Coupon {
   applicableTo: "all" | "specific";
   targetScope: "all" | "specific";
   selectedProducts?: string[];
+  specificUsers?: { type: "email" | "phone"; value: string }[];
 }
 
 interface Campaign {
@@ -213,6 +214,11 @@ export default function Marketing() {
   const [showEditCustomServiceInput, setShowEditCustomServiceInput] = useState(false);
   const [editCustomProductInput, setEditCustomProductInput] = useState("");
   const [editCustomServiceInput, setEditCustomServiceInput] = useState("");
+  
+  // Specific users for coupons
+  const [specificUsers, setSpecificUsers] = useState<{ type: "email" | "phone"; value: string }[]>([]);
+  const [newUserInput, setNewUserInput] = useState("");
+  const [userInputType, setUserInputType] = useState<"email" | "phone">("email");
 
   const addCustomProduct = (name: string, category: "Products" | "Services", forCoupon: boolean = false) => {
     if (!name.trim()) return;
@@ -274,9 +280,12 @@ export default function Marketing() {
       toast.error("Please select validity dates");
       return;
     }
-
     if (newCoupon.targetScope === "specific" && selectedCouponProducts.length === 0) {
       toast.error("Please select at least one product or service");
+      return;
+    }
+    if (newCoupon.applicableTo === "specific" && specificUsers.length === 0) {
+      toast.error("Please add at least one user");
       return;
     }
 
@@ -294,6 +303,7 @@ export default function Marketing() {
       applicableTo: newCoupon.applicableTo,
       targetScope: newCoupon.targetScope,
       selectedProducts: newCoupon.targetScope === "specific" ? selectedCouponProducts : undefined,
+      specificUsers: newCoupon.applicableTo === "specific" ? specificUsers : undefined,
     };
 
     setCoupons(prev => [...prev, coupon]);
@@ -308,6 +318,7 @@ export default function Marketing() {
       targetScope: "all",
     });
     setSelectedCouponProducts([]);
+    setSpecificUsers([]);
     setCouponStartDate(undefined);
     setCouponEndDate(undefined);
     setAddCouponOpen(false);
@@ -1582,7 +1593,10 @@ export default function Marketing() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setNewCoupon({ ...newCoupon, applicableTo: "all" })}
+                  onClick={() => {
+                    setNewCoupon({ ...newCoupon, applicableTo: "all" });
+                    setSpecificUsers([]);
+                  }}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
                     newCoupon.applicableTo === "all" 
@@ -1613,6 +1627,121 @@ export default function Marketing() {
                   </div>
                 </button>
               </div>
+              
+              {newCoupon.applicableTo === "specific" && (
+                <div className="space-y-3 mt-4 p-4 bg-muted/30 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Add Users by Email or Mobile</Label>
+                    {specificUsers.length > 0 && (
+                      <Badge variant="secondary">{specificUsers.length} user{specificUsers.length > 1 ? 's' : ''}</Badge>
+                    )}
+                  </div>
+                  
+                  {/* Input type toggle */}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={userInputType === "email" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setUserInputType("email")}
+                      className="flex-1"
+                    >
+                      <AtSign className="h-3 w-3 mr-1" />
+                      Email
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={userInputType === "phone" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setUserInputType("phone")}
+                      className="flex-1"
+                    >
+                      <Phone className="h-3 w-3 mr-1" />
+                      Mobile
+                    </Button>
+                  </div>
+                  
+                  {/* Input field */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={userInputType === "email" ? "Enter email address..." : "Enter mobile number..."}
+                      value={newUserInput}
+                      onChange={(e) => setNewUserInput(e.target.value)}
+                      className="flex-1"
+                      type={userInputType === "email" ? "email" : "tel"}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        if (newUserInput.trim()) {
+                          // Basic validation
+                          if (userInputType === "email" && !newUserInput.includes("@")) {
+                            toast.error("Please enter a valid email address");
+                            return;
+                          }
+                          if (userInputType === "phone" && newUserInput.length < 8) {
+                            toast.error("Please enter a valid mobile number");
+                            return;
+                          }
+                          // Check for duplicates
+                          const exists = specificUsers.some(u => u.value === newUserInput.trim());
+                          if (exists) {
+                            toast.error("This user is already added");
+                            return;
+                          }
+                          setSpecificUsers([...specificUsers, { type: userInputType, value: newUserInput.trim() }]);
+                          setNewUserInput("");
+                          toast.success("User added!");
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {/* Users list */}
+                  {specificUsers.length > 0 && (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {specificUsers.map((user, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-background rounded-md border"
+                        >
+                          <div className="flex items-center gap-2">
+                            {user.type === "email" ? (
+                              <AtSign className="h-3 w-3 text-muted-foreground" />
+                            ) : (
+                              <Phone className="h-3 w-3 text-muted-foreground" />
+                            )}
+                            <span className="text-sm">{user.value}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {user.type}
+                            </Badge>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => {
+                              setSpecificUsers(specificUsers.filter((_, i) => i !== index));
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {specificUsers.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      No users added yet. Add users by email or mobile number above.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Target Products/Services */}
