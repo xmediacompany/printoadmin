@@ -14,7 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2, Settings, Send, Clock, Globe, Palette, Bell, FileText } from "lucide-react";
+import { Search, Plus, Target, Tag, Mail, CalendarIcon, Percent, Sparkles, Copy, Gift, Users, ShoppingCart, Edit, Trash2, Settings, Send, Clock, Globe, Palette, Bell, FileText, Package, X, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 interface NewsletterSettings {
@@ -46,6 +47,8 @@ interface Coupon {
   validFrom: string;
   validUntil: string;
   applicableTo: "all" | "specific";
+  targetScope: "all" | "specific";
+  selectedProducts?: string[];
 }
 
 interface Campaign {
@@ -59,6 +62,14 @@ interface Campaign {
   description?: string;
   couponCode?: string;
   discountValue?: string;
+  targetScope: "all" | "specific";
+  selectedProducts?: string[];
+}
+
+interface Product {
+  id: string;
+  name: string;
+  category: "Products" | "Services";
 }
 
 export default function Marketing() {
@@ -71,6 +82,7 @@ export default function Marketing() {
       startDate: "2024-06-01",
       endDate: "2024-08-31",
       usedCoupons: 245,
+      targetScope: "all",
     },
     {
       id: "CAMP-002",
@@ -80,6 +92,7 @@ export default function Marketing() {
       startDate: "2024-01-01",
       endDate: "2024-12-31",
       usedCoupons: 128,
+      targetScope: "all",
     },
     {
       id: "CAMP-003",
@@ -89,6 +102,8 @@ export default function Marketing() {
       startDate: "2024-02-01",
       endDate: "2024-02-28",
       usedCoupons: 0,
+      targetScope: "specific",
+      selectedProducts: ["Business Cards", "Flyers"],
     },
     {
       id: "CAMP-004",
@@ -98,6 +113,7 @@ export default function Marketing() {
       startDate: "2024-03-01",
       endDate: "2024-05-31",
       usedCoupons: 0,
+      targetScope: "all",
     },
   ]);
 
@@ -114,6 +130,7 @@ export default function Marketing() {
       validFrom: "2024-01-01",
       validUntil: "2024-12-31",
       applicableTo: "all",
+      targetScope: "all",
     },
     {
       id: "CPN-002",
@@ -127,6 +144,8 @@ export default function Marketing() {
       validFrom: "2024-01-01",
       validUntil: "2024-12-31",
       applicableTo: "all",
+      targetScope: "specific",
+      selectedProducts: ["Business Cards", "Flyers"],
     },
   ]);
 
@@ -151,6 +170,7 @@ export default function Marketing() {
     description: "",
     couponCode: "",
     discountValue: "",
+    targetScope: "all" as "all" | "specific",
   });
   const [newCoupon, setNewCoupon] = useState({
     code: "",
@@ -160,7 +180,26 @@ export default function Marketing() {
     maxUses: "",
     applicableTo: "all" as "all" | "specific",
     hasExpiry: true,
+    targetScope: "all" as "all" | "specific",
   });
+  
+  // Products and services available for targeting
+  const [availableProducts] = useState<Product[]>([
+    { id: "1", name: "Business Cards", category: "Products" },
+    { id: "2", name: "Flyers", category: "Products" },
+    { id: "3", name: "Brochures", category: "Products" },
+    { id: "4", name: "Posters", category: "Products" },
+    { id: "5", name: "Banners", category: "Products" },
+    { id: "6", name: "Stickers", category: "Products" },
+    { id: "7", name: "T-Shirts", category: "Products" },
+    { id: "8", name: "Mugs", category: "Products" },
+    { id: "9", name: "Design Service", category: "Services" },
+    { id: "10", name: "Express Printing", category: "Services" },
+    { id: "11", name: "Large Format Printing", category: "Services" },
+    { id: "12", name: "Custom Packaging", category: "Services" },
+  ]);
+  const [selectedCampaignProducts, setSelectedCampaignProducts] = useState<string[]>([]);
+  const [selectedCouponProducts, setSelectedCouponProducts] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [editStartDate, setEditStartDate] = useState<Date>();
@@ -211,6 +250,11 @@ export default function Marketing() {
       return;
     }
 
+    if (newCoupon.targetScope === "specific" && selectedCouponProducts.length === 0) {
+      toast.error("Please select at least one product or service");
+      return;
+    }
+
     const coupon: Coupon = {
       id: `CPN-${String(coupons.length + 1).padStart(3, '0')}`,
       code: newCoupon.code.toUpperCase(),
@@ -223,6 +267,8 @@ export default function Marketing() {
       validFrom: couponStartDate ? format(couponStartDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       validUntil: couponEndDate ? format(couponEndDate, "yyyy-MM-dd") : "2099-12-31",
       applicableTo: newCoupon.applicableTo,
+      targetScope: newCoupon.targetScope,
+      selectedProducts: newCoupon.targetScope === "specific" ? selectedCouponProducts : undefined,
     };
 
     setCoupons(prev => [...prev, coupon]);
@@ -234,7 +280,9 @@ export default function Marketing() {
       maxUses: "",
       applicableTo: "all",
       hasExpiry: true,
+      targetScope: "all",
     });
+    setSelectedCouponProducts([]);
     setCouponStartDate(undefined);
     setCouponEndDate(undefined);
     setAddCouponOpen(false);
@@ -251,6 +299,10 @@ export default function Marketing() {
       toast.error("Please select start and end dates");
       return;
     }
+    if (newCampaign.targetScope === "specific" && selectedCampaignProducts.length === 0) {
+      toast.error("Please select at least one product or service");
+      return;
+    }
     
     const campaign: Campaign = {
       id: `CAMP-${String(campaigns.length + 1).padStart(3, '0')}`,
@@ -263,6 +315,8 @@ export default function Marketing() {
       description: newCampaign.description,
       couponCode: newCampaign.couponCode,
       discountValue: newCampaign.discountValue,
+      targetScope: newCampaign.targetScope,
+      selectedProducts: newCampaign.targetScope === "specific" ? selectedCampaignProducts : undefined,
     };
     
     setCampaigns(prev => [...prev, campaign]);
@@ -273,7 +327,9 @@ export default function Marketing() {
       description: "",
       couponCode: "",
       discountValue: "",
+      targetScope: "all",
     });
+    setSelectedCampaignProducts([]);
     setStartDate(undefined);
     setEndDate(undefined);
     setAddCampaignOpen(false);
@@ -719,6 +775,122 @@ export default function Marketing() {
               </div>
             </div>
 
+            {/* Target Products/Services */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Target Products/Services
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewCampaign({ ...newCampaign, targetScope: "all" });
+                    setSelectedCampaignProducts([]);
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCampaign.targetScope === "all" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">All Products</div>
+                    <div className="text-xs text-muted-foreground">Apply to everything</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewCampaign({ ...newCampaign, targetScope: "specific" })}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCampaign.targetScope === "specific" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <Package className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">Specific Items</div>
+                    <div className="text-xs text-muted-foreground">Select products/services</div>
+                  </div>
+                </button>
+              </div>
+              
+              {newCampaign.targetScope === "specific" && (
+                <div className="space-y-3 mt-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Select Products & Services</Label>
+                    {selectedCampaignProducts.length > 0 && (
+                      <Badge variant="secondary">{selectedCampaignProducts.length} selected</Badge>
+                    )}
+                  </div>
+                  
+                  {/* Products */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Products</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableProducts.filter(p => p.category === "Products").map((product) => (
+                        <label
+                          key={product.id}
+                          className={cn(
+                            "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                            selectedCampaignProducts.includes(product.name)
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedCampaignProducts.includes(product.name)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCampaignProducts([...selectedCampaignProducts, product.name]);
+                              } else {
+                                setSelectedCampaignProducts(selectedCampaignProducts.filter(p => p !== product.name));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{product.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Services */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Services</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableProducts.filter(p => p.category === "Services").map((product) => (
+                        <label
+                          key={product.id}
+                          className={cn(
+                            "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                            selectedCampaignProducts.includes(product.name)
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedCampaignProducts.includes(product.name)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCampaignProducts([...selectedCampaignProducts, product.name]);
+                              } else {
+                                setSelectedCampaignProducts(selectedCampaignProducts.filter(p => p !== product.name));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{product.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Description */}
             <div className="space-y-2">
               <Label>Campaign Description</Label>
@@ -1029,6 +1201,122 @@ export default function Marketing() {
                   </div>
                 </button>
               </div>
+            </div>
+
+            {/* Target Products/Services */}
+            <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Target Products/Services
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewCoupon({ ...newCoupon, targetScope: "all" });
+                    setSelectedCouponProducts([]);
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCoupon.targetScope === "all" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">All Products</div>
+                    <div className="text-xs text-muted-foreground">Apply to everything</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewCoupon({ ...newCoupon, targetScope: "specific" })}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                    newCoupon.targetScope === "specific" 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <Package className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-left">
+                    <div className="font-medium">Specific Items</div>
+                    <div className="text-xs text-muted-foreground">Select products/services</div>
+                  </div>
+                </button>
+              </div>
+              
+              {newCoupon.targetScope === "specific" && (
+                <div className="space-y-3 mt-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Select Products & Services</Label>
+                    {selectedCouponProducts.length > 0 && (
+                      <Badge variant="secondary">{selectedCouponProducts.length} selected</Badge>
+                    )}
+                  </div>
+                  
+                  {/* Products */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Products</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableProducts.filter(p => p.category === "Products").map((product) => (
+                        <label
+                          key={product.id}
+                          className={cn(
+                            "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                            selectedCouponProducts.includes(product.name)
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedCouponProducts.includes(product.name)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCouponProducts([...selectedCouponProducts, product.name]);
+                              } else {
+                                setSelectedCouponProducts(selectedCouponProducts.filter(p => p !== product.name));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{product.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Services */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Services</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableProducts.filter(p => p.category === "Services").map((product) => (
+                        <label
+                          key={product.id}
+                          className={cn(
+                            "flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all",
+                            selectedCouponProducts.includes(product.name)
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted/50"
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedCouponProducts.includes(product.name)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCouponProducts([...selectedCouponProducts, product.name]);
+                              } else {
+                                setSelectedCouponProducts(selectedCouponProducts.filter(p => p !== product.name));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{product.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Validity */}
