@@ -825,9 +825,9 @@ export function QuoteManagement() {
                     {getStatusConfig(selectedQuote.status).label}
                   </Badge>
                 </div>
-                {selectedQuote.subject && (
-                  <p className="text-sm text-muted-foreground mt-1">{selectedQuote.subject}</p>
-                )}
+                <DialogDescription>
+                  {selectedQuote.subject || `Quote details for ${selectedQuote.company}`}
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
