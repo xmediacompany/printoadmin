@@ -893,9 +893,12 @@ export function QuoteManagement() {
                           </div>
                           
                           <div className="flex items-center gap-2 p-3 rounded-lg bg-background/80 border">
-                            <code className="text-xs text-muted-foreground flex-1 truncate font-mono">
-                              {getResponseUrl(selectedQuote.clientResponseToken)}
-                            </code>
+                            <div className="flex-1 flex items-center gap-2 min-w-0">
+                              <span className="text-sm font-medium text-foreground">quote-link/</span>
+                              <code className="text-xs text-muted-foreground truncate font-mono bg-muted/50 px-2 py-0.5 rounded">
+                                {selectedQuote.id}
+                              </code>
+                            </div>
                             <Button
                               variant="default"
                               size="sm"
