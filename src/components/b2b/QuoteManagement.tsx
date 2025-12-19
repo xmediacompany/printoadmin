@@ -36,7 +36,10 @@ import {
   Paperclip,
   X,
   File,
-  Image
+  Image,
+  Link,
+  ExternalLink,
+  MousePointerClick
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -52,6 +55,10 @@ interface Quote {
   createdDate: string;
   expiryDate: string;
   notes: string;
+  subject?: string;
+  clientResponseToken?: string;
+  viewedAt?: string;
+  respondedAt?: string;
 }
 
 const initialQuotes: Quote[] = [
@@ -158,12 +165,39 @@ export function QuoteManagement() {
     company: "",
     contactName: "",
     contactEmail: "",
+    subject: "",
     product: "",
     quantity: "",
     amount: "",
     expiryDays: "30",
     notes: "",
   });
+
+  const generateResponseToken = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  };
+
+  const getResponseUrl = (token: string) => {
+    return `${window.location.origin}/quote-response/${token}`;
+  };
+
+  const handleClientResponse = (quoteId: string, response: "viewed" | "accepted" | "rejected") => {
+    const now = new Date().toISOString();
+    setQuotes(quotes.map(q => {
+      if (q.id === quoteId) {
+        if (response === "viewed" && q.status === "sent") {
+          return { ...q, status: "viewed", viewedAt: now };
+        } else if (response === "accepted" || response === "rejected") {
+          return { ...q, status: response, respondedAt: now };
+        }
+      }
+      return q;
+    }));
+    toast({
+      title: response === "viewed" ? "Quote Viewed" : `Quote ${response.charAt(0).toUpperCase() + response.slice(1)}`,
+      description: `The client has ${response} the quote.`,
+    });
+  };
 
   const getStatusConfig = (status: Quote["status"]) => {
     switch (status) {
@@ -224,10 +258,10 @@ export function QuoteManagement() {
   const filteredQuotes = quotes.filter(q => filterStatus === "all" || q.status === filterStatus);
 
   const handleCreateQuote = () => {
-    if (!newQuote.company || !newQuote.product || !newQuote.amount) {
+    if (!newQuote.company || !newQuote.product || !newQuote.amount || !newQuote.contactEmail) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields including client email.",
         variant: "destructive",
       });
       return;
@@ -238,6 +272,7 @@ export function QuoteManagement() {
       company: newQuote.company,
       contactName: newQuote.contactName,
       contactEmail: newQuote.contactEmail,
+      subject: newQuote.subject || `Quote for ${newQuote.product}`,
       product: newQuote.product,
       quantity: newQuote.quantity,
       amount: newQuote.amount,
@@ -245,6 +280,7 @@ export function QuoteManagement() {
       createdDate: new Date().toISOString().split("T")[0],
       expiryDate: new Date(Date.now() + parseInt(newQuote.expiryDays) * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       notes: newQuote.notes,
+      clientResponseToken: generateResponseToken(),
     };
 
     setQuotes([quote, ...quotes]);
@@ -253,6 +289,7 @@ export function QuoteManagement() {
       company: "",
       contactName: "",
       contactEmail: "",
+      subject: "",
       product: "",
       quantity: "",
       amount: "",
@@ -267,10 +304,14 @@ export function QuoteManagement() {
   };
 
   const handleSendQuote = (quote: Quote) => {
-    setQuotes(quotes.map(q => q.id === quote.id ? { ...q, status: "sent" as const } : q));
+    setQuotes(quotes.map(q => q.id === quote.id ? { 
+      ...q, 
+      status: "sent" as const,
+      clientResponseToken: q.clientResponseToken || generateResponseToken()
+    } : q));
     toast({
       title: "Quote Sent",
-      description: `Quote ${quote.id} has been sent to ${quote.contactEmail}.`,
+      description: `Quote ${quote.id} has been sent to ${quote.contactEmail}. A response link has been generated.`,
     });
   };
 
@@ -543,14 +584,29 @@ export function QuoteManagement() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label>Contact Email</Label>
+                <Label className="flex items-center gap-1">
+                  Client Email *
+                  <Mail className="h-3 w-3 text-muted-foreground" />
+                </Label>
                 <Input
                   type="email"
-                  placeholder="email@company.com"
+                  placeholder="client@company.com"
                   value={newQuote.contactEmail}
                   onChange={(e) => setNewQuote({ ...newQuote, contactEmail: e.target.value })}
                 />
               </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label className="flex items-center gap-1">
+                Subject
+                <span className="text-xs text-muted-foreground">(Email subject line)</span>
+              </Label>
+              <Input
+                placeholder="e.g., Quote for Business Cards - Tech Solutions Inc."
+                value={newQuote.subject}
+                onChange={(e) => setNewQuote({ ...newQuote, subject: e.target.value })}
+              />
             </div>
 
             <Separator />
@@ -756,7 +812,7 @@ export function QuoteManagement() {
 
       {/* View Quote Dialog */}
       <Dialog open={viewQuoteOpen} onOpenChange={setViewQuoteOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[550px]">
           {selectedQuote && (
             <>
               <DialogHeader>
@@ -769,6 +825,9 @@ export function QuoteManagement() {
                     {getStatusConfig(selectedQuote.status).label}
                   </Badge>
                 </div>
+                {selectedQuote.subject && (
+                  <p className="text-sm text-muted-foreground mt-1">{selectedQuote.subject}</p>
+                )}
               </DialogHeader>
 
               <div className="space-y-4 py-4">
@@ -809,6 +868,111 @@ export function QuoteManagement() {
                 </div>
 
                 <Separator />
+
+                {/* Client Response Section */}
+                {selectedQuote.clientResponseToken && selectedQuote.status !== "draft" && (
+                  <>
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <MousePointerClick className="h-4 w-4" />
+                        Client Response Link
+                      </h4>
+                      <div className="p-3 rounded-lg bg-muted/50 border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Link className="h-4 w-4 text-primary" />
+                          <span className="text-xs text-muted-foreground flex-1 truncate">
+                            {getResponseUrl(selectedQuote.clientResponseToken)}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2"
+                            onClick={() => {
+                              navigator.clipboard.writeText(getResponseUrl(selectedQuote.clientResponseToken!));
+                              toast({
+                                title: "Link Copied",
+                                description: "Client response link copied to clipboard.",
+                              });
+                            }}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Share this link with the client. They can view and respond to the quote.
+                        </p>
+                      </div>
+
+                      {/* Response Status Timeline */}
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">Response Status</p>
+                        <div className="space-y-1">
+                          {selectedQuote.viewedAt && (
+                            <div className="flex items-center gap-2 text-xs">
+                              <Eye className="h-3 w-3 text-purple-500" />
+                              <span>Viewed on {new Date(selectedQuote.viewedAt).toLocaleString()}</span>
+                            </div>
+                          )}
+                          {selectedQuote.respondedAt && (
+                            <div className="flex items-center gap-2 text-xs">
+                              {selectedQuote.status === "accepted" ? (
+                                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                              ) : (
+                                <XCircle className="h-3 w-3 text-red-500" />
+                              )}
+                              <span>
+                                {selectedQuote.status === "accepted" ? "Accepted" : "Rejected"} on{" "}
+                                {new Date(selectedQuote.respondedAt).toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Simulate Client Response (for demo) */}
+                      {["sent", "viewed"].includes(selectedQuote.status) && (
+                        <div className="p-3 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
+                          <p className="text-xs font-medium mb-2 flex items-center gap-1 text-primary">
+                            <Sparkles className="h-3 w-3" />
+                            Simulate Client Response
+                          </p>
+                          <div className="flex gap-2">
+                            {selectedQuote.status === "sent" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs h-8"
+                                onClick={() => handleClientResponse(selectedQuote.id, "viewed")}
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                Mark as Viewed
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 text-xs h-8 text-emerald-600 border-emerald-300 hover:bg-emerald-50"
+                              onClick={() => handleClientResponse(selectedQuote.id, "accepted")}
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 text-xs h-8 text-red-600 border-red-300 hover:bg-red-50"
+                              onClick={() => handleClientResponse(selectedQuote.id, "rejected")}
+                            >
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <Separator />
+                  </>
+                )}
 
                 {/* Dates */}
                 <div className="grid grid-cols-2 gap-4">
