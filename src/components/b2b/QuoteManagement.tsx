@@ -869,101 +869,226 @@ export function QuoteManagement() {
 
                 <Separator />
 
-                {/* Client Response Section */}
-                {selectedQuote.clientResponseToken && selectedQuote.status !== "draft" && (
+                {/* Shareable Link Section */}
+                {selectedQuote.clientResponseToken && (
                   <>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                        <MousePointerClick className="h-4 w-4" />
-                        Client Response Link
+                        <Link className="h-4 w-4" />
+                        Shareable Quote Link
                       </h4>
-                      <div className="p-3 rounded-lg bg-muted/50 border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Link className="h-4 w-4 text-primary" />
-                          <span className="text-xs text-muted-foreground flex-1 truncate">
-                            {getResponseUrl(selectedQuote.clientResponseToken)}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => {
-                              navigator.clipboard.writeText(getResponseUrl(selectedQuote.clientResponseToken!));
-                              toast({
-                                title: "Link Copied",
-                                description: "Client response link copied to clipboard.",
-                              });
-                            }}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
+                      
+                      {/* Main Link Card */}
+                      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 p-4">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                        <div className="relative">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                              <ExternalLink className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold">Client Quote Portal</p>
+                              <p className="text-xs text-muted-foreground">Share with your client to view & respond</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-background/80 border">
+                            <code className="text-xs text-muted-foreground flex-1 truncate font-mono">
+                              {getResponseUrl(selectedQuote.clientResponseToken)}
+                            </code>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="shrink-0 h-8"
+                              onClick={() => {
+                                navigator.clipboard.writeText(getResponseUrl(selectedQuote.clientResponseToken!));
+                                toast({
+                                  title: "Link Copied!",
+                                  description: "Share this link with your client via email or message.",
+                                });
+                              }}
+                            >
+                              <Copy className="h-3 w-3 mr-1" />
+                              Copy Link
+                            </Button>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Eye className="h-3 w-3" />
+                              Clients can view details
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Accept or reject
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Share this link with the client. They can view and respond to the quote.
-                        </p>
                       </div>
 
-                      {/* Response Status Timeline */}
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Response Status</p>
-                        <div className="space-y-1">
-                          {selectedQuote.viewedAt && (
-                            <div className="flex items-center gap-2 text-xs">
-                              <Eye className="h-3 w-3 text-purple-500" />
-                              <span>Viewed on {new Date(selectedQuote.viewedAt).toLocaleString()}</span>
+                      {/* Status Timeline */}
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quote Journey Timeline</p>
+                        <div className="relative pl-6 space-y-4">
+                          {/* Timeline line */}
+                          <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-primary via-primary/50 to-muted" />
+                          
+                          {/* Created */}
+                          <div className="relative flex items-start gap-3">
+                            <div className="absolute left-[-24px] w-5 h-5 rounded-full bg-primary flex items-center justify-center ring-4 ring-background">
+                              <FileText className="h-3 w-3 text-primary-foreground" />
                             </div>
-                          )}
-                          {selectedQuote.respondedAt && (
-                            <div className="flex items-center gap-2 text-xs">
+                            <div className="flex-1 pb-2">
+                              <p className="text-sm font-medium">Quote Created</p>
+                              <p className="text-xs text-muted-foreground">{selectedQuote.createdDate}</p>
+                            </div>
+                            <Badge variant="outline" className="text-xs">Complete</Badge>
+                          </div>
+                          
+                          {/* Sent */}
+                          <div className="relative flex items-start gap-3">
+                            <div className={`absolute left-[-24px] w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-background ${
+                              ["sent", "viewed", "accepted", "rejected", "expired"].includes(selectedQuote.status) 
+                                ? "bg-blue-500" : "bg-muted"
+                            }`}>
+                              <Send className={`h-3 w-3 ${
+                                ["sent", "viewed", "accepted", "rejected", "expired"].includes(selectedQuote.status) 
+                                  ? "text-white" : "text-muted-foreground"
+                              }`} />
+                            </div>
+                            <div className="flex-1 pb-2">
+                              <p className={`text-sm font-medium ${
+                                !["sent", "viewed", "accepted", "rejected", "expired"].includes(selectedQuote.status) 
+                                  ? "text-muted-foreground" : ""
+                              }`}>Quote Sent</p>
+                              <p className="text-xs text-muted-foreground">
+                                {["sent", "viewed", "accepted", "rejected", "expired"].includes(selectedQuote.status) 
+                                  ? "Delivered to client" : "Pending"}
+                              </p>
+                            </div>
+                            {["sent", "viewed", "accepted", "rejected", "expired"].includes(selectedQuote.status) && (
+                              <Badge variant="outline" className="text-xs text-blue-600 border-blue-200">Sent</Badge>
+                            )}
+                          </div>
+                          
+                          {/* Viewed */}
+                          <div className="relative flex items-start gap-3">
+                            <div className={`absolute left-[-24px] w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-background ${
+                              selectedQuote.viewedAt || ["viewed", "accepted", "rejected"].includes(selectedQuote.status)
+                                ? "bg-purple-500" : "bg-muted"
+                            }`}>
+                              <Eye className={`h-3 w-3 ${
+                                selectedQuote.viewedAt || ["viewed", "accepted", "rejected"].includes(selectedQuote.status)
+                                  ? "text-white" : "text-muted-foreground"
+                              }`} />
+                            </div>
+                            <div className="flex-1 pb-2">
+                              <p className={`text-sm font-medium ${
+                                !selectedQuote.viewedAt && !["viewed", "accepted", "rejected"].includes(selectedQuote.status)
+                                  ? "text-muted-foreground" : ""
+                              }`}>Client Viewed</p>
+                              <p className="text-xs text-muted-foreground">
+                                {selectedQuote.viewedAt 
+                                  ? new Date(selectedQuote.viewedAt).toLocaleString()
+                                  : ["viewed", "accepted", "rejected"].includes(selectedQuote.status)
+                                    ? "Quote was viewed"
+                                    : "Waiting for client"}
+                              </p>
+                            </div>
+                            {(selectedQuote.viewedAt || ["viewed", "accepted", "rejected"].includes(selectedQuote.status)) && (
+                              <Badge variant="outline" className="text-xs text-purple-600 border-purple-200">Viewed</Badge>
+                            )}
+                          </div>
+                          
+                          {/* Response */}
+                          <div className="relative flex items-start gap-3">
+                            <div className={`absolute left-[-24px] w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-background ${
+                              selectedQuote.status === "accepted" ? "bg-emerald-500" 
+                              : selectedQuote.status === "rejected" ? "bg-red-500"
+                              : selectedQuote.status === "expired" ? "bg-amber-500"
+                              : "bg-muted"
+                            }`}>
                               {selectedQuote.status === "accepted" ? (
-                                <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                                <CheckCircle2 className="h-3 w-3 text-white" />
+                              ) : selectedQuote.status === "rejected" ? (
+                                <XCircle className="h-3 w-3 text-white" />
+                              ) : selectedQuote.status === "expired" ? (
+                                <Clock className="h-3 w-3 text-white" />
                               ) : (
-                                <XCircle className="h-3 w-3 text-red-500" />
+                                <MousePointerClick className="h-3 w-3 text-muted-foreground" />
                               )}
-                              <span>
-                                {selectedQuote.status === "accepted" ? "Accepted" : "Rejected"} on{" "}
-                                {new Date(selectedQuote.respondedAt).toLocaleString()}
-                              </span>
                             </div>
-                          )}
+                            <div className="flex-1">
+                              <p className={`text-sm font-medium ${
+                                !["accepted", "rejected", "expired"].includes(selectedQuote.status)
+                                  ? "text-muted-foreground" : ""
+                              }`}>
+                                {selectedQuote.status === "accepted" ? "Quote Accepted" 
+                                : selectedQuote.status === "rejected" ? "Quote Rejected"
+                                : selectedQuote.status === "expired" ? "Quote Expired"
+                                : "Client Response"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {selectedQuote.respondedAt 
+                                  ? new Date(selectedQuote.respondedAt).toLocaleString()
+                                  : selectedQuote.status === "expired" 
+                                    ? `Expired on ${selectedQuote.expiryDate}`
+                                    : "Awaiting response"}
+                              </p>
+                            </div>
+                            {selectedQuote.status === "accepted" && (
+                              <Badge className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Accepted</Badge>
+                            )}
+                            {selectedQuote.status === "rejected" && (
+                              <Badge className="text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Rejected</Badge>
+                            )}
+                            {selectedQuote.status === "expired" && (
+                              <Badge className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Expired</Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
 
                       {/* Simulate Client Response (for demo) */}
                       {["sent", "viewed"].includes(selectedQuote.status) && (
-                        <div className="p-3 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
-                          <p className="text-xs font-medium mb-2 flex items-center gap-1 text-primary">
-                            <Sparkles className="h-3 w-3" />
-                            Simulate Client Response
+                        <div className="p-4 rounded-xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
+                              <Sparkles className="h-3 w-3 text-primary" />
+                            </div>
+                            <p className="text-sm font-semibold text-primary">Demo: Simulate Client Actions</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Test how the quote status changes when clients interact with the link.
                           </p>
                           <div className="flex gap-2">
                             {selectedQuote.status === "sent" && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="flex-1 text-xs h-8"
+                                className="flex-1 text-xs h-9"
                                 onClick={() => handleClientResponse(selectedQuote.id, "viewed")}
                               >
-                                <Eye className="h-3 w-3 mr-1" />
-                                Mark as Viewed
+                                <Eye className="h-3 w-3 mr-1.5" />
+                                Mark Viewed
                               </Button>
                             )}
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1 text-xs h-8 text-emerald-600 border-emerald-300 hover:bg-emerald-50"
+                              className="flex-1 text-xs h-9 text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                               onClick={() => handleClientResponse(selectedQuote.id, "accepted")}
                             >
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              <CheckCircle2 className="h-3 w-3 mr-1.5" />
                               Accept
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1 text-xs h-8 text-red-600 border-red-300 hover:bg-red-50"
+                              className="flex-1 text-xs h-9 text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
                               onClick={() => handleClientResponse(selectedQuote.id, "rejected")}
                             >
-                              <XCircle className="h-3 w-3 mr-1" />
+                              <XCircle className="h-3 w-3 mr-1.5" />
                               Reject
                             </Button>
                           </div>
